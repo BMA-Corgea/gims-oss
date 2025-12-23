@@ -1,0 +1,23 @@
+{
+  "fields": {
+    "Star Spirit Name": {
+      "type": "string",
+      "required": true
+    },
+    "Star Spirit Ability": {
+      "type": "adjective",
+      "adjective_class": "Reference"
+    },
+    "Star Spirit ID": {
+      "type": "string",
+      "required": true
+    },
+    "Time of Capture": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "primary_id_field": "Star Spirit ID",
+  "autogenerate_id": false,
+  "autogenerate_segments": []
+}

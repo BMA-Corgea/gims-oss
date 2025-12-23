@@ -1,0 +1,19 @@
+{
+  "description": "A single testable unit submitted to the lab.",
+  "fields": {
+    "sample_id": {
+      "type": "float",
+      "required": true
+    },
+    "received_date": {
+      "type": "string"
+    },
+    "type_of_material": {
+      "type": "adjective",
+      "adjective_type": "ActionRequirement",
+      "required": true
+    }
+  },
+  "primary_id_field": "sample_id",
+  "autogenerate_id": false
+}

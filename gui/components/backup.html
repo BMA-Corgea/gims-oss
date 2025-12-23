@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>GIMS — Storage / Backup</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/static/styles/backup.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <h1>Storage / Backup</h1>
+      <span class="badge">GIMS</span>
+    </div>
+    <div class="project-selector">
+      <label for="projectSelect">Project</label>
+      <select id="projectSelect"></select>
+      <button id="loadBtn" class="btn">Load</button>
+      <button id="refreshBtn" class="btn ghost" title="Refresh backups">⟳</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Backup Now -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Backup Now</h2>
+      </div>
+      <div class="panel-body grid-3">
+        <div class="field">
+          <label for="backupType">Type</label>
+          <select id="backupType">
+            <option value="hybrid">Hybrid (ZIP + SQLite)</option>
+            <option value="zip">ZIP (files only)</option>
+            <option value="sqlite">SQLite (databases only)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="backupNotes">Notes (optional)</label>
+          <input id="backupNotes" type="text" maxlength="200" placeholder="Before schema migration…">
+        </div>
+        <div class="field">
+          <label class="checkbox">
+            <input id="backupParanoid" type="checkbox">
+            <span>Write checksums.txt (paranoid mode)</span>
+          </label>
+        </div>
+        <div class="field col-span-3 small-muted">
+          Backups are saved to <code>GIMS-Project/backups/&lt;project&gt;/&lt;YYYY-MM-DD&gt;/&lt;backup_id&gt;/</code>.
+        </div>
+        <div class="field col-span-3">
+          <button id="backupNowBtn" class="btn primary">Backup Now</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Backups -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Backups</h2>
+        <div class="counts"><span id="countLabel">0</span></div>
+      </div>
+      <div id="backupsEmpty" class="empty hidden">
+        <p>No backups yet. Create one using “Backup Now”.</p>
+      </div>
+      <div class="table-wrap">
+        <table class="table" id="backupsTable" aria-label="Backups">
+          <thead>
+            <tr>
+              <th>Created</th>
+              <th>Type</th>
+              <th>Size</th>
+              <th>Notes</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="backupsTbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Schedules -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Schedules</h2>
+        <div class="actions-right">
+          <button id="tickBtn" class="btn small ghost" title="Run due schedules now">Run due now</button>
+          <button id="refreshSchedulesBtn" class="btn small ghost" title="Refresh schedules">⟳</button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="grid-4">
+          <div class="field">
+            <label for="schType">Backup type</label>
+            <select id="schType">
+              <option value="hybrid">Hybrid</option>
+              <option value="zip">ZIP</option>
+              <option value="sqlite">SQLite</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="schFrequency">Frequency</label>
+            <select id="schFrequency">
+              <option value="hourly">Hourly</option>
+              <option value="daily" selected>Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="schHour">Hour (0–23)</label>
+            <input id="schHour" type="number" min="0" max="23" value="2">
+          </div>
+          <div class="field">
+            <label for="schMinute">Minute (0–59)</label>
+            <input id="schMinute" type="number" min="0" max="59" value="0">
+          </div>
+
+          <div class="field conditional weekly hidden">
+            <label for="schDow">Day of week (0=Mon…6=Sun)</label>
+            <input id="schDow" type="number" min="0" max="6" value="0">
+          </div>
+          <div class="field conditional monthly hidden">
+            <label for="schDom">Day of month (1–28)</label>
+            <input id="schDom" type="number" min="1" max="28" value="1">
+          </div>
+
+          <div class="field">
+            <label for="schKeep">Retention (keep last N)</label>
+            <input id="schKeep" type="number" min="1" value="10">
+          </div>
+          <div class="field col-span-2">
+            <label for="schNotes">Notes (optional)</label>
+            <input id="schNotes" type="text" maxlength="200" placeholder="Nightly save state…">
+          </div>
+          <div class="field col-span-4 small-muted">
+            Scheduled backups are saved to <code>GIMS-Project/backups/&lt;project&gt;/…</code>.
+          </div>
+          <div class="field col-span-4">
+            <button id="createScheduleBtn" class="btn">Create schedule</button>
+          </div>
+        </div>
+
+        <div class="table-wrap mtop">
+          <table class="table" id="schedulesTable" aria-label="Schedules">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>When</th>
+                <th>Keep</th>
+                <th>Enabled</th>
+                <th>Next / Last</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="schedulesTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Details Modal -->
+  <div id="detailsModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="detailsTitle">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="detailsTitle">Backup Details</h3>
+        <button id="detailsClose" class="icon-btn" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="detailsContent" class="mono small"></div>
+        <div id="downloadsBlock" class="downloads"></div>
+      </div>
+      <div class="modal-foot">
+        <button id="detailsClose2" class="btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toasts -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Debug Panel -->
+  <footer class="debug-dock">
+    <details open>
+      <summary>Debug panel</summary>
+      <div class="debug-row">
+        <label class="checkbox">
+          <input id="debugToggle" type="checkbox" checked>
+          <span>Enable debug logs</span>
+        </label>
+        <button id="clearDebugBtn" class="btn ghost small">Clear</button>
+      </div>
+      <pre id="debugLog" class="debug-log" aria-live="polite"></pre>
+    </details>
+  </footer>
+
+  <script src="/static/scripts/backup.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+{
+  "fields": {
+    "asdfasdf": {
+      "type": "string",
+      "required": true
+    },
+    "fdafdsafas": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "primary_id_field": "asdfasdf",
+  "autogenerate_id": true,
+  "autogenerate_segments": [
+    {
+      "type": "static",
+      "value": "xd"
+    },
+    {
+      "type": "number",
+      "start": 0,
+      "length": 4
+    }
+  ]
+}

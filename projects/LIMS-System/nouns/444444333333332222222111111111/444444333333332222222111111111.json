@@ -1,0 +1,19 @@
+{
+  "fields": {
+    "ffffffdddddddsssssaaaaaa": {
+      "type": "string",
+      "required": true
+    },
+    "ghahaha4r4r4gg545454": {
+      "type": "string",
+      "required": true
+    },
+    "ybarahtrrdadadaga423423433333": {
+      "type": "adjective",
+      "adjective_class": "Reference"
+    }
+  },
+  "primary_id_field": "ffffffdddddddsssssaaaaaa",
+  "autogenerate_id": false,
+  "autogenerate_segments": []
+}

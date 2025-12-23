@@ -1,0 +1,14 @@
+{
+  "resolver_module": "api.manifest.rds_resolver_aws",
+  "provider": "aws",
+  "region_name": "us-east-1",
+  "secret_names": {
+    "object_sql_db": "GIMS_Aurora_Objects",
+    "archive_sql_db": "GIMS_Aurora_Archive",
+    "nodes_db": "GIMS_Aurora_Nodes",
+    "logins_db": "GIMS_Aurora_Logins"
+  },
+  "engine": "aurora-postgresql",
+  "default_db": "postgres",
+  "sslmode": "require"
+}

@@ -1,0 +1,15 @@
+{
+  "description": "Mario Mario",
+  "fields": {
+    "date_Marioed": {
+      "type": "date",
+      "required": true
+    },
+    "Stewigi": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "primary_id_field": "Stewigi",
+  "autogenerate_id": true
+}

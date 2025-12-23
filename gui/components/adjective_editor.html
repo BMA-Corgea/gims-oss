@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+  <meta charset="UTF-8">
+  <title>Adjective Editor</title>
+  <link rel="stylesheet" href="/static/styles/adjective_editor.css">
+</head>
+<body>
+  <header>
+    <h1>Adjective Editor</h1>
+    <div class="selectors">
+      <label>Project
+        <select id="project"></select>
+      </label>
+      <label>Noun
+        <select id="noun"></select>
+      </label>
+      <button id="load-noun">Load Adjectives</button>
+    </div>
+  </header>
+
+  <main id="editor-container">
+    <!-- adjectives rendered here -->
+  </main>
+
+  <footer>
+    <p id="status">Ready</p>
+  </footer>
+  <script>
+    // remove any leftover static loader
+    document.querySelectorAll('script[src^="/static/scripts/adjective_editor.js"]').forEach(el => el.remove());
+    // inject a cache-busted loader
+    const s = document.createElement("script");
+    s.src = `/static/scripts/adjective_editor.js?v=${Date.now()}`;
+    document.body.appendChild(s);
+  </script>
+</body>
+</html>

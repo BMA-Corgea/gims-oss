@@ -1,0 +1,40 @@
+{
+  "fields": {
+    "sadfasdfasdf": {
+      "type": "date",
+      "required": true
+    },
+    "ggggggggg": {
+      "type": "float",
+      "required": true
+    },
+    "444444444": {
+      "type": "date",
+      "required": true
+    },
+    "fsaf333333": {
+      "type": "string"
+    },
+    "111aaa111ll22": {
+      "type": "float",
+      "required": true
+    }
+  },
+  "primary_id_field": "sadfasdfasdf",
+  "autogenerate_id": true,
+  "autogenerate_segments": [
+    {
+      "type": "static",
+      "value": "111111111"
+    },
+    {
+      "type": "letter",
+      "start": "0"
+    },
+    {
+      "type": "number",
+      "start": "4",
+      "length": 4
+    }
+  ]
+}

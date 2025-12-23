@@ -1,0 +1,8 @@
+{
+  "Sample": {
+    "singular": "sample",
+    "plural": "samples",
+    "short": "SMP",
+    "capitalize": true
+  }
+}

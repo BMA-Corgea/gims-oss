@@ -1,0 +1,28 @@
+{
+  "description": "What the client gives the lab for testing",
+  "fields": {
+    "submission_id": {
+      "type": "date"
+    },
+    "received_date": {
+      "type": "string",
+      "required": true
+    },
+    "sample_type": {
+      "type": "float"
+    },
+    "weight": {
+      "type": "string"
+    },
+    "request": {
+      "type": "date",
+      "required": true
+    },
+    "comments": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "primary_id_field": "submission_id",
+  "autogenerate_id": true
+}

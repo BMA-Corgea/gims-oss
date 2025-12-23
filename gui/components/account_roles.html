@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>GIMS — Accounts & Roles</title>
+
+  <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/static/styles/account_roles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">🛂</span>
+      <h1>Accounts & Roles Admin</h1>
+    </div>
+
+    <div class="project-picker">
+      <label for="projectSelect">Project:</label>
+      <select id="projectSelect"></select>
+      <button id="refreshBtn" class="ghost">Refresh</button>
+    </div>
+  </header>
+
+  <main>
+    <nav class="tabs">
+      <button class="tab active" data-target="#tab-pending">Pending</button>
+      <button class="tab" data-target="#tab-users">Users</button>
+      <button class="tab" data-target="#tab-roles">Roles</button>
+      <button class="tab" data-target="#tab-audit">Audit</button>
+      <button class="tab" data-target="#tab-policies">Policies</button>
+      <button class="tab" data-target="#tab-project-code">Project Code</button>
+      <!-- Admin tab will be injected dynamically if the user is a superuser -->
+      <button class="tab" data-target="#tab-debug">Debug</button>
+    </nav>
+
+    <section id="tab-pending" class="panel active">
+      <div class="panel-head">
+        <h2>Pending Accounts</h2>
+        <p>Approve or reject new accounts. Assign roles on approval.</p>
+      </div>
+      <div id="pendingList" class="card-list"></div>
+    </section>
+
+    <section id="tab-users" class="panel">
+      <div class="panel-head">
+        <h2>Users</h2>
+        <div class="inline-actions">
+          <input id="userFilter" type="text" placeholder="Filter by email…" />
+          <button id="reloadUsersBtn" class="ghost">Reload</button>
+        </div>
+      </div>
+      <div id="usersList" class="card-list"></div>
+    </section>
+
+    <section id="tab-roles" class="panel">
+      <div class="panel-head">
+        <h2>Roles</h2>
+        <div class="inline-actions">
+          <button id="exportRolesBtn" class="ghost">Export JSON</button>
+        </div>
+      </div>
+
+      <div class="grid two-col gap">
+        <div class="card">
+          <h3>Create Role</h3>
+          <div class="form-grid">
+            <label for="roleName">Name</label>
+            <input id="roleName" placeholder="e.g. analyst" />
+
+            <label for="roleDesc">Description</label>
+            <input id="roleDesc" placeholder="Short description" />
+          </div>
+
+          <div class="form-group" style="margin-top: 1.5rem;">
+            <label>Role Permissions</label>
+            <div id="rolePerms" class="permissions-container" aria-live="polite">
+              <div class="muted">Loading available nouns, verb groups, modules, and gates…</div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button id="createRoleBtn" class="primary">Create Role</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Existing Roles</h3>
+          <div id="rolesList" class="list"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Role Usage</h3>
+        <pre id="roleUsage" class="code"></pre>
+      </div>
+    </section>
+
+    <section id="tab-audit" class="panel">
+      <div class="panel-head">
+        <h2>Audit Log</h2>
+        <div class="inline-actions">
+          <label>Limit</label>
+          <input id="auditLimit" type="number" value="200" min="10" step="10" />
+          <button id="reloadAuditBtn" class="ghost">Reload</button>
+        </div>
+      </div>
+      <div id="auditTable" class="table"></div>
+    </section>
+
+    <section id="tab-policies" class="panel">
+      <div class="panel-head">
+        <h2>Policies</h2>
+        <p>Password policy & MFA can be configured here. Includes password reset helpers (Beta).</p>
+      </div>
+
+      <div class="card">
+        <div class="form-grid">
+          <label for="polMinLen">Minimum Password Length</label>
+          <input id="polMinLen" type="number" value="8" min="6" />
+
+          <label for="polMfa">MFA Required</label>
+          <select id="polMfa">
+            <option value="false">No</option>
+            <option value="true">Yes</option>
+          </select>
+        </div>
+        <div class="actions">
+          <button id="savePoliciesBtn" class="primary">Save Policies</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Password Reset (Beta)</h3>
+        <div class="form-grid">
+          <label for="resetEmail">Issue reset token (email)</label>
+          <input id="resetEmail" type="email" placeholder="user@example.com" />
+          <div class="row">
+            <button id="issueResetBtn" class="ghost">Issue Token</button>
+            <button id="copyIssuedTokenBtn" class="ghost">Copy Latest Token</button>
+          </div>
+          <input id="issuedTokenOut" placeholder="issued token appears here" readonly />
+
+          <label for="resetToken">Perform reset (paste token)</label>
+          <input id="resetToken" placeholder="paste reset token" />
+          <label for="resetNewPass">New password</label>
+          <input id="resetNewPass" type="password" placeholder="new password (min 8 chars)" />
+        </div>
+        <div class="actions">
+          <button id="performResetBtn" class="primary">Perform Reset</button>
+        </div>
+        <p class="muted small">Note: These Beta flows require you to be signed in and will validate a CSRF cookie behind the scenes.</p>
+      </div>
+
+      <div class="card">
+        <h3>Session Management</h3>
+        <div class="form-grid">
+          <label for="revokeUserId">User ID (to revoke sessions)</label>
+          <input id="revokeUserId" placeholder="uuid…" />
+        </div>
+        <div class="actions">
+          <button id="revokeSessionsBtn" class="danger">Revoke Sessions (placeholder)</button>
+        </div>
+        <p class="muted">Note: JWT is stateless; true revocation requires token versioning or a JTI blacklist.</p>
+      </div>
+    </section>
+
+    <section id="tab-project-code" class="panel">
+      <div class="panel-head">
+        <h2>Project Code</h2>
+        <div class="inline-actions">
+          <button id="reloadProjectCodeBtn" class="ghost">Reload</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="muted">This value is read from the project's <code>config.json</code> via the API.</p>
+        <div class="form-grid">
+          <label for="projectCodeOut">project_code</label>
+          <input id="projectCodeOut" readonly placeholder="(not loaded)" />
+        </div>
+        <div class="actions">
+          <button id="copyProjectCodeBtn" class="ghost">Copy</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Admin tab & panel will be injected dynamically for superusers -->
+
+    <section id="tab-debug" class="panel">
+      <div class="panel-head">
+        <h2>Debug</h2>
+      </div>
+      <div class="card">
+        <pre id="debugOut" class="code"></pre>
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/scripts/account_roles.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+/* Root theme */
+* {
+  color: white;
+  background: black;
+  border: none;
+  padding: 1;
+}
+
+/* Title Header */
+#title {
+  text-style: bold;
+  color: cyan;
+  padding: 1;
+  border-bottom: heavy;
+}
+
+/* Noun Table */
+#noun_table {
+  border: round white;
+  padding: 1;
+  height: 30%;
+  scrollbar-color: gray;
+}
+
+/* Output Box for Lineage */
+#output {
+  background: #111111;
+  color: #dddddd;
+  border: round blue;
+  padding: 1;
+  height: 60%;
+  overflow-y: auto;    /* NEW: vertical scrolling */
+  text-wrap: nowrap;      /* NEW: preserve spacing/indentation */
+}
+
+
+/* Header/Footer defaults */
+Header, Footer {
+  background: #222222;
+  color: gray;
+  text-style: bold;
+}
+
+/* Buttons */
+Button {
+  background: darkgreen;
+  color: white;
+  border: round;
+  padding: 1;
+  text-style: bold;
+}
+
+/* dark monospace minimal */
+body      { font-family: monospace; background:#111; color:#eee; padding:1rem; }
+.row      { display:flex; gap:.5rem; margin-bottom:1rem; }
+input     { background:#222; color:#eee; border:1px solid #444; padding:.2rem .4rem; }
+button    { background:#333; color:#eee; border:1px solid #555; padding:.3rem .7rem; cursor:pointer; }
+button.pill { border-radius:9999px; margin:.2rem 0; }
+.card     { background:#1a1a1a; border:1px solid #444; padding:1rem; margin-top:1rem; width:fit-content; }
+label     { display:block; margin-bottom:.4rem; }
+pre       { margin-top:1rem; white-space:pre-wrap; color:#6f6; }
+

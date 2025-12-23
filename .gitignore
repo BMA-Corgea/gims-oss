@@ -1,0 +1,80 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environments
+venv/
+.env/
+.venv/
+node_modules/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# VSCode and Codium settings
+.vscode/
+.history/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Output folders (optional)
+output/
+
+# Ignore all Docker image tarballs
+*.tar
+
+# Ignore the zip file that's used for deployment
+*.zip
+
+# Optionally: ignore specific image folders in each docker subdir
+docker/*/images/
+projects/*/nouns/*/images/
+
+#I still want the backup schedule to be tracked
+!backups/_config/schedules.json
+
+# Ignore all content in the backups folder
+backups/*
+
+# But DO NOT ignore the _config sub-directory
+!backups/_config/
+
+# Ignore all content within the _config sub-directory
+backups/_config/*
+
+# EXCEPT for the schedules.json file
+!backups/_config/schedules.json
+
+#Ignore the gims-electron folder contents
+gims-electron/*
+
+#Don't ignore index, main, and package.json from the gims-electron folder
+!gims-electron/index.html
+!gims-electron/main.js
+!gims-electron/package.json
+
+#Ignore the large parts that make exe files
+build/
+dist/
+
+# ------------------------------------------------------------------
+# AWS credentials / local configuration (security-sensitive)
+# ------------------------------------------------------------------
+
+# Default AWS CLI credentials and config files
+.aws/
+.aws/credentials
+.aws/config
+
+# Common environment variable files
+.env
+.env.local
+.env.*.local
+
+# Any temporary AWS export scripts
+aws_credentials.sh
+aws_env.sh
+aws_test_creds.txt

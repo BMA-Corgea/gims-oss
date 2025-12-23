@@ -1,0 +1,6 @@
+{
+  "provider": "aws",
+  "region_name": "us-east-1",
+  "bucket_name": "gims-bucket",
+  "resolver_module": "api.manifest.s3_resolver_aws"
+}

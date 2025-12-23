@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+  <title>Capture Image</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 1em; }
+    video, canvas, img { max-width: 100%; margin: 1em 0; }
+    select, button { margin: 0.5em; padding: 0.5em; font-size: 1em; }
+  </style>
+</head>
+<body>
+  <h2>📸 Capture or Upload Photo</h2>
+
+  <p id="projectStatus"></p>
+
+  <label for="nounSelect">Choose Noun:</label><br/>
+  <select id="nounSelect" onchange="loadItems()">
+    <option disabled selected>Loading nouns...</option>
+  </select><br/>
+
+  <label for="itemSelect">Choose Item:</label><br/>
+  <select id="itemSelect">
+    <option disabled selected>Select a noun first</option>
+  </select><br/>
+
+  <button id="toggleModeBtn" onclick="toggleMode()">Switch to Webcam Mode</button><br/>
+  <button onclick="createNewItem()">➕ Add New Item</button><br/>
+
+  <div id="fileUploadSection">
+    <input type="file" accept="image/*" id="fileInput"><br/>
+  </div>
+
+  <div id="webcamSection" style="display:none;">
+    <video id="video" autoplay playsinline></video><br/>
+    <button id="snapBtn" onclick="snapPhoto()">📸 Snap Photo</button>
+  </div>
+
+  <button onclick="uploadImage()">Upload Image</button><br/>
+
+  <p id="status"></p>
+  <canvas id="canvas" style="display:none;"></canvas>
+  <img id="preview" style="display:none;"/>
+
+  <script>
+    // Get URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const projectName = urlParams.get('project');
+    const nounName = urlParams.get('noun');
+    const runID = urlParams.get('run'); // may be null
+
+    if (!projectName) {
+      document.getElementById("projectStatus").textContent = "❌ project required in URL (?project=YOUR_PROJECT)";
+      throw new Error("Missing project");
+    }
+
+    // 1) Always render Project / Noun / Run in the header
+    document.getElementById("projectStatus").textContent =
+      `🔧 Project: ${projectName}` +
+      `${nounName ? ", Noun: " + nounName : ""}` +
+      `${runID    ? ", Run: "  + runID    : ""}`;
+
+    // 2) Get the <select> once
+    const nounSelect = document.getElementById("nounSelect");
+
+    // 3) If nounName param exists → restrict to it
+    if (nounName) {
+      nounSelect.innerHTML = `<option value="${nounName}">${nounName}</option>`;
+      nounSelect.value = nounName;
+      loadItems();
+
+    // 4) Otherwise → fetch all nouns dynamically
+    } else {
+      nounSelect.innerHTML = `<option disabled>Loading nouns...</option>`;
+      fetch(`/list_nouns/${projectName}`)
+        .then(r => r.json())
+        .then(nouns => {
+          nounSelect.innerHTML = "";
+          if (nouns.length === 0) {
+            document.getElementById("status").textContent = "⚠️ No nouns with image adjectives found.";
+          } else {
+            nouns.forEach(n => {
+              const opt = document.createElement("option");
+              opt.value = n;
+              opt.textContent = n;
+              nounSelect.appendChild(opt);
+            });
+            loadItems();
+          }
+        })
+        .catch(err => {
+          console.error("Failed to load nouns:", err);
+          document.getElementById("status").textContent = "❌ Failed to load nouns.";
+        });
+    }
+
+    function loadItems(callback) {
+      const nounSelect = document.getElementById("nounSelect");
+      const noun_name = nounSelect.value;
+      const itemSelect = document.getElementById("itemSelect");
+
+      if (!noun_name) {
+        itemSelect.innerHTML = "<option disabled selected>Select a noun first</option>";
+        if (callback) callback();
+        return;
+      }
+
+      // build URL with optional run query
+      const url = `/list_items/${projectName}/${noun_name}` +
+                  (runID ? `?run=${encodeURIComponent(runID)}` : "");
+
+      fetch(url)
+        .then(response => response.json())
+        .then(items => {
+          itemSelect.innerHTML = "";
+
+          if (!items.length) {
+            itemSelect.innerHTML = "<option disabled selected>No items found for this noun/run</option>";
+          } else {
+            items.forEach(item_id => {
+              const opt = document.createElement("option");
+              opt.value = item_id;
+              opt.textContent = item_id;
+              itemSelect.appendChild(opt);
+            });
+          }
+
+          if (callback) callback();
+        })
+        .catch(err => {
+          console.error("Failed to load items:", err);
+          itemSelect.innerHTML = "<option disabled selected>Error loading items</option>";
+          if (callback) callback();
+        });
+    }
+
+    let currentMode = "file"; // initial mode
+
+    function toggleMode() {
+      const fileInput = document.getElementById("fileInput");
+      const fileSection = document.getElementById("fileUploadSection");
+      const webcamSection = document.getElementById("webcamSection");
+      const video = document.getElementById("video");
+      const toggleBtn = document.getElementById("toggleModeBtn");
+
+      if (currentMode === "file") {
+        // Switch to webcam mode
+        currentMode = "webcam";
+        fileSection.style.display = "none";
+        webcamSection.style.display = "block";
+        toggleBtn.textContent = "Switch to File Upload Mode";
+
+        // Clear file input
+        fileInput.value = "";
+
+        startWebcam();
+
+      } else {
+        // Switch to file upload mode
+        currentMode = "file";
+        fileSection.style.display = "block";
+        webcamSection.style.display = "none";
+        toggleBtn.textContent = "Switch to Webcam Mode";
+
+        // Stop webcam if active
+        if (video.srcObject) {
+          let tracks = video.srcObject.getTracks();
+          tracks.forEach(track => track.stop());
+          video.srcObject = null;
+        }
+      }
+    }
+
+    async function startWebcam() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const video = document.getElementById("video");
+        video.srcObject = stream;
+        video.style.display = "block";
+        document.getElementById("status").textContent = "🎥 Webcam ready.";
+      } catch (err) {
+        console.error("Webcam error:", err);
+        document.getElementById("status").textContent = "❌ Webcam not accessible.";
+      }
+    }
+
+    function snapPhoto() {
+      const video = document.getElementById("video");
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0);
+
+      showPreview(canvas.toDataURL("image/jpeg", 0.85));
+    }
+
+    function showPreview(dataUrl) {
+      const img = document.getElementById("preview");
+      img.src = dataUrl;
+      img.style.display = "block";
+      document.getElementById("status").textContent = "✅ Photo ready to upload.";
+    }
+
+    function uploadImage() {
+      const nounSelect = document.getElementById("nounSelect");
+      const noun_name = nounSelect.value;
+      const itemSelect = document.getElementById("itemSelect");
+      const item_id = itemSelect.value;
+
+      if (!noun_name) {
+        document.getElementById("status").textContent = "❌ Please select a noun.";
+        return;
+      }
+      if (!item_id) {
+        document.getElementById("status").textContent = "❌ Please select an item.";
+        return;
+      }
+
+      let blobPromise;
+
+      if (currentMode === "file") {
+        const fileInput = document.getElementById("fileInput");
+        if (fileInput.files.length > 0) {
+          blobPromise = Promise.resolve(fileInput.files[0]);
+        } else {
+          document.getElementById("status").textContent = "❌ No file selected.";
+          return;
+        }
+
+      } else if (currentMode === "webcam") {
+        const canvas = document.getElementById("canvas");
+        const video = document.getElementById("video");
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0);
+
+        blobPromise = new Promise(resolve => {
+          canvas.toBlob(blob => {
+            resolve(new File([blob], "webcam_capture.jpg", { type: "image/jpeg" }));
+          }, "image/jpeg", 0.85);
+        });
+      }
+
+      blobPromise.then(blob => {
+        const formData = new FormData();
+        formData.append("photo", blob);
+        formData.append("project_name", projectName);
+        formData.append("noun_name", noun_name);
+        formData.append("item_id", item_id);
+
+        document.getElementById("status").textContent = "📤 Uploading…";
+
+        fetch("/upload_image", {
+          method: "POST",
+          body: formData
+        })
+        .then(response => response.text())
+        .then(path => {
+          document.getElementById("status").innerHTML = `✅ Uploaded!<br/>Saved at: ${path}`;
+
+          // Hide preview after successful upload
+          const img = document.getElementById("preview");
+          img.src = "";
+          img.style.display = "none";
+        })
+        .catch(err => {
+          console.error("Upload error:", err);
+          document.getElementById("status").textContent = "❌ Upload failed.";
+        });
+      });
+    }
+  </script>
+</body>
+</html>

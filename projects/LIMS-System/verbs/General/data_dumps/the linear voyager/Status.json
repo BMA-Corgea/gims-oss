@@ -1,0 +1,78 @@
+{
+  "linear_status": {
+    "enabled": true,
+    "allow_manual_completion": false,
+    "current_index": 8,
+    "steps": [
+      {
+        "id": "Data Entry",
+        "type": "data_entry",
+        "label": null,
+        "required": true,
+        "internal_id": "data_entry_step1",
+        "completed": true
+      },
+      {
+        "id": "Raw Upload - Testy Tester 1",
+        "type": "raw_upload",
+        "label": null,
+        "required": true,
+        "source": "Testy Tester 1",
+        "internal_id": "raw_upload_testy-tester-1",
+        "completed": true
+      },
+      {
+        "id": "Interpretation - Inty 1",
+        "type": "interpretation",
+        "label": null,
+        "required": true,
+        "source": "Inty 1",
+        "internal_id": "interpretation_inty-1",
+        "completed": true
+      },
+      {
+        "id": "Adverb - Star Spirit",
+        "type": "adverb",
+        "label": null,
+        "required": true,
+        "source": "Star Spirit",
+        "internal_id": "adverb_star-spirit",
+        "completed": true
+      },
+      {
+        "id": "Gate (Step 5)",
+        "type": "gate",
+        "label": null,
+        "required": true,
+        "internal_id": "gate_step4",
+        "completed": true
+      },
+      {
+        "id": "Raw Upload - Testy Tester 2",
+        "type": "raw_upload",
+        "label": null,
+        "required": true,
+        "source": "Testy Tester 2",
+        "internal_id": "raw_upload_testy-tester-2",
+        "completed": true
+      },
+      {
+        "id": "Interpretation - Inty 2",
+        "type": "interpretation",
+        "label": null,
+        "required": true,
+        "source": "Inty 2",
+        "internal_id": "interpretation_inty-2",
+        "completed": true
+      },
+      {
+        "id": "Gate (Step 8)",
+        "type": "gate",
+        "label": null,
+        "required": true,
+        "internal_id": "gate_step7",
+        "completed": true
+      }
+    ]
+  }
+}

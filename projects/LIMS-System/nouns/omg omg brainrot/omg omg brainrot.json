@@ -1,0 +1,21 @@
+{
+  "fields": {
+    "primary": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "primary_id_field": "primary",
+  "autogenerate_id": true,
+  "autogenerate_segments": [
+    {
+      "type": "static",
+      "value": "asdads"
+    },
+    {
+      "type": "number",
+      "start": "0",
+      "length": 4
+    }
+  ]
+}
