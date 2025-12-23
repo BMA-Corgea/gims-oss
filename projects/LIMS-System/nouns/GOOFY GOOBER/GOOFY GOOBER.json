@@ -1,0 +1,18 @@
+{
+  "fields": {
+    "JUST WORK": {
+      "type": "string",
+      "required": true
+    },
+    "PLEASE": {
+      "type": "date",
+      "required": true
+    },
+    "ONGAH": {
+      "type": "float",
+      "required": true
+    }
+  },
+  "primary_id_field": "JUST WORK",
+  "autogenerate_id": false
+}

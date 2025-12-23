@@ -1,0 +1,23 @@
+{
+  "linear_status": {
+    "enabled": true,
+    "allow_manual_completion": false,
+    "current_index": 0,
+    "steps": [
+      {
+        "id": "data_entry_step1",
+        "type": "data_entry",
+        "label": null,
+        "required": true,
+        "completed": false
+      },
+      {
+        "id": "gate_step2",
+        "type": "gate",
+        "label": null,
+        "required": true,
+        "completed": false
+      }
+    ]
+  }
+}

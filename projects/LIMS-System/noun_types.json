@@ -1,0 +1,869 @@
+{
+  "Sample": {
+    "description": "A single testable unit submitted to the lab.",
+    "fields": {
+      "sample_id": {
+        "type": "string",
+        "required": true
+      },
+      "received_date": {
+        "type": "string"
+      },
+      "type_of_material": {
+        "type": "adjective",
+        "adjective_class": "Reference",
+        "required": true
+      },
+      "submission": {
+        "type": "adjective",
+        "adjective_class": "Reference",
+        "required": true
+      },
+      "image": {
+        "type": "adjective",
+        "adjective_class": "Picture"
+      }
+    },
+    "primary_id_field": "sample_id",
+    "autogenerate_id": true,
+    "autogenerate_segments": [
+      {
+        "type": "static",
+        "value": "LOL"
+      },
+      {
+        "type": "date",
+        "format": "mmddyyyy"
+      },
+      {
+        "type": "hex",
+        "start": "0",
+        "length": 5
+      }
+    ]
+  },
+  "Batch": {
+    "description": "A group of samples processed together.",
+    "fields": {
+      "batch_id": {
+        "type": "string",
+        "required": true
+      },
+      "production_date": {
+        "type": "date"
+      },
+      "zzzscratch12": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "primary_id_field": "batch_id",
+    "autogenerate_id": true
+  },
+  "Vial": {
+    "description": "A small sealed container for lab samples",
+    "fields": {
+      "vial_id": {
+        "type": "float",
+        "required": true
+      },
+      "volume_ml": {
+        "type": "float"
+      },
+      "color": {
+        "type": "string"
+      }
+    },
+    "primary_id_field": "vial_id",
+    "autogenerate_id": true
+  },
+  "Glove": {
+    "description": "A latex cover for your hand",
+    "fields": {
+      "fingers": {
+        "type": "string"
+      },
+      "material": {
+        "type": "date",
+        "required": true
+      },
+      "size": {
+        "type": "float"
+      }
+    },
+    "primary_id_field": "fingers",
+    "autogenerate_id": true
+  },
+  "Submission": {
+    "description": "What the client gives the lab for testing",
+    "fields": {
+      "submission_id": {
+        "type": "string",
+        "required": true
+      },
+      "received_date": {
+        "type": "date",
+        "required": true,
+        "format": "mmddyy"
+      },
+      "request": {
+        "type": "adjective",
+        "adjective_class": "ActionRequirement",
+        "required": true
+      },
+      "comments": {
+        "type": "string"
+      },
+      "status": {
+        "type": "adjective",
+        "adjective_class": "Tag"
+      },
+      "image": {
+        "type": "adjective",
+        "adjective_class": "Picture"
+      }
+    },
+    "primary_id_field": "submission_id",
+    "autogenerate_id": true,
+    "autogenerate_segments": [
+      {
+        "type": "static",
+        "value": "Sub"
+      },
+      {
+        "type": "date",
+        "format": "mmddyy"
+      },
+      {
+        "type": "hex",
+        "start": "0",
+        "length": 4
+      }
+    ]
+  },
+  "Sand": {
+    "description": "Small boulders",
+    "fields": {
+      "Grain Quality": {
+        "type": "string",
+        "required": true
+      },
+      "Weight": {
+        "type": "adjective",
+        "adjective_class": "Reference",
+        "required": true
+      },
+      "cool cat": {
+        "type": "float",
+        "required": true
+      }
+    },
+    "primary_id_field": "Grain Quality",
+    "autogenerate_id": true
+  },
+  "LL Cool J": {
+    "description": "The rapper list",
+    "fields": {
+      "Swag": {
+        "type": "string",
+        "required": true
+      },
+      "Drip": {
+        "type": "string",
+        "required": true
+      },
+      "Kapp": {
+        "type": "float"
+      }
+    },
+    "primary_id_field": "Swag",
+    "autogenerate_id": true
+  },
+  "Mario": {
+    "description": "Mario Mario",
+    "fields": {
+      "date_Marioed": {
+        "type": "string",
+        "required": true
+      },
+      "Stewigi": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "primary_id_field": "Stewigi",
+    "autogenerate_id": true
+  },
+  "Epic Loot": {
+    "description": "it's wonderful!",
+    "fields": {
+      "loot id": {
+        "type": "string",
+        "required": true
+      },
+      "date looted": {
+        "type": "string"
+      },
+      "notes": {
+        "type": "string",
+        "required": true
+      },
+      "future": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "primary_id_field": "loot id",
+    "autogenerate_id": false
+  },
+  "Sample_Micro": {
+    "description": "testing autogenerate capacity",
+    "fields": {
+      "Micro ID": {
+        "type": "string",
+        "required": true
+      },
+      "Helix Nature": {
+        "type": "string",
+        "required": true
+      },
+      "Capacity": {
+        "type": "adjective",
+        "adjective_class": "ActionRequirement",
+        "required": true
+      },
+      "Level Of ViolencE": {
+        "type": "float",
+        "required": true
+      }
+    },
+    "primary_id_field": "Micro ID",
+    "autogenerate_id": true,
+    "autogenerate_format": [
+      {
+        "type": "static",
+        "value": "Micro"
+      },
+      {
+        "type": "increment",
+        "increment_type": "number",
+        "length": 4
+      },
+      {
+        "type": "increment",
+        "increment_type": "letter",
+        "length": 2
+      }
+    ]
+  },
+  "Potency Sample": {
+    "description": "Sample that was actually used for potency",
+    "fields": {
+      "Sample ID": {
+        "type": "string",
+        "required": true
+      },
+      "Sample Weight (g)": {
+        "type": "float",
+        "required": true
+      },
+      "Dilution Weight (g)": {
+        "type": "float",
+        "required": true
+      },
+      "Sample Name": {
+        "type": "string",
+        "required": true
+      },
+      "Client": {
+        "type": "adjective",
+        "adjective_class": "Reference",
+        "required": true
+      },
+      "Notes": {
+        "type": "string"
+      },
+      "Submission": {
+        "type": "adjective",
+        "adjective_class": "Reference",
+        "required": true
+      },
+      "Sample Type": {
+        "type": "adjective",
+        "adjective_class": "Reference",
+        "required": true
+      }
+    },
+    "primary_id_field": "Sample ID",
+    "autogenerate_id": false,
+    "autogenerate_segments": []
+  },
+  "Pest_Sample": {
+    "description": "Sample for Pesticide Runs",
+    "fields": {
+      "sample_ID": {
+        "type": "string",
+        "required": true
+      },
+      "Submission": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "primary_id_field": "sample_ID",
+    "autogenerate_id": true,
+    "autogenerate_segments": [
+      {
+        "type": "static",
+        "value": "PEST"
+      },
+      {
+        "type": "date",
+        "format": "mmddyy"
+      },
+      {
+        "type": "hex",
+        "start": "0",
+        "length": 4
+      }
+    ]
+  },
+  "Elbows": {
+    "description": "Cuts up people's faces",
+    "fields": {
+      "Elbow ID": {
+        "type": "string",
+        "required": true
+      },
+      "Force": {
+        "type": "float",
+        "required": true
+      },
+      "Did it land?": {
+        "type": "string"
+      },
+      "39284742397984789423178914232134897342197834219784239718432978113947829718324": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "primary_id_field": "Elbow ID",
+    "autogenerate_id": true,
+    "autogenerate_segments": [
+      {
+        "type": "static",
+        "value": "elb"
+      },
+      {
+        "type": "date",
+        "format": "mmddyy"
+      },
+      {
+        "type": "hex",
+        "start": "0",
+        "length": 4
+      }
+    ]
+  },
+  "Instrument": {
+    "description": "The chemistry and microbiology equipment",
+    "fields": {
+      "Instrument ID": {
+        "type": "string",
+        "required": true
+      },
+      "Instrument Type": {
+        "type": "adjective",
+        "adjective_class": "Reference",
+        "required": true
+      }
+    },
+    "primary_id_field": "Instrument ID",
+    "autogenerate_id": false
+  },
+  "Instrument Type List": {
+    "description": "Types of Instruments Available",
+    "fields": {
+      "Instrument Type": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "primary_id_field": "Instrument Type",
+    "autogenerate_id": false,
+    "autogenerate_segments": []
+  },
+  "Sample Type": {
+    "description": "What kind of sample is being prepared?",
+    "fields": {
+      "Type": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "primary_id_field": "Type",
+    "autogenerate_id": false
+  },
+  "Terpene Sample": {
+    "description": "Sample that was actually used for terpene testing",
+    "fields": {
+      "Sample ID": {
+        "type": "string",
+        "required": true
+      },
+      "Sample Weight (g)": {
+        "type": "float",
+        "required": true
+      },
+      "Dilution Weight (g)": {
+        "type": "float",
+        "required": true
+      },
+      "Sample Name": {
+        "type": "string",
+        "required": true
+      },
+      "Client": {
+        "type": "adjective",
+        "adjective_class": "Reference",
+        "required": true
+      },
+      "Notes": {
+        "type": "string"
+      },
+      "Submission": {
+        "type": "adjective",
+        "adjective_class": "Reference",
+        "required": true
+      },
+      "Sample Type": {
+        "type": "adjective",
+        "adjective_class": "Reference",
+        "required": true
+      }
+    },
+    "primary_id_field": "Sample ID",
+    "autogenerate_id": false,
+    "autogenerate_segments": []
+  },
+  "Client": {
+    "description": "Company who gives submissions",
+    "fields": {
+      "Client Name": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "primary_id_field": "Client Name",
+    "autogenerate_id": false
+  },
+  "COA Name Map": {
+    "description": "How we know what to call different analytes on the COA",
+    "fields": {
+      "Instrument Code": {
+        "type": "string",
+        "required": true
+      },
+      "COA Display Name": {
+        "type": "string",
+        "required": true
+      },
+      "Primary Aroma": {
+        "type": "adjective",
+        "adjective_class": "Reference"
+      },
+      "Analyte Type": {
+        "type": "adjective",
+        "adjective_class": "Reference",
+        "required": true
+      }
+    },
+    "primary_id_field": "Instrument Code",
+    "autogenerate_id": false
+  },
+  "Primary Aromas": {
+    "description": "The different aromas a terpene can be primary for",
+    "fields": {
+      "Aroma": {
+        "type": "string",
+        "required": true
+      },
+      "Picture ID": {
+        "type": "adjective",
+        "adjective_class": "Picture"
+      }
+    },
+    "primary_id_field": "Aroma",
+    "autogenerate_id": false
+  },
+  "Analyte Types": {
+    "description": "The different types and analyte can be",
+    "fields": {
+      "Analyte Type": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "primary_id_field": "Analyte Type",
+    "autogenerate_id": false
+  },
+  "Soup Ladel": {
+    "description": "good soup pour",
+    "fields": {
+      "Name": {
+        "type": "string",
+        "required": true
+      },
+      "detal": {
+        "type": "float",
+        "required": true
+      }
+    },
+    "primary_id_field": "Name",
+    "autogenerate_id": true,
+    "autogenerate_segments": [
+      {
+        "type": "static",
+        "value": "xd"
+      },
+      {
+        "type": "date",
+        "format": "mmddyy"
+      },
+      {
+        "type": "hex",
+        "start": "0",
+        "length": 4
+      }
+    ]
+  },
+  "omgomgomghihihi": {
+    "description": "asdflkasjdfasl",
+    "fields": {
+      "name": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "primary_id_field": "name",
+    "autogenerate_id": true,
+    "autogenerate_segments": [
+      {
+        "type": "static",
+        "value": "xd"
+      },
+      {
+        "type": "date",
+        "format": "mmddyy"
+      },
+      {
+        "type": "number",
+        "start": 0,
+        "length": 3
+      },
+      {
+        "type": "letter",
+        "start": 0
+      },
+      {
+        "type": "hex",
+        "start": "0",
+        "length": 3
+      }
+    ]
+  },
+  "asdfasfd": {
+    "fields": {
+      "asdfasfdasffsd": {
+        "type": "string",
+        "required": true
+      },
+      "ewf2134f23": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "primary_id_field": "asdfasfdasffsd",
+    "autogenerate_id": true,
+    "autogenerate_segments": [
+      {
+        "type": "static",
+        "value": "xd"
+      }
+    ]
+  },
+  "3241432432": {
+    "fields": {
+      "asdfasdf": {
+        "type": "string",
+        "required": true
+      },
+      "fdafdsafas": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "primary_id_field": "asdfasdf",
+    "autogenerate_id": true,
+    "autogenerate_segments": [
+      {
+        "type": "static",
+        "value": "xd"
+      },
+      {
+        "type": "number",
+        "start": 0,
+        "length": 4
+      }
+    ]
+  },
+  "874143124": {
+    "fields": {
+      "Reference_List": {
+        "type": "adjective",
+        "adjective_class": "ReferenceList",
+        "required": true
+      },
+      "Reference": {
+        "type": "adjective",
+        "adjective_class": "Reference",
+        "required": true
+      },
+      "State_Control": {
+        "type": "string",
+        "required": true
+      },
+      "Tag": {
+        "type": "adjective",
+        "adjective_class": "Tag",
+        "required": true
+      },
+      "Action_Requirement": {
+        "type": "adjective",
+        "adjective_class": "ActionRequirement",
+        "required": true
+      },
+      "Picture": {
+        "type": "adjective",
+        "adjective_class": "Picture",
+        "required": true
+      }
+    },
+    "primary_id_field": "Reference_List",
+    "autogenerate_id": false,
+    "autogenerate_segments": []
+  },
+  "t55t5t5tt5": {
+    "fields": {
+      "t55tt55t5t": {
+        "type": "string",
+        "required": true
+      },
+      "fffffffaaaddddddd": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "primary_id_field": "t55tt55t5t",
+    "autogenerate_id": false,
+    "autogenerate_segments": []
+  },
+  "t55t5t5t5t5": {
+    "fields": {
+      "sadfasdfasdf": {
+        "type": "date",
+        "required": true
+      },
+      "ggggggggg": {
+        "type": "float",
+        "required": true
+      },
+      "444444444": {
+        "type": "date",
+        "required": true
+      },
+      "fsaf333333": {
+        "type": "string"
+      },
+      "111aaa111ll22": {
+        "type": "float",
+        "required": true
+      }
+    },
+    "primary_id_field": "sadfasdfasdf",
+    "autogenerate_id": true,
+    "autogenerate_segments": [
+      {
+        "type": "static",
+        "value": "111111111"
+      },
+      {
+        "type": "letter",
+        "start": "0"
+      },
+      {
+        "type": "number",
+        "start": "4",
+        "length": 4
+      }
+    ]
+  },
+  "11111111122222222": {
+    "fields": {
+      "2222222222": {
+        "type": "string",
+        "required": true
+      },
+      "fffffffff": {
+        "type": "string",
+        "required": true
+      },
+      "4gg4gg4g4g44g4": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "primary_id_field": "2222222222",
+    "autogenerate_id": true,
+    "autogenerate_segments": [
+      {
+        "type": "static",
+        "value": "adsfsdf"
+      },
+      {
+        "type": "letter",
+        "start": "0"
+      },
+      {
+        "type": "number",
+        "start": "3",
+        "length": 4
+      }
+    ]
+  },
+  "aaaaaa2222222": {
+    "fields": {
+      "2222222aaaaaaa": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "primary_id_field": "2222222aaaaaaa",
+    "autogenerate_id": false,
+    "autogenerate_segments": []
+  },
+  "omg omg brainrot": {
+    "fields": {
+      "primary": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "primary_id_field": "primary",
+    "autogenerate_id": true,
+    "autogenerate_segments": [
+      {
+        "type": "static",
+        "value": "asdads"
+      },
+      {
+        "type": "number",
+        "start": "0",
+        "length": 4
+      }
+    ]
+  },
+  "Star Spirit Lore": {
+    "fields": {
+      "Star Spirit Name": {
+        "type": "string",
+        "required": true
+      },
+      "Star Spirit Ability": {
+        "type": "adjective",
+        "adjective_class": "Reference"
+      },
+      "Star Spirit ID": {
+        "type": "string",
+        "required": true
+      },
+      "Time of Capture": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "primary_id_field": "Star Spirit ID",
+    "autogenerate_id": false,
+    "autogenerate_segments": []
+  },
+  "Easy Verb Noun": {
+    "fields": {
+      "Easy Noun ID": {
+        "type": "string",
+        "required": true
+      },
+      "Reference Star Spirit": {
+        "type": "adjective",
+        "adjective_class": "Reference"
+      },
+      "Comment": {
+        "type": "string",
+        "required": false
+      }
+    },
+    "primary_id_field": "Easy Noun ID",
+    "autogenerate_id": true,
+    "autogenerate_segments": [
+      {
+        "type": "static",
+        "value": "Easy"
+      },
+      {
+        "type": "number",
+        "start": "0",
+        "length": 4
+      }
+    ]
+  },
+  "444444333333332222222111111111": {
+    "fields": {
+      "ffffffdddddddsssssaaaaaa": {
+        "type": "string",
+        "required": true
+      },
+      "ghahaha4r4r4gg545454": {
+        "type": "string",
+        "required": true
+      },
+      "ybarahtrrdadadaga423423433333": {
+        "type": "adjective",
+        "adjective_class": "Reference"
+      }
+    },
+    "primary_id_field": "ffffffdddddddsssssaaaaaa",
+    "autogenerate_id": false,
+    "autogenerate_segments": []
+  },
+  "4r4r4rr4r44rr": {
+    "fields": {
+      "loopde loop": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "primary_id_field": "loopde loop",
+    "autogenerate_id": false,
+    "autogenerate_segments": []
+  },
+  "4rr4r44r4r4r": {
+    "fields": {
+      "loopdeloop": {
+        "type": "string",
+        "required": true
+      }
+    },
+    "primary_id_field": "loopdeloop",
+    "autogenerate_id": false,
+    "autogenerate_segments": []
+  }
+}

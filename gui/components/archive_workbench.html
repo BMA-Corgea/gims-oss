@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Archive Workbench</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="/static/styles/archive_workbench.css" rel="stylesheet" />
+  <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+</head>
+<body>
+  <header class="topbar">
+    <div class="title">
+      <span class="emoji" title="Archive Workbench">🗄️</span>
+      <h1>Archive Workbench</h1>
+      <span class="subtle">move entities/logs to storage, with restore</span>
+    </div>
+
+    <div class="right">
+      <label class="inline">
+        <span class="label">Project</span>
+        <select id="projectSelect" data-tip="Choose a project to operate on"></select>
+      </label>
+      <button id="refreshProjectsBtn" class="btn" data-tip="Reload projects">↻</button>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- Policy (accordion) -->
+    <section class="card" id="policyCard">
+      <div class="card-head">
+        <h2>Archive Policy</h2>
+        <div class="actions">
+          <button id="loadPolicyBtn" class="btn" data-tip="Load archive_policy.json">Load</button>
+          <button id="savePolicyBtn" class="btn primary" data-tip="Save archive_policy.json">Save</button>
+        </div>
+      </div>
+
+      <div class="accordion" id="policyAcc">
+
+        <!-- Defaults -->
+        <div class="acc-item">
+          <button class="acc-head" type="button" data-tip="Set default archive behavior that applies to all nouns and verbs unless overridden">
+            <span>Defaults</span><span class="chev">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="grid two">
+
+              <div class="field" data-tip="Soft keeps rows in primary DB (marked archived) and moves files; Hard moves rows into archive DB and files into archive storage.">
+                <label class="label">Strategy</label>
+                <select id="def_strategy">
+                  <option value="soft">soft</option>
+                  <option value="hard">hard</option>
+                </select>
+                <div class="hint">Applies when a noun/verb has no explicit override.</div>
+              </div>
+
+              <div class="field" data-tip="What to do when an archived item is still referenced. Tombstone = keep the link but mark the target as archived. Detach = remove the link. Error = block the archive operation.">
+                <label class="label">On reference</label>
+                <select id="def_onref" data-tip="What to do when an archived item is still referenced. Tombstone = keep link but mark archived; Detach = remove link; Error = block archive.">
+                  <option value="tombstone">tombstone</option>
+                  <option value="detach">detach</option>
+                  <option value="error">error</option>
+                </select>
+              </div>
+
+              <div class="field"  data-tip="Delay before items become eligible for archive.">
+                <label class="label">Archive after days</label>
+                <div class="slider-head">
+                  <label class="toggle"><input id="def_days_never" type="checkbox"> Never</label>
+                </div>
+                <input id="def_days_range" type="range" min="0" max="3650" value="0">
+                <div class="slider-foot">
+                  <input id="def_days_num" type="number" min="0" max="3650" value="0" class="text">
+                  <span class="muted">0–3650 days</span>
+                </div>
+              </div>
+
+              <div class="field" data-tip="Cap per noun/verb. Unlimited = no cap.">
+                <label class="label">Max items</label>
+                <div class="slider-head">
+                  <label class="toggle"><input id="def_max_unlim" type="checkbox" checked> Unlimited</label>
+                </div>
+                <input id="def_max_range" type="range" min="0" max="1000000" value="0">
+                <div class="slider-foot">
+                  <input id="def_max_num" type="number" min="0" max="1000000" value="0" class="text">
+                  <span class="muted">0–1,000,000</span>
+                </div>
+              </div>
+
+              <div class="field" data-tip="Include files in the archive, and preserve schema versioning so archived data matches the structure it was created under.">
+                <label class="label">Flags</label>
+                <label class="toggle"><input id="def_include_files" type="checkbox" checked data-tip="Include files in archive."> Include files</label>
+                <label class="toggle"><input id="def_schema_ver" type="checkbox" checked data-tip="Preserve schema versioning."> Schema versioning</label>
+              </div>
+
+            </div>
+            <div id="policyStatus" class="status">Defaults apply when a noun/verb doesn’t have an explicit override.</div>
+          </div>
+        </div>
+
+        <!-- Noun overrides -->
+        <div class="acc-item">
+          <button class="acc-head" type="button" data-tip="Configure custom archive rules for specific noun types (entities like users, posts, etc.)">
+            <span>Noun Overrides</span><span class="chev">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="row space">
+              <div class="muted">Create or edit overrides per noun type.</div>
+              <button id="addNounOverrideBtn" class="btn">＋ Add override</button>
+            </div>
+            <div id="nounOverrideList"><!-- cards injected here --></div>
+          </div>
+        </div>
+
+        <!-- Verb overrides -->
+        <div class="acc-item">
+          <button class="acc-head" type="button" data-tip="Configure custom archive rules for specific verb/test types (actions like login, purchase, etc.)">
+            <span>Verb Overrides</span><span class="chev">▾</span>
+          </button>
+          <div class="acc-body">
+            <div class="row space">
+              <div class="muted">Create or edit overrides per verb/test type.</div>
+              <button id="addVerbOverrideBtn" class="btn">＋ Add override</button>
+            </div>
+            <div id="verbOverrideList"><!-- cards injected here --></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Archive by Policy -->
+    <section class="card" id="policyArchiveCard">
+      <div class="card-head">
+        <h2>Archive by Policy</h2>
+        <div class="actions">
+          <button id="previewPolicyBtn" class="btn" data-tip="Preview per current policy (no changes)">Preview</button>
+          <button id="applyPolicyBtn" class="btn danger" data-tip="Apply per policy for each noun (no selection)">Archive Derived</button>
+        </div>
+      </div>
+      <div class="wrap scroll">
+        <table class="grid">
+          <thead>
+            <tr>
+              <th>Noun Type</th>
+              <th>Strategy</th>
+              <th>Eligible Count</th>
+              <th>Eligible IDs</th>
+            </tr>
+          </thead>
+          <tbody id="policyPreviewBody"></tbody>
+        </table>
+      </div>
+      <div id="policyActionStatus" class="status"></div>
+    </section>
+
+    <!-- Archive by Selection (manual) -->
+    <section class="card" id="manualArchiveCard">
+      <div class="card-head">
+        <h2>Archive by Selection</h2>
+        <div class="actions">
+          <button id="applyManualBtn" class="btn primary" data-tip="Archive exactly these IDs (ignores policy)">Archive Selected</button>
+        </div>
+      </div>
+
+      <div class="grid three">
+        <div class="field">
+          <label class="label">Noun Type</label>
+          <select id="manualNounType" data-tip="Pick the noun whose IDs you want to archive">
+            <!-- options injected -->
+          </select>
+          <div class="hint">Choose any noun (not limited by policy).</div>
+        </div>
+
+        <div class="field span-two">
+          <label class="label">IDs to archive</label>
+          <textarea id="manualIds" spellcheck="false" placeholder="Enter IDs (comma, space, or newline separated)"></textarea>
+          <div class="hint">You can paste a list from anywhere; duplicates & blanks are ignored.</div>
+        </div>
+      </div>
+
+      <div id="manualActionStatus" class="status"></div>
+    </section>
+
+
+    <!-- Run archive -->
+    <section class="card">
+      <div class="card-head">
+        <h2>Run Archive (Advanced)</h2>
+        <div class="actions" data-tip="Soft keeps rows in the primary DB (marked as archived) and moves files. Hard moves rows into the archive DB and moves files into archive storage.">
+          <label class="inline">
+            <span class="label">Strategy</span>
+            <select id="runStrategy">
+              <option value="hard">hard</option>
+              <option value="soft">soft</option>
+            </select>
+          </label>
+          <button id="previewRunsBtn" class="btn">Preview</button>
+          <button id="applyRunsBtn" class="btn primary">Apply</button>
+        </div>
+      </div>
+      <p class="help">Provide a JSON array of run items. Hard requires <code>{ run_id, test_type, verb_group, src_dir, dst_dir }</code>. Soft omits <code>dst_dir</code>.</p>
+      <textarea id="runsTextarea" spellcheck="false" placeholder='[
+  { "run_id":"Run001", "test_type":"Micro_Test", "verb_group":"Tests", "src_dir":"/path/to/verbs/Tests/data_dumps/Run001", "dst_dir":"/path/to/archive/verbs/Tests/data_dumps/Run001" }
+]'></textarea>
+      <div class="wrap scroll">
+        <pre id="runPlanPreview" class="pre"></pre>
+      </div>
+      <div id="runActionStatus" class="status"></div>
+    </section>
+
+    <!-- Console -->
+    <section class="card">
+      <div class="card-head">
+        <h2>Console</h2>
+        <div class="actions">
+          <button id="clearConsoleBtn" class="btn">Clear</button>
+        </div>
+      </div>
+      <div id="console" class="console"></div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <span>🗄️ Archive Workbench · uses /api/archive_workbench</span>
+  </footer>
+
+  <!-- Single shared tooltip node -->
+  <div id="__tooltip" class="tooltip" role="tooltip" hidden></div>
+
+  <script src="/static/scripts/archive_workbench.js"></script>
+</body>
+</html>

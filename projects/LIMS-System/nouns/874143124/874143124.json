@@ -1,0 +1,36 @@
+{
+  "fields": {
+    "Reference_List": {
+      "type": "adjective",
+      "adjective_class": "ReferenceList",
+      "required": true
+    },
+    "Reference": {
+      "type": "adjective",
+      "adjective_class": "Reference",
+      "required": true
+    },
+    "State_Control": {
+      "type": "string",
+      "required": true
+    },
+    "Tag": {
+      "type": "adjective",
+      "adjective_class": "Tag",
+      "required": true
+    },
+    "Action_Requirement": {
+      "type": "adjective",
+      "adjective_class": "ActionRequirement",
+      "required": true
+    },
+    "Picture": {
+      "type": "adjective",
+      "adjective_class": "Picture",
+      "required": true
+    }
+  },
+  "primary_id_field": "Reference_List",
+  "autogenerate_id": false,
+  "autogenerate_segments": []
+}

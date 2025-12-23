@@ -1,0 +1,36 @@
+{
+  "roles": [
+    {
+      "name": "admin",
+      "description": "everything",
+      "scopes": [],
+      "feature_tags": [
+        "module:account-roles",
+        "module:adjective-editor",
+        "module:adverb-editor",
+        "module:archive-workbench",
+        "module:audit",
+        "module:backup",
+        "module:camera",
+        "module:conjunction-editor",
+        "module:custom-upload",
+        "module:deep-search",
+        "module:grid-test",
+        "module:investigation",
+        "module:nodes-compliance",
+        "module:noun-configure",
+        "module:noun-workbench",
+        "module:parser-test",
+        "module:prepositional-phrase-runner",
+        "module:runlog-workbench",
+        "module:template",
+        "module:verb-editor",
+        "module:verb-workbench"
+      ],
+      "projects": [
+        "LIMS-System",
+        "Sterility"
+      ]
+    }
+    ]
+}

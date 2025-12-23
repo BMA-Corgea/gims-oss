@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+  <meta charset="UTF-8" />
+  <title>Noun Configure</title>
+
+  <!-- global (your existing) -->
+  <link rel="stylesheet" href="/static/styles/style.css">
+  <!-- page-specific facelift -->
+  <link rel="stylesheet" href="/static/styles/noun_configure.css">
+</head>
+<body class="nc-body">
+  <header class="nc-header">
+    <h1 class="nc-title">Noun Configure</h1>
+
+    <div class="nc-toolbar">
+      <label class="nc-field">
+        <span>Project</span>
+        <select id="project" class="nc-select"></select>
+      </label>
+
+      <label class="nc-field">
+        <span>Noun</span>
+        <select id="noun" class="nc-select"></select>
+      </label>
+
+      <div class="nc-sep"></div>
+
+      <fieldset class="nc-radio-group" role="radiogroup" aria-label="View mode">
+        <label class="nc-radio"><input type="radio" name="action" value="describe" checked> View</label>
+        <label class="nc-radio"><input type="radio" name="action" value="edit"> Edit</label>
+      </fieldset>
+
+      <button id="configure-button" class="nc-btn nc-btn-primary">Run</button>
+    </div>
+  </header>
+
+  <main class="nc-main">
+    <section class="nc-card">
+      <div id="current-primary-id" class="nc-section"></div>
+      <div id="autogen-settings" class="nc-section"></div>
+
+      <div class="nc-table-wrap">
+        <table id="field-table" class="nc-table">
+          <thead>
+            <tr><th>Field</th><th>Type</th><th>Required</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="field-list"></tbody>
+        </table>
+      </div>
+
+      <pre id="output" class="nc-output">(result will appear here)</pre>
+    </section>
+
+    <section id="register-form" class="nc-card">
+      <div class="nc-card-head">
+        <h2>Register New Noun</h2>
+      </div>
+
+      <div class="nc-grid">
+        <label class="nc-field">
+          <span>Noun Name</span>
+          <input id="new-noun-name" type="text" class="nc-input" placeholder="e.g., Sample" />
+        </label>
+      </div>
+
+      <div class="nc-table-wrap">
+        <table id="new-field-table" class="nc-table">
+          <thead>
+            <tr><th>Field</th><th>Type</th><th>Required</th><th></th></tr>
+          </thead>
+          <tbody id="new-field-rows"></tbody>
+        </table>
+      </div>
+
+      <div class="nc-actions">
+        <button id="add-field-button" class="nc-btn">+ Add Field</button>
+      </div>
+
+      <div class="nc-grid nc-gap">
+        <label class="nc-field">
+          <span>Primary ID Field</span>
+          <select id="primary-id-select" class="nc-select"></select>
+        </label>
+      </div>
+
+      <div class="nc-section">
+        <label class="nc-checkbox">
+          <input type="checkbox" id="autogen-toggle"> Autogenerate ID
+        </label>
+        <div id="register-segment-rows" class="nc-segment-rows"></div>
+        <button type="button" class="nc-btn" onclick="addSegmentRow('register-segment-rows')">+ Add Segment</button>
+      </div>
+
+      <div class="nc-actions">
+        <button id="register-button" class="nc-btn nc-btn-primary">Register</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Script loader (cache-busted) -->
+  <script>
+    document.querySelectorAll('script[src^="/static/scripts/noun_configure.js"]').forEach(el => el.remove());
+    const s = document.createElement("script");
+    s.src = `/static/scripts/noun_configure.js?v=${Date.now()}`;
+    document.body.appendChild(s);
+  </script>
+
+  <!-- Toasts -->
+  <div id="nc-toasts" class="nc-toast-container" aria-live="polite" aria-atomic="true"></div>
+
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Runlog Workbench</title>
+  <link rel="stylesheet" href="/static/styles/runlog_workbench.css" />
+  <link rel="stylesheet" href="https://esm.sh/@glideapps/glide-data-grid@6/dist/index.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Runlog Workbench</h1>
+      <div class="controls">
+        <div class="control-group">
+          <label for="project-select">Project</label>
+          <select id="project-select"></select>
+        </div>
+        <div class="control-group">
+          <label for="verbgroup-select">Verb Group</label>
+          <select id="verbgroup-select" disabled></select>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section id="runlog-section">
+        <h2>Run Log</h2>
+        <div class="table-container">
+          <table id="runlog-table" class="data-table"></table>
+        </div>
+      </section>
+
+      <section id="data-dump-section" class="hidden">
+        <div class="section-header">
+          <h2>Data Dump</h2>
+          <button id="close-dump" class="close-button">&times;</button>
+        </div>
+        <div id="data-dump-tabs" class="tabs"></div>
+        <div id="data-dump-contents"></div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="status-bar" id="status-bar">Ready.</div>
+    </footer>
+  </div>
+
+	<script src="/static/scripts/runlog_workbench.js?v=20250806193822"></script>
+  <!-- Required by Glide Data Grid -->
+  <div id="portal"></div>
+</body>
+</html>

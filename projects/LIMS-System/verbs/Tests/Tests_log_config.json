@@ -1,0 +1,17 @@
+{
+  "primary_id": "run_ID",
+  "fields": {
+    "run_ID": {
+      "type": "string",
+      "required": true
+    },
+    "date_tested": {
+      "type": "date",
+      "required": true
+    },
+    "test_type": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

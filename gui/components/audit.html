@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  />
+  <title>GIMS • Audit Workbench</title>
+  <link rel="stylesheet" href="/static/styles/audit.css" />
+  <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+</head>
+<body>
+  <header class="aw-header">
+    <div class="aw-header__title">
+      <h1>Audit Workbench</h1>
+      <span class="aw-badge">Audit</span>
+    </div>
+    <div class="aw-header__actions">
+			<label class="aw-field">
+				<span class="aw-field__label">Project</span>
+				<select id="aw-project" class="aw-select">
+					<option value="" disabled selected>— Select Project —</option>
+					<!-- options populated dynamically -->
+				</select>
+			</label>
+      <label class="aw-checkbox">
+        <input id="aw-include-index" type="checkbox" />
+        <span>Include noun index (debug)</span>
+      </label>
+      <button id="aw-run" class="aw-btn aw-btn--primary">Run Audit</button>
+      <button id="aw-load-groups" class="aw-btn" title="List verb groups (debug)">Verb Groups</button>
+    </div>
+  </header>
+
+  <main class="aw-main">
+    <section class="aw-summary">
+      <div class="aw-card aw-card--summary">
+        <div class="aw-sum-item aw-sum-item--total">
+          <div class="aw-sum-label">Total</div>
+          <div id="sum-total" class="aw-sum-value">—</div>
+        </div>
+        <div class="aw-sum-item aw-sum-item--error">
+          <div class="aw-sum-label">Errors</div>
+          <div id="sum-errors" class="aw-sum-value">—</div>
+        </div>
+        <div class="aw-sum-item aw-sum-item--warn">
+          <div class="aw-sum-label">Warnings</div>
+          <div id="sum-warnings" class="aw-sum-value">—</div>
+        </div>
+        <div class="aw-sum-item aw-sum-item--info">
+          <div class="aw-sum-label">Info</div>
+          <div id="sum-infos" class="aw-sum-value">—</div>
+        </div>
+        <div class="aw-summary__export">
+          <button id="aw-export-json" class="aw-btn">Export JSON</button>
+          <button id="aw-export-csv" class="aw-btn">Export CSV</button>
+          <span id="aw-runtime" class="aw-runtime"></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="aw-filters aw-card">
+      <div class="aw-filter-row">
+        <div class="aw-filter-group">
+          <span class="aw-filter-label">Severity</span>
+          <label class="aw-chip">
+            <input type="checkbox" class="aw-sev" value="error" checked />
+            <span class="chip chip--error">error</span>
+          </label>
+          <label class="aw-chip">
+            <input type="checkbox" class="aw-sev" value="warn" checked />
+            <span class="chip chip--warn">warn</span>
+          </label>
+          <label class="aw-chip">
+            <input type="checkbox" class="aw-sev" value="info" checked />
+            <span class="chip chip--info">info</span>
+          </label>
+        </div>
+
+        <div class="aw-filter-group">
+          <label class="aw-field">
+            <span class="aw-field__label">Code</span>
+            <select id="aw-code-filter" class="aw-select" multiple size="1" title="Filter by code (multi-select)">
+              <!-- dynamically populated -->
+            </select>
+          </label>
+        </div>
+
+        <div class="aw-filter-group aw-filter-grow">
+          <label class="aw-field aw-field--grow">
+            <span class="aw-field__label">Search</span>
+            <input id="aw-search" class="aw-input" type="search" placeholder="message, scope, where…" />
+          </label>
+        </div>
+
+        <div class="aw-filter-group">
+          <button id="aw-clear-filters" class="aw-btn">Clear</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="aw-results aw-card">
+      <div class="aw-results__header">
+        <div class="aw-results__count">
+          <span id="aw-visible-count">0</span> findings
+        </div>
+        <div class="aw-results__paging">
+          <button id="aw-prev" class="aw-btn" disabled>Prev</button>
+          <span id="aw-page">Page 1 / 1</span>
+          <button id="aw-next" class="aw-btn" disabled>Next</button>
+          <label class="aw-field aw-field--compact">
+            <span class="aw-field__label">Rows</span>
+            <select id="aw-page-size" class="aw-select">
+              <option>25</option>
+              <option selected>50</option>
+              <option>100</option>
+              <option>250</option>
+              <option>1000</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="aw-table-wrap">
+        <table class="aw-table" aria-describedby="aw-page">
+          <thead>
+            <tr>
+              <th class="col-sev">Severity</th>
+              <th class="col-code">Code</th>
+              <th class="col-scope">Scope</th>
+              <th class="col-where">Where</th>
+              <th class="col-msg">Message</th>
+              <th class="col-actions">Details</th>
+            </tr>
+          </thead>
+          <tbody id="aw-tbody">
+            <!-- rows injected here -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="aw-debug" class="aw-card aw-debug">
+      <details>
+        <summary>Debug</summary>
+        <pre id="aw-debug-pre">Run an audit to see debug output.</pre>
+      </details>
+    </section>
+  </main>
+
+  <div id="aw-toast" class="aw-toast" role="status" aria-live="polite"></div>
+
+  <div id="aw-spinner" class="aw-spinner hidden" aria-hidden="true">
+    <div class="aw-spinner__dot"></div>
+    <div class="aw-spinner__dot"></div>
+    <div class="aw-spinner__dot"></div>
+  </div>
+
+  <script src="/static/scripts/audit.js" defer></script>
+</body>
+</html>

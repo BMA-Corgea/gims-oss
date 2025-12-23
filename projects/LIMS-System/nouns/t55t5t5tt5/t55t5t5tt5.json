@@ -1,0 +1,15 @@
+{
+  "fields": {
+    "t55tt55t5t": {
+      "type": "string",
+      "required": true
+    },
+    "fffffffaaaddddddd": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "primary_id_field": "t55tt55t5t",
+  "autogenerate_id": false,
+  "autogenerate_segments": []
+}

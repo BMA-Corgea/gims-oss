@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Verb Workbench</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Reuse your noun CSS for the same look -->
+  <link rel="stylesheet" href="/static/styles/noun_workbench.css" />
+  <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
+</head>
+<body>
+  <div class="container">
+    <header class="topbar">
+      <h1>Verb Workbench</h1>
+      <div class="top-controls">
+        <div class="inline">
+          <label for="project-select">Project</label>
+          <select id="project-select"></select>
+        </div>
+        <div class="inline">
+          <label for="verbSelect">Verb</label>
+          <select id="verbSelect" disabled></select>
+        </div>
+        <button id="reloadSchemaBtn" class="ghost">Reload</button>
+      </div>
+    </header>
+
+    <!-- Mode -->
+    <section class="card">
+      <div class="card-header">
+        <h2>Mode</h2>
+      </div>
+      <div class="card-body inline">
+        <div class="segmented">
+          <label>
+            <input type="radio" name="form-mode" value="create" checked />
+            <span>Create</span>
+          </label>
+          <label>
+            <input type="radio" name="form-mode" value="edit" />
+            <span>Edit</span>
+          </label>
+        </div>
+        <div id="editLoadArea" class="inline hidden">
+          <select id="runSelect" class="input" disabled>
+            <option value="">Select a verb first</option>
+          </select>
+          <button id="loadRunBtn" class="btn">Load</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Form -->
+    <section class="card">
+      <div class="card-header split">
+        <h2>Run Metadata</h2>
+        <div class="inline">
+          <button id="validateBtn" class="ghost">Validate</button>
+          <button id="saveBtn" class="primary">Save</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <form id="dynamicForm" class="form-grid"></form>
+        <div id="formMessages" class="messages"></div>
+
+        <!-- NEW: Update Status UI -->
+        <div id="refresh-status-block" class="kv" style="margin-top:16px;">
+          <label for="refresh-run-id">Update Status for Run</label>
+          <div class="inline" style="gap:8px;">
+            <input id="refresh-run-id" class="input" type="text" placeholder="Enter Run ID (primary id)" />
+            <button id="refresh-status-btn" class="btn">Update Status</button>
+            <span id="refresh-status-hint" class="small muted"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">Ready.</footer>
+  </div>
+
+  <script type="module" src="/static/scripts/verb_workbench.js"></script>
+</body>
+</html>

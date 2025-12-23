@@ -1,0 +1,15 @@
+{
+  "description": "Small boulders",
+  "fields": {
+    "Grain Quality": {
+      "type": "string",
+      "required": true
+    },
+    "Weight": {
+      "type": "date",
+      "required": true
+    }
+  },
+  "primary_id_field": "Grain Quality",
+  "autogenerate_id": true
+}

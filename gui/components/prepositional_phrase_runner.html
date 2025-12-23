@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prepositional Phrase Runner</title>
+    <link rel="stylesheet" href="/static/styles/prepositional_phrase_runner.css">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <div class="container">
+        <header class="main-header">
+            <h1>Prepositional Phrase Runner</h1>
+            <p class="subtitle">Execute and configure prepositional phrase parsers</p>
+        </header>
+        
+        <!-- Project Selector -->
+        <div class="project-selector-wrapper">
+            <div class="project-selector">
+                <label for="project-select">Select Project</label>
+                <select id="project-select">
+                    <option value="">Loading projects...</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Prepositional Phrase Runner Card -->
+            <div class="runner-card">
+                <div class="card-header">
+                    <div class="header-content">
+                        <h2>Prepositional Phrase Configuration</h2>
+                        <div class="status-indicator" id="prep-status">
+                            <span class="status-dot" id="prep-dot"></span>
+                            <span class="status-text" id="prep-text">Initializing...</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <div class="info-section">
+                        <p class="description">Select and configure a prepositional phrase parser to process your data</p>
+                        <p class="file-path">
+                            <span class="path-label">Expected Path:</span>
+                            <code id="prep-expected">custom/prepositional phrases/{pphrase_name}/{pphrase_name}.py</code>
+                        </p>
+                    </div>
+                    
+                    <!-- Phrase Selection -->
+                    <div class="selection-section">
+                        <label for="prep-select" class="select-label">Choose Prepositional Phrase</label>
+                        <select id="prep-select" class="phrase-select">
+                            <option value="">-- Select a prepositional phrase --</option>
+                        </select>
+                    </div>
+
+                    <!-- Dynamic settings will be inserted here by JavaScript -->
+                    
+                    <!-- Run Button -->
+                    <button class="run-button" id="prep-button" disabled>
+                        <span class="button-icon">▶</span>
+                        <span class="button-text">Run Prepositional Phrase</span>
+                        <div class="spinner" id="prep-spinner"></div>
+                    </button>
+                    
+                    <!-- Results Section -->
+                    <div class="result-section">
+                        <div class="result-header" id="result-header" style="display: none;">
+                            <h3>Execution Results</h3>
+                            <button class="clear-button" id="clear-results">Clear</button>
+                        </div>
+                        <div class="result-area" id="prep-result"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="main-footer">
+            <p>Press <kbd>Ctrl</kbd>+<kbd>R</kbd> to reload • <kbd>Ctrl</kbd>+<kbd>Enter</kbd> to run</p>
+        </footer>
+    </div>
+
+    <!-- Hidden JSON payload for prep settings -->
+    <textarea id="prep-params-json" style="display:none;"></textarea>
+    <script src="/static/scripts/prepositional_phrase_runner.js"></script>
+</body>
+</html>

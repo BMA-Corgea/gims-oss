@@ -1,0 +1,11 @@
+{
+  "fields": {
+    "loopdeloop": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "primary_id_field": "loopdeloop",
+  "autogenerate_id": false,
+  "autogenerate_segments": []
+}

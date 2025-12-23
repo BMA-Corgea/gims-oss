@@ -1,0 +1,18 @@
+{
+  "description": "A group of samples processed together.",
+  "fields": {
+    "batch_id": {
+      "type": "string",
+      "required": true
+    },
+    "production_date": {
+      "type": "date"
+    },
+    "zzzscratch12": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "primary_id_field": "batch_id",
+  "autogenerate_id": true
+}

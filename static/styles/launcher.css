@@ -1,0 +1,186 @@
+/* ==============================
+   GIMS Launcher - Dark Aurora Night
+   ============================== */
+
+body {
+  font-family: 'Segoe UI', 'Inter', sans-serif;
+  background: #050608; /* baseline near-black */
+  color: #eaeaea;
+  margin: 0;
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+
+  /* Animated aurora overlay */
+  background-image:
+    radial-gradient(ellipse at 20% 30%, rgba(90,160,140,0.2) 0%, transparent 70%),
+    radial-gradient(ellipse at 70% 25%, rgba(100,150,220,0.2) 0%, transparent 70%),
+    radial-gradient(ellipse at 45% 70%, rgba(170,120,220,0.2) 0%, transparent 80%);
+  background-blend-mode: screen;
+  animation: auroraShift 1s ease-in-out infinite alternate;
+}
+
+@keyframes auroraShift {
+  0% {
+    background-position: 20% 30%, 70% 25%, 45% 70%;
+  }
+  50% {
+    background-position: 30% 40%, 65% 20%, 50% 75%;
+  }
+  100% {
+    background-position: 25% 35%, 75% 30%, 40% 65%;
+  }
+}
+
+/* Container */
+.launcher-container {
+  width: 90%;
+  max-width: 1200px;
+  text-align: center;
+}
+
+/* Title */
+h1 {
+  font-size: 2.6rem;
+  margin-bottom: 2rem;
+  color: #111; /* near black */
+  text-shadow: 0 0 12px rgba(220, 240, 255, 0.6); /* soft highlight */
+}
+
+/* Card layout */
+.card-container {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  flex-wrap: wrap;
+}
+
+.launcher-card {
+  background: rgba(80, 85, 95, 0.9); /* ~30% lighter than before */
+  border: 1px solid rgba(200, 220, 240, 0.2);
+  border-radius: 14px;
+  padding: 2rem;
+  width: 340px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.launcher-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 28px rgba(160, 180, 200, 0.35);
+}
+
+/* Section titles */
+.launcher-card h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1.2rem;
+  color: #222; /* dark, readable against lighter card */
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.2);
+}
+
+/* Buttons */
+.button-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.launcher-button {
+  display: block;
+  padding: 0.9rem 1.2rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #111;
+  background: rgba(240, 240, 240, 0.9);
+  border: 1px solid rgba(200, 220, 240, 0.3);
+  border-radius: 10px;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  text-align: center;
+}
+
+.launcher-button:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: #7ec4c9;
+  box-shadow: 0 0 14px rgba(126,196,201,0.4),
+              0 0 22px rgba(160,120,200,0.25);
+}
+
+.launcher-button:active {
+  transform: scale(0.97);
+  background: rgba(220, 220, 220, 0.95);
+}
+
+/* Tooltip */
+.tooltip {
+  position: absolute;
+  background: rgba(40, 44, 50, 0.95);
+  color: #f0f0f0;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  max-width: 260px;
+  z-index: 1000;
+  border: 1px solid #7ec4c9;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+/* Header with title left, gnome right */
+.launcher-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 0 1rem 0;
+}
+
+/* Tighten default h1 spacing when used in header */
+.launcher-header h1 {
+  margin: 0;
+}
+
+/* Gnome image sizing */
+.gnome-logo {
+  width: 160px;        /* initial size */
+  max-width: 20vw;     /* responsive ceiling */
+  height: auto;
+  image-rendering: pixelated; /* keep the crisp pixel look */
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5));
+}
+
+/* Smaller on narrow screens */
+@media (max-width: 640px) {
+  .gnome-logo { width: 96px; }
+}
+
+/* Float the gnome on the right side of the screen */
+.gnome-float {
+  position: fixed;          /* stay put while scrolling */
+  right: clamp(24px, 6vw, 64px);
+  top: 16vh;                /* roughly where you circled */
+  width: min(22vw, 280px);  /* responsive size cap */
+  height: auto;
+  image-rendering: pixelated;
+  pointer-events: none;     /* clicks pass through */
+  filter: drop-shadow(0 8px 18px rgba(0,0,0,0.6));
+  z-index: 0;               /* sit behind UI */
+}
+
+/* make sure the UI sits above the gnome */
+.launcher-container,
+.launcher-header,
+.card-container { position: relative; z-index: 1; }
+
+/* hide or shrink on narrow screens */
+@media (max-width: 900px) {
+  .gnome-float { width: 120px; left: 16px; top: 12vh; }
+}
+@media (max-width: 640px) {
+  .gnome-float { display: none; }
+}

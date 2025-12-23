@@ -1,0 +1,297 @@
+
+/* Base styles */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 20px;
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.adverb-manager {
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+/* Header section */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.section-header h2 {
+  margin: 0;
+  color: #2c3e50;
+}
+
+.project-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.project-selector select {
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  min-width: 200px;
+}
+
+/* Main container layout */
+.main-container {
+  display: flex;
+  gap: 20px;
+  height: calc(100vh - 150px);
+  min-height: 500px;
+}
+
+.left-panel {
+  width: 25%;
+  border-right: 1px solid #eee;
+  padding-right: 20px;
+}
+
+.right-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Verb selector */
+.verb-selector h3 {
+  margin-top: 0;
+  color: #2c3e50;
+}
+
+.verb-selector select {
+  width: 100%;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+}
+
+/* Adverb list */
+.adverb-list-container {
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  padding: 15px;
+  flex: 1;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.panel-header h3 {
+  margin: 0;
+  color: #2c3e50;
+}
+
+.adverb-list table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.adverb-list th {
+  text-align: left;
+  padding: 10px;
+  background-color: #f1f1f1;
+  border-bottom: 2px solid #ddd;
+  color: #555;
+}
+
+.adverb-list td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.adverb-list tr:hover {
+  background-color: #f5f5f5;
+}
+
+/* Form styles */
+#adverb-form-container {
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  padding: 15px;
+  flex: 1;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #555;
+}
+
+.form-group input[type="text"],
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+}
+
+.form-group textarea {
+  resize: vertical;
+}
+
+/* Button styles */
+.action-button {
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: none;
+  background-color: #3498db;
+  color: white;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.action-button:hover {
+  background-color: #2980b9;
+}
+
+.action-button:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+
+.primary-button {
+  padding: 10px 16px;
+  border-radius: 4px;
+  border: none;
+  background-color: #2ecc71;
+  color: white;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.primary-button:hover {
+  background-color: #27ae60;
+}
+
+.secondary-button {
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  background-color: #f9f9f9;
+  color: #555;
+  cursor: pointer;
+}
+
+.secondary-button:hover {
+  background-color: #f1f1f1;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  justify-content: flex-end;
+}
+
+/* Type-specific config sections */
+.type-config {
+  background-color: #f1f1f1;
+  padding: 15px;
+  border-radius: 6px;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.type-config h4 {
+  margin-top: 0;
+  color: #2c3e50;
+}
+
+/* Tag options */
+.tag-options-container {
+  margin-top: 10px;
+}
+
+.tag-option-item {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #fff;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+/* Filters */
+.filters-container {
+  margin-top: 15px;
+}
+
+.filter-item {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #fff;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+/* Reference nouns */
+.reference-noun-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #fff;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+/* Utility classes */
+.hidden {
+  display: none;
+}
+
+.delete-btn {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.delete-btn:hover {
+  background-color: #c0392b;
+}
+
+.edit-btn {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.edit-btn:hover {
+  background-color: #2980b9;
+}

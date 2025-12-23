@@ -1,0 +1,1 @@
+{"SampleNoun": {"fields": {"id": {"type": "string"}}, "autogenerate_segments": [{"type": "static", "value": "S-"}, {"type": "number", "length": 4}]}, "Run": {"fields": {"id": {"type": "string"}}, "primary_id_field": "id"}}

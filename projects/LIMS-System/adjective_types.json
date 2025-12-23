@@ -1,0 +1,356 @@
+[
+  {
+    "adjective": "Kapp",
+    "adjective_class": "StateControl",
+    "applies_to": [
+      "LL Cool J"
+    ],
+    "allowed_values": "Kappin, Aight"
+  },
+  {
+    "adjective": "Weight",
+    "adjective_class": "Reference",
+    "applies_to": [
+      "Sand"
+    ],
+    "reference_noun": "Sample",
+    "filters": ""
+  },
+  {
+    "adjective": "type_of_material",
+    "adjective_class": "Reference",
+    "applies_to": [
+      "Sample"
+    ],
+    "reference_noun": "Epic Loot",
+    "filters": {}
+  },
+  {
+    "adjective": "Capacity",
+    "adjective_class": "ActionRequirement",
+    "applies_to": [
+      "Sample_Micro"
+    ],
+    "request_options": {
+      "Potency Only": [
+        "Potency_Test"
+      ],
+      "Multi-test": [
+        "Potency_Test",
+        "Micro_Test"
+      ]
+    }
+  },
+  {
+    "adjective": "request",
+    "adjective_class": "ActionRequirement",
+    "applies_to": [
+      "Submission"
+    ],
+    "request_options": {
+      "Micro": [
+        "Micro_Test"
+      ],
+      "Potency": [
+        "Potency_Test"
+      ],
+      "Potency & Micro": [
+        "Potency_Test",
+        "Micro_Test"
+      ],
+      "Full Panel": [
+        "Potency_Test",
+        "Pesticide_Test",
+        "Residual_Solvents_Test",
+        "Micro_Test"
+      ]
+    }
+  },
+  {
+    "adjective": "submission",
+    "adjective_class": "Reference",
+    "applies_to": [
+      "Sample"
+    ],
+    "reference_noun": "Submission",
+    "filters": {},
+    "unique_per_run": true,
+    "unique_globally": false
+  },
+  {
+    "adjective": "Submission",
+    "adjective_class": "Reference",
+    "applies_to": [
+      "Potency Sample"
+    ],
+    "reference_noun": "Submission",
+    "filters": {}
+  },
+  {
+    "adjective": "request 2",
+    "adjective_class": "ActionRequirement",
+    "applies_to": [
+      "Submission"
+    ],
+    "request_options": {
+      "Potency2": [
+        "Potency_Test"
+      ],
+      "Micro2": [
+        "Micro_Test"
+      ],
+      "Potency & Micro2": [
+        "Potency_Test",
+        "Micro_Test"
+      ]
+    }
+  },
+  {
+    "adjective": "status",
+    "adjective_class": "Tag",
+    "applies_to": [
+      "Submission"
+    ],
+    "definition": "good to go?",
+    "valid_options": [
+      {
+        "value": "quarantined",
+        "explanation": "not good to go",
+        "display_in_id": true
+      },
+      {
+        "value": "resolved",
+        "explanation": "now good to go",
+        "display_in_id": true
+      },
+      {
+        "value": "cancelled",
+        "explanation": "never good to go",
+        "display_in_id": true
+      }
+    ]
+  },
+  {
+    "adjective": "Instrument Type",
+    "adjective_class": "Reference",
+    "applies_to": [
+      "Instrument"
+    ],
+    "reference_noun": "Instrument Type List",
+    "filters": {},
+    "unique_per_run": false,
+    "unique_globally": false
+  },
+  {
+    "adjective": "Sample Type",
+    "adjective_class": "Reference",
+    "applies_to": [
+      "Potency Sample"
+    ],
+    "reference_noun": "Sample Type",
+    "filters": {},
+    "unique_per_run": false,
+    "unique_globally": false
+  },
+  {
+    "adjective": "Sample Type",
+    "adjective_class": "Reference",
+    "applies_to": [
+      "Terpene Sample"
+    ],
+    "reference_noun": "Sample Type",
+    "filters": {},
+    "unique_per_run": false,
+    "unique_globally": false
+  },
+  {
+    "adjective": "Submission",
+    "adjective_class": "Reference",
+    "applies_to": [
+      "Terpene Sample"
+    ],
+    "reference_noun": "Submission",
+    "filters": {}
+  },
+  {
+    "adjective": "Client",
+    "adjective_class": "Reference",
+    "applies_to": [
+      "Terpene Sample"
+    ],
+    "reference_noun": "Client",
+    "filters": {},
+    "unique_per_run": false,
+    "unique_globally": false
+  },
+  {
+    "adjective": "Client",
+    "adjective_class": "Reference",
+    "applies_to": [
+      "Potency Sample"
+    ],
+    "reference_noun": "Client",
+    "filters": {},
+    "unique_per_run": false,
+    "unique_globally": false
+  },
+  {
+    "adjective": "Primary Aroma",
+    "adjective_class": "Reference",
+    "applies_to": [
+      "COA Name Map"
+    ],
+    "reference_noun": "Primary Aromas",
+    "filters": {},
+    "unique_per_run": false,
+    "unique_globally": false
+  },
+  {
+    "adjective": "Analyte Type",
+    "adjective_class": "Reference",
+    "applies_to": [
+      "COA Name Map"
+    ],
+    "reference_noun": "Analyte Types",
+    "filters": {},
+    "unique_per_run": false,
+    "unique_globally": false
+  },
+  {
+    "adjective": "image",
+    "adjective_class": "Picture",
+    "applies_to": [
+      "Submission"
+    ]
+  },
+  {
+    "adjective": "Picture ID",
+    "adjective_class": "Picture",
+    "applies_to": [
+      "Primary Aromas"
+    ]
+  },
+  {
+    "adjective": "image",
+    "adjective_class": "Picture",
+    "applies_to": [
+      "Sample"
+    ]
+  },
+  {
+    "adjective": "Action_Requirement",
+    "adjective_class": "ActionRequirement",
+    "applies_to": [
+      "874143124"
+    ],
+    "request_options": {
+      "soup lol": [
+        "Potency_Test",
+        "Pesticide_Test"
+      ],
+      "merpderp12": [
+        "Move",
+        "Potency_Test",
+        "Pesticide_Test",
+        "Micro_Test"
+      ],
+      "Full Panel": [
+        "Potency_Test",
+        "Pesticide_Test",
+        "Residual_Solvents_Test",
+        "Micro_Test"
+      ]
+    }
+  },
+  {
+    "adjective": "Reference_List",
+    "adjective_class": "ReferenceList",
+    "applies_to": [
+      "874143124"
+    ],
+    "reference_noun": [
+      "Sample",
+      "Submission",
+      "LL Cool J",
+      "COA Name Map",
+      "Primary Aromas"
+    ],
+    "filters": {
+      "LL Cool J": {
+        "Swag": 111111111
+      },
+      "Submission": {
+        "submission_id": 2222222
+      },
+      "COA Name Map": {
+        "COA Display Name": "fffffff"
+      }
+    }
+  },
+  {
+    "adjective": "Reference",
+    "adjective_class": "Reference",
+    "applies_to": [
+      "874143124"
+    ],
+    "reference_noun": "Submission",
+    "filters": {}
+  },
+  {
+    "adjective": "Picture",
+    "adjective_class": "Picture",
+    "applies_to": [
+      "874143124"
+    ]
+  },
+  {
+    "adjective": "Tag",
+    "adjective_class": "Tag",
+    "applies_to": [
+      "874143124"
+    ],
+    "definition": "it's so kind of you to work on the first try",
+    "valid_options": [
+      {
+        "value": "super",
+        "explanation": "gains 1 stam",
+        "display_in_id": true
+      },
+      {
+        "value": "bad",
+        "explanation": "loses 2 stam",
+        "display_in_id": true
+      },
+      {
+        "value": "ugly",
+        "explanation": "just looks bad",
+        "display_in_id": false
+      }
+    ]
+  },
+  {
+    "adjective": "Star Spirit Ability",
+    "adjective_class": "Reference",
+    "applies_to": [
+      "Star Spirit Lore"
+    ],
+    "reference_noun": "Analyte Types",
+    "filters": {}
+  },
+  {
+    "adjective": "Reference Star Spirit",
+    "adjective_class": "Reference",
+    "applies_to": [
+      "Easy Verb Noun"
+    ],
+    "reference_noun": "Star Spirit Lore",
+    "filters": {}
+  },
+  {
+    "adjective": "ybarahtrrdadadaga423423433333",
+    "adjective_class": "Reference",
+    "applies_to": [
+      "444444333333332222222111111111"
+    ]
+  }
+]

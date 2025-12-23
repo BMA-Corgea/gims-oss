@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
+  <meta charset="UTF-8">
+  <title>GIMS Project Launcher</title>
+  <link rel="stylesheet" href="/static/styles/launcher.css">
+</head>
+<body>
+
+  <!-- Floating gnome on the right -->
+  <img src="/static/images/Transparent%20Gnome.png" alt="GIMS Gnome" class="gnome-float">
+
+  <div class="launcher-container">
+    <h1>🧭 GIMS Project Launcher</h1>
+
+    <div class="card-container">
+      <!-- Schemas -->
+      <section class="launcher-card">
+        <h2>Schemas</h2>
+        <div class="button-grid">
+          <a href="/noun_configure" class="launcher-button" data-tag="noun-configure"
+             data-tooltip="Define and manage entity types (samples, products, etc.)">
+            📦 Noun Configure
+          </a>
+          <a href="/adjective_editor" class="launcher-button" data-tag="adjective-editor"
+             data-tooltip="Set descriptive states, tools, or tags for nouns">
+            🏷️ Adjective Editor
+          </a>
+          <a href="/verb_editor" class="launcher-button" data-tag="verb-editor"
+             data-tooltip="Define actions (tests, moves, processes) that nouns can undergo">
+            ⚡ Verb Editor
+          </a>
+          <a href="/adverb_editor" class="launcher-button" data-tag="adverb-editor"
+             data-tooltip="Configure modifiers for verbs to specify how actions are performed">
+            🎯 Adverb Editor
+          </a>
+          <a href="/conjunction_editor" class="launcher-button" data-tag="conjunction-editor"
+             data-tooltip="Edit status overrides and test result annotations">
+            🔗 Conjunction Editor
+          </a>
+        </div>
+      </section>
+
+      <!-- Searches -->
+      <section class="launcher-card">
+        <h2>Searches</h2>
+        <div class="button-grid">
+          <a href="/investigation" class="launcher-button" data-tag="investigation"
+             data-tooltip="Explore relationships, runs, and results across entities">
+            🕵️‍♀️ Investigation GUI
+          </a>
+          <a href="/deep_search" class="launcher-button" data-tag="deep-search"
+             data-tooltip="Search across schemas, noun instances, and verb runs">
+            🔍 Deep Search
+          </a>
+          <a href="/audit" class="launcher-button" data-tag="audit"
+             data-tooltip="Verify that all nouns, verbs, adverbs, and adjectives match their schemas and reference rules">
+            🛡️ Audit
+          </a>
+          <a href="/archive-workbench" class="launcher-button" data-tag="archive-workbench"
+             data-tooltip="Archive or restore noun instances and runs according to policy.">
+            🗄️ Archive
+          </a>
+        </div>
+      </section>
+
+      <!-- Operations -->
+      <section class="launcher-card">
+        <h2>Operations</h2>
+        <div class="button-grid">
+          <a href="/runlog_workbench" class="launcher-button" data-tag="runlog-workbench"
+             data-tooltip="Inspect and edit run entries: statuses, overrides, attachments, and linked instances.">
+            🧰 Runlog Workbench
+          </a>
+          <a href="/noun_workbench" class="launcher-button" data-tag="noun-workbench"
+             data-tooltip="Create, edit, and bulk upload noun instances according to schema.">
+            📇 Noun Workbench
+          </a>
+          <a href="/verb_workbench" class="launcher-button" data-tag="verb-workbench"
+             data-tooltip="Create and edit verb instances according to schema.">
+            ✨ Verb Workbench
+          </a>
+        </div>
+      </section>
+      
+      <!-- Tools -->
+      <section class="launcher-card">
+        <h2>Tools</h2>
+        <div class="button-grid">
+          <a href="/camera" class="launcher-button" data-tag="camera"
+             data-tooltip="Capture and upload images for entities">
+            📸 Image Capture
+          </a>
+          <a href="/custom_upload" class="launcher-button" data-tag="custom-upload"
+             data-tooltip="Upload and manage custom parsers and prepositional phrases">
+            📝 Custom Parsers
+          </a>
+          <a href="/prepositional_phrase_runner" class="launcher-button" data-tag="prepositional-phrase-runner"
+             data-tooltip="Run custom prepositional phrase code to generate output files.">
+            📜 Prepositional Phrase Runner
+          </a>
+        </div>
+      </section>
+
+      <!-- Admin -->
+      <section class="launcher-card">
+        <h2>Admin</h2>
+        <div class="button-grid">
+          <a href="/template" class="launcher-button" data-tag="template"
+            data-tooltip="Export or import full project templates.">
+            🌱 Template Manager
+          </a>
+          <a href="/account_roles" class="launcher-button" data-tag="account-roles"
+            data-tooltip="Manage user accounts, approvals, and role permissions per project.">
+            🔑 Account & Roles
+          </a>
+          <a href="/backup" class="launcher-button" data-tag="backup"
+            data-tooltip="Create, restore, and manage project backups.">
+            💾 Backup Manager
+          </a>
+          <a href="/nodes_compliance" class="launcher-button" data-tag="nodes-compliance"
+            data-tooltip="View and export compliance & audit logs from nodes.db.">
+            🏛️ Nodes Compliance
+          </a>
+        </div>
+      </section>
+
+      <!-- Tests -->
+      <section class="launcher-card">
+        <h2>Tests</h2>
+        <div class="button-grid">
+          <a href="/gui/test_page" class="launcher-button" data-tag="grid-test"
+             data-tooltip="Try the grid adapter and send data to Glide">
+            🧪 Grid Test Page
+          </a>
+          <a href="/gui/test_parser" class="launcher-button" data-tag="parser-test"
+             data-tooltip="Test custom parsers and prepositional phrase functionality">
+            🤖 Parser Test Page
+          </a>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div id="tooltip" class="tooltip"></div>
+
+  <script src="/static/scripts/launcher.js"></script>
+</body>
+</html>

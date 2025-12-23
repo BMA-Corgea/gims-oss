@@ -1,0 +1,32 @@
+[
+  {
+    "id": "sch-4d2bffb9018d",
+    "project": "LIMS-System",
+    "type": "hybrid",
+    "frequency": "daily",
+    "minute": 0,
+    "hour": 22,
+    "dow": null,
+    "dom": null,
+    "retention_keep": 10,
+    "enabled": true,
+    "last_run_at": "2025-12-23T03:46:09+00:00",
+    "next_run_at": "2025-12-23T22:00:00+00:00",
+    "notes": "Nightly Save State"
+  },
+  {
+    "id": "sch-fbd68219bd53",
+    "project": "LIMS-System",
+    "type": "hybrid",
+    "frequency": "weekly",
+    "minute": 0,
+    "hour": 2,
+    "dow": 0,
+    "dom": null,
+    "retention_keep": 10,
+    "enabled": true,
+    "last_run_at": "2025-12-23T03:46:09+00:00",
+    "next_run_at": "2025-12-29T02:00:00+00:00",
+    "notes": "Weekly save"
+  }
+]

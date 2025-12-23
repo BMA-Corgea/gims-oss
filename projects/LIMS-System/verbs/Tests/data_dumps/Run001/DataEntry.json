@@ -1,0 +1,42 @@
+[
+  {
+    "sample_id": "LOL0610202500000",
+    "received_date": "",
+    "type_of_material": "",
+    "submission": "Sub0608250002",
+    "image": "",
+    "_runID": "Run001"
+  },
+  {
+    "sample_id": "LOL0605252500002",
+    "received_date": "",
+    "type_of_material": "",
+    "submission": "",
+    "image": "",
+    "_runID": "Run001"
+  },
+  {
+    "sample_id": "LOL0608202500028",
+    "received_date": "",
+    "type_of_material": "",
+    "submission": "",
+    "image": "",
+    "_runID": "Run001"
+  },
+  {
+    "sample_id": "LOL0605252500003",
+    "received_date": "",
+    "type_of_material": "",
+    "submission": "",
+    "image": "",
+    "_runID": "Run001"
+  },
+  {
+    "sample_id": "LOL0809202500008",
+    "received_date": "",
+    "type_of_material": "",
+    "submission": "",
+    "image": "",
+    "_runID": "Run001"
+  }
+]

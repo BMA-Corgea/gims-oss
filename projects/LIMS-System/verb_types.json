@@ -1,0 +1,678 @@
+{
+  "Test": {
+    "verb_name": "Test",
+    "verb_group": "34g534g43g",
+    "description": "lmaooooooo",
+    "status_values": [],
+    "data_entry_schema": {
+      "instructions": [
+        "fafafa"
+      ],
+      "raw_data_inputs": [],
+      "set_up_inputs": {
+        "noun_type_ref": "874143124"
+      },
+      "interpretation": {
+        "tabs": [],
+        "parsers": []
+      }
+    },
+    "adverb_schema": {
+      "Checkem Dubs": {
+        "reference_noun": "asdfasf"
+      },
+      "What the Helly?": {
+        "reference_noun": "Mario"
+      },
+      "What the shelly?": {
+        "reference_noun": "Sample"
+      },
+      "Pleeen": {
+        "reference_nouns": [
+          "Vial",
+          "Elbows"
+        ]
+      },
+      "tomato": {
+        "adverb": "tomato",
+        "verb": "Test",
+        "adverb_class": "Attribute",
+        "description": "",
+        "required": false,
+        "field_type": "string"
+      },
+      "sajd;lfkas;dlfkjasd;fklj": {
+        "adverb": "sajd;lfkas;dlfkjasd;fklj",
+        "verb": "Test",
+        "reference_nouns": [
+          "Sample"
+        ],
+        "filters": {
+          "Sample": {}
+        }
+      },
+      "woawioejasea": {
+        "description": "sdlakfjdf",
+        "valid_options": [
+          {
+            "value": "quarantine",
+            "explanation": "saldkfasdf",
+            "display_in_label": true
+          }
+        ],
+        "required": true
+      },
+      "alsdkfjasdfa": {
+        "reference_noun": "Elbows",
+        "required": true,
+        "filters": {}
+      },
+      "asdfasdfsafasdfasdfasdf": {
+        "reference_noun": "Instrument",
+        "required": true,
+        "filters": {}
+      },
+      "lskadjfa;sldkfjas;lfkj": {
+        "adverb": "lskadjfa;sldkfjas;lfkj",
+        "verb": "Test",
+        "required": false,
+        "reference_nouns": [
+          "Potency Sample",
+          "Glove",
+          "LL Cool J"
+        ],
+        "filters": {
+          "Potency Sample": {},
+          "Glove": {},
+          "LL Cool J": {
+            "Drip": "fdsa"
+          }
+        }
+      },
+      "dasfasewrrewrqwrq": {
+        "field_type": "string",
+        "required": true
+      },
+      "saldfkjpipoiippoiopi": {
+        "adverb": "saldfkjpipoiippoiopi",
+        "verb": "Test",
+        "field_type": "number",
+        "required": false
+      },
+      "sdalkfjaslkfjsaldkfj": {
+        "adverb": "sdalkfjaslkfjsaldkfj",
+        "verb": "Test",
+        "reference_noun": "Elbows",
+        "filters": {},
+        "required": true
+      },
+      "asdflkasdfjklasjdfasdfe2342342": {
+        "required": false,
+        "reference_nouns": [
+          "Epic Loot"
+        ],
+        "filters": {
+          "Epic Loot": {}
+        }
+      },
+      "3249081093481290348": {
+        "adverb": "3249081093481290348",
+        "verb": "Test",
+        "field_type": "date",
+        "required": true,
+        "format": "mmddyy"
+      }
+    },
+    "linear_status": {
+      "enabled": true,
+      "allow_manual_completion": false,
+      "steps": [
+        {
+          "id": "data_entry_step1",
+          "type": "data_entry",
+          "label": null,
+          "required": true
+        },
+        {
+          "id": "gate_step2",
+          "type": "gate",
+          "label": null,
+          "required": true
+        }
+      ]
+    }
+  },
+  "Move": {
+    "verb_name": "Move",
+    "verb_group": "General",
+    "description": "Physical movement of an entity from one location to another.",
+    "status_values": [],
+    "data_entry_schema": {},
+    "adverb_schema": {}
+  },
+  "Potency_Test": {
+    "verb_name": "Potency_Test",
+    "verb_group": "Tests",
+    "description": "Test a submission for cannabinoid content",
+    "status_values": [
+      {
+        "name": "Retest Needed",
+        "status": "Exception",
+        "fields": [
+          "note",
+          "date"
+        ]
+      },
+      {
+        "name": "Retest of",
+        "status": "Notification",
+        "fields": [
+          {
+            "type": "reference",
+            "mode": "ReferenceList",
+            "label": "Previous Run",
+            "reference_noun": "Run",
+            "filters": {
+              "status": []
+            }
+          }
+        ]
+      }
+    ],
+    "data_entry_schema": {
+      "instructions": [
+        "Yelo?",
+        "Enlo fren",
+        "Asssssssubbbb?",
+        "ASSSSUBBBBBBB???",
+        "Just put the verb in the bag lil bro"
+      ],
+      "raw_data_inputs": [
+        "HPLC Output"
+      ],
+      "set_up_inputs": {
+        "noun_type_ref": "Potency Sample"
+      },
+      "interpretation": {
+        "method": "parsed",
+        "tabs": [
+          "Table",
+          "Weights"
+        ],
+        "parsers": [
+          "potency_parser"
+        ]
+      }
+    },
+    "adverb_schema": {
+      "Instrument": {
+        "adverb": "Instrument",
+        "verb": "Potency_Test",
+        "reference_noun": "Instrument",
+        "filters": {},
+        "required": false
+      }
+    }
+  },
+  "Pesticide_Test": {
+    "verb_name": "Pesticide_Test",
+    "verb_group": "Tests",
+    "description": "Testin the Pestin",
+    "status_values": [
+      "Pending",
+      "Complete",
+      "Error",
+      "Exception",
+      "Cancelled"
+    ],
+    "data_entry_schema": {},
+    "adverb_schema": {}
+  },
+  "Residual_Solvents_Test": {
+    "verb_name": "Residual_Solvents_Test",
+    "verb_group": "Tests",
+    "description": "Masshunter nonsense",
+    "status_values": [
+      "Pending",
+      "Complete",
+      "Error",
+      "Exception",
+      "Cancelled"
+    ],
+    "data_entry_schema": {
+      "set_up_inputs": {
+        "noun_type_ref": "Sample"
+      }
+    },
+    "adverb_schema": {}
+  },
+  "Micro_Test": {
+    "verb_name": "Micro_Test",
+    "verb_group": "Tests",
+    "description": "bug tests",
+    "status_values": [
+      {
+        "name": "Quarantine",
+        "status": "Exception",
+        "fields": [
+          "note",
+          "initials",
+          "date",
+          {
+            "type": "reference",
+            "mode": "ReferenceList",
+            "label": "linked_submission",
+            "reference_noun": "Submission",
+            "filters": {}
+          }
+        ],
+        "description": "There are samples that need to be sequestered away from the rest"
+      },
+      {
+        "name": "Rerun",
+        "status": "Exception",
+        "fields": [
+          "reason"
+        ],
+        "description": ""
+      },
+      {
+        "name": "Is a retest",
+        "status": "Notification",
+        "fields": [
+          {
+            "type": "reference",
+            "mode": "ReferenceList",
+            "label": "retest of",
+            "reference_noun": "Run",
+            "filters": {
+              "status": []
+            }
+          }
+        ]
+      }
+    ],
+    "data_entry_schema": {
+      "instructions": [
+        "Be rootin",
+        "Be tootin",
+        "Be shootin",
+        "But above all",
+        "Be kind",
+        "And always shine"
+      ],
+      "raw_data_inputs": [
+        "PCR Output"
+      ],
+      "set_up_inputs": {
+        "noun_type_ref": "Sample"
+      },
+      "interpretation": {
+        "tabs": [
+          "CFU Calculations"
+        ],
+        "parsers": [
+          "micro_test_parser"
+        ],
+        "method": "parsed"
+      }
+    },
+    "adverb_schema": {
+      "Instrument": {
+        "adverb": "Instrument",
+        "verb": "Micro_Test",
+        "adverb_class": "Reference",
+        "description": "",
+        "required": false,
+        "reference_noun": "Instrument",
+        "filters": {}
+      },
+      "I'm a tag": {
+        "adverb": "I'm a tag",
+        "verb": "Micro_Test",
+        "adverb_class": "Tag",
+        "description": "tttttttttttt",
+        "required": false,
+        "valid_options": [
+          {
+            "value": "lmao",
+            "explanation": "555555555",
+            "display_in_label": true
+          },
+          {
+            "value": "yyyyyyyyyy",
+            "explanation": "1111111111",
+            "display_in_label": true
+          }
+        ]
+      },
+      "I'm a picture": {
+        "adverb": "I'm a picture",
+        "verb": "Micro_Test",
+        "adverb_class": "Picture",
+        "description": "ppppppppppp",
+        "required": false
+      },
+      "I'm a reference list": {
+        "adverb": "I'm a reference list",
+        "verb": "Micro_Test",
+        "adverb_class": "ReferenceList",
+        "description": "ffffffffffddddddddddd",
+        "required": false,
+        "reference_nouns": [
+          "Submission",
+          "Sample"
+        ],
+        "filters": {}
+      },
+      "I'm just an attribute": {
+        "adverb": "I'm just an attribute",
+        "verb": "Micro_Test",
+        "adverb_class": "Attribute",
+        "description": "hhhhhhhhhhhh,,,,,,,,",
+        "required": false,
+        "field_type": "number"
+      }
+    },
+    "linear_status": {
+      "enabled": false,
+      "allow_manual_completion": false,
+      "steps": []
+    }
+  },
+  "General_Group_Folders_Verb": {
+    "verb_name": "General_Group_Folders_Verb",
+    "verb_group": "General",
+    "description": "Not real lol",
+    "status_values": [],
+    "data_entry_schema": {
+      "instructions": [],
+      "raw_data_inputs": [
+        "Testy Tester 1",
+        "Testy Tester 2"
+      ],
+      "set_up_inputs": {
+        "noun_type_ref": "Easy Verb Noun"
+      },
+      "interpretation": {
+        "tabs": [
+          "Inty 1",
+          "Inty 2"
+        ],
+        "parsers": []
+      }
+    },
+    "adverb_schema": {
+      "Star Spirit": {
+        "adverb": "Star Spirit",
+        "verb": "General_Group_Folders_Verb",
+        "adverb_class": "Reference",
+        "description": "",
+        "required": true,
+        "reference_noun": "Star Spirit Lore",
+        "filters": {}
+      }
+    },
+    "linear_status": {
+      "enabled": true,
+      "allow_manual_completion": false,
+      "steps": [
+        {
+          "id": "data_entry_step1",
+          "type": "data_entry",
+          "label": null,
+          "required": true
+        },
+        {
+          "id": "raw_upload_testy-tester-1",
+          "type": "raw_upload",
+          "label": null,
+          "required": true,
+          "source": "Testy Tester 1"
+        },
+        {
+          "id": "interpretation_inty-1",
+          "type": "interpretation",
+          "label": null,
+          "required": true,
+          "source": "Inty 1"
+        },
+        {
+          "id": "adverb_star-spirit",
+          "type": "adverb",
+          "label": null,
+          "required": true,
+          "source": "Star Spirit"
+        },
+        {
+          "id": "gate_step4",
+          "type": "gate",
+          "label": null,
+          "required": true
+        },
+        {
+          "id": "raw_upload_testy-tester-2",
+          "type": "raw_upload",
+          "label": null,
+          "required": true,
+          "source": "Testy Tester 2"
+        },
+        {
+          "id": "interpretation_inty-2",
+          "type": "interpretation",
+          "label": null,
+          "required": true,
+          "source": "Inty 2"
+        },
+        {
+          "id": "gate_step7",
+          "type": "gate",
+          "label": null,
+          "required": true
+        }
+      ]
+    }
+  },
+  "Terpene_Test": {
+    "verb_name": "Terpene_Test",
+    "verb_group": "Tests",
+    "description": "Test a submission for terpene content",
+    "status_values": [
+      {
+        "name": "Retest Needed",
+        "status": "Exception",
+        "fields": [
+          "note",
+          "date"
+        ]
+      },
+      {
+        "name": "Retest of",
+        "status": "Notification",
+        "fields": [
+          {
+            "type": "reference",
+            "mode": "ReferenceList",
+            "label": "Previous Run",
+            "reference_noun": "Run",
+            "filters": {
+              "status": []
+            }
+          }
+        ]
+      }
+    ],
+    "data_entry_schema": {
+      "instructions": [
+        "Yelo?",
+        "Enlo fren",
+        "Asssssssubbbb?",
+        "ASSSSUBBBBBBB???",
+        "Just put the verb in the bag lil bro"
+      ],
+      "raw_data_inputs": [
+        "HPLC Output"
+      ],
+      "set_up_inputs": {
+        "noun_type_ref": "Terpene Sample"
+      },
+      "interpretation": {
+        "method": "parsed",
+        "tabs": [
+          "Table",
+          "Weights"
+        ],
+        "parsers": [
+          "potency_parser"
+        ]
+      }
+    },
+    "adverb_schema": {
+      "Instrument": {
+        "adverb": "Instrument",
+        "verb": "Terpene_Test",
+        "reference_noun": "Instrument",
+        "filters": {},
+        "required": false
+      }
+    }
+  },
+  "hg34444444g43g": {
+    "verb_name": "hg34444444g43g",
+    "verb_group": "34g534g43g",
+    "description": "",
+    "status_values": [
+      {
+        "name": "3f3f3f",
+        "description": "",
+        "status": "Error",
+        "fields": [
+          "ffffffff"
+        ]
+      }
+    ],
+    "data_entry_schema": {
+      "instructions": [],
+      "raw_data_inputs": [
+        "321421341234124"
+      ],
+      "set_up_inputs": {
+        "noun_type_ref": "874143124"
+      },
+      "interpretation": {
+        "tabs": [
+          "fasdfeeeeeee45454",
+          "333333333333",
+          "hahahafafafa"
+        ],
+        "parsers": []
+      }
+    },
+    "adverb_schema": {
+      "ga343eg3333ga23t331egegeeggaga55t4566": {
+        "adverb": "ga343eg3333ga23t331egegeeggaga55t4566",
+        "verb": "hg34444444g43g",
+        "adverb_class": "Tag",
+        "description": "g43g3g33g4g3",
+        "required": true,
+        "valid_options": [
+          {
+            "value": "3g34g43g",
+            "explanation": "4g3g43g43g",
+            "display_in_label": true
+          },
+          {
+            "value": "g334g34g",
+            "explanation": "gggggg3",
+            "display_in_label": true
+          }
+        ]
+      },
+      "trick232332ga545454454hjhjhggg5t2221fafabb11": {
+        "adverb": "trick232332ga545454454hjhjhggg5t2221fafabb11",
+        "verb": "hg34444444g43g",
+        "adverb_class": "Reference",
+        "description": "ffffffasdfsadfasdfsdfsdff",
+        "required": false,
+        "reference_noun": "t55t5t5t5t5",
+        "filters": {}
+      }
+    },
+    "linear_status": {
+      "enabled": false,
+      "allow_manual_completion": false,
+      "steps": []
+    }
+  },
+  "Star Spirit Lore Dump": {
+    "verb_name": "Star Spirit Lore Dump",
+    "verb_group": "General",
+    "description": "Giving a bunch of info about the star spirit",
+    "status_values": [],
+    "data_entry_schema": {
+      "instructions": [
+        "Get lime",
+        "Get coconut",
+        "You put the lime in the coconut",
+        "Stir it all up"
+      ],
+      "raw_data_inputs": [],
+      "set_up_inputs": {
+        "noun_type_ref": "Star Spirit Lore"
+      },
+      "interpretation": {
+        "method": "parsed",
+        "tabs": [
+          "Theory"
+        ],
+        "parsers": []
+      }
+    },
+    "adverb_schema": {}
+  },
+  "55555555ttttttttttaaaaaaaaaaa": {
+    "verb_name": "55555555ttttttttttaaaaaaaaaaa",
+    "verb_group": "General",
+    "description": "aaaaaa",
+    "status_values": [],
+    "data_entry_schema": {
+      "instructions": [
+        "fafafaafaffafaafafawwwwwwwwww3333333",
+        "omgeadance",
+        "33ffff3333331111112222222",
+        "43214321"
+      ],
+      "raw_data_inputs": [
+        "laa laa land",
+        "souply",
+        ""
+      ],
+      "set_up_inputs": {
+        "noun_type_ref": "Easy Verb Noun"
+      },
+      "interpretation": {
+        "tabs": [
+          "seems dool cool",
+          "fav8apareon432souply222gag"
+        ],
+        "parsers": []
+      }
+    },
+    "adverb_schema": {
+      "Star Spirit": {
+        "adverb": "Star Spirit",
+        "verb": "55555555ttttttttttaaaaaaaaaaa",
+        "adverb_class": "Reference",
+        "description": "",
+        "required": true,
+        "reference_noun": "Star Spirit Lore",
+        "filters": {}
+      }
+    },
+    "linear_status": {
+      "enabled": false,
+      "allow_manual_completion": false,
+      "steps": []
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "fields": {
+    "2222222aaaaaaa": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "primary_id_field": "2222222aaaaaaa",
+  "autogenerate_id": false,
+  "autogenerate_segments": []
+}

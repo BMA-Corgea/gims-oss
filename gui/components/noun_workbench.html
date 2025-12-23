@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Noun Workbench</title>
+  <link rel="stylesheet" href="/static/styles/noun_workbench.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Noun Workbench</h1>
+      <div class="controls">
+        <div class="control-group">
+          <label for="project-select">Project</label>
+          <select id="project-select"></select>
+        </div>
+        <div class="control-group">
+          <label for="nounTypeSelect">Noun Type</label>
+          <select id="nounTypeSelect" disabled></select>
+        </div>
+        <button id="reloadSchemaBtn" class="ghost">Reload Schema</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- Manual form mode (Create/Edit) -->
+      <section class="card">
+        <div class="card-header">
+          <h2>Manual Form Mode</h2>
+        </div>
+        <div class="card-body row gap">
+          <div class="segmented" aria-label="Manual form mode">
+            <label>
+              <input type="radio" name="form-mode" value="create" checked />
+              <span>Create</span>
+            </label>
+            <label>
+              <input type="radio" name="form-mode" value="edit" />
+              <span>Edit</span>
+            </label>
+          </div>
+
+          <div id="editLoadArea" class="inline hidden">
+            <select id="editInstanceSelect" class="input" disabled>
+              <option value="">Select a noun type first</option>
+            </select>
+            <button id="loadInstanceBtn" class="btn" type="button">Load</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header split">
+          <h2>Manual Form</h2>
+          <div class="inline">
+            <button id="validateBtn" class="ghost" type="button">Validate</button>
+            <button id="saveBtn" class="primary" type="button">Save</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <form id="dynamicForm" class="form-grid" novalidate></form>
+          <div id="formMessages" class="messages"></div>
+        </div>
+      </section>
+
+      <!-- Bulk mode (Create/Update/Upsert) -->
+      <section class="card">
+        <div class="card-header split">
+          <h2>Bulk Upload</h2>
+          <div class="segmented" aria-label="Bulk mode">
+            <label>
+              <input type="radio" name="bulk-mode" value="create" />
+              <span>Create only</span>
+            </label>
+            <label>
+              <input type="radio" name="bulk-mode" value="update" />
+              <span>Update only</span>
+            </label>
+            <label>
+              <input type="radio" name="bulk-mode" value="upsert" checked />
+              <span>Upsert (default)</span>
+            </label>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="upload-row">
+            <label for="fileInput" class="file-label" role="button" tabindex="0">📂 Choose File</label>
+            <span id="fileName" class="file-name">No file selected</span>
+            <input id="fileInput" type="file" accept=".csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+            <button id="previewBtn" class="btn" type="button">Preview</button>
+            <button id="commitBtn" class="btn success" type="button" disabled>Commit Valid Rows</button>
+          </div>
+
+          <div class="messages" style="margin-top:8px;">
+            <div class="msg" style="display:inline-block;">
+              <strong>Legend:</strong>
+              <span class="chip" style="margin-left:8px;">Insert ➜ green</span>
+              <span class="chip" style="margin-left:8px;">Update ➜ purple</span>
+            </div>
+          </div>
+
+          <div id="bulkWarnings" class="messages"></div>
+          <div id="previewArea" class="table-wrap"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="status-bar" id="status-bar">Ready.</div>
+    </footer>
+  </div>
+
+  <script src="/static/scripts/noun_workbench.js" type="module"></script>
+</body>
+</html>

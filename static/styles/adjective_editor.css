@@ -1,0 +1,404 @@
+:root{
+  --bg: #0b0f14;
+  --panel: #0f1621;
+  --muted: #9db0c7;
+  --text: #e6eef8;
+  --accent: #5aa9ff;
+  --accent-2: #22c55e;
+  --warn: #f59e0b;
+  --error: #ef4444;
+  --border: #1f2a3a;
+  --chip: #111827;
+  --radius: 14px;
+  --shadow: 0 20px 50px rgba(0,0,0,0.35);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  color: var(--text);
+  font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  background:
+    radial-gradient(1200px 900px at 10% -10%, rgba(34, 197, 94, 0.07), transparent),
+    radial-gradient(1200px 900px at 110% 10%, rgba(59, 130, 246, 0.07), transparent),
+    var(--bg);
+}
+
+/* ───────────────── Top Bar ───────────────── */
+header {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; padding: 16px 20px;
+  backdrop-filter: blur(10px);
+  background: rgba(11,15,20,0.6);
+  border-bottom: 1px solid var(--border);
+}
+
+header h1 { margin: 0; font-size: 20px; font-weight: 700; }
+
+header .selectors {
+  display: flex; align-items: end; gap: 12px; flex-wrap: wrap;
+}
+
+header label {
+  display: inline-flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--muted);
+}
+
+header select {
+  min-width: 220px;
+  background: #0b1220; border: 1px solid var(--border); color: var(--text);
+  border-radius: 10px; padding: 10px 12px;
+}
+
+#load-noun {
+  border: 1px solid #274567;
+  color: var(--text);
+  background: linear-gradient(180deg, rgba(90,169,255,0.15), rgba(90,169,255,0.05));
+  padding: 10px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+#load-noun:hover { filter: brightness(1.08); }
+
+/* ───────────── Main layout / container ───────────── */
+main#editor-container {
+  max-width: 1200px;
+  margin: 24px auto;
+  padding: 0 16px 24px;
+  display: grid;
+  gap: 16px;
+}
+
+/* ───────────────── Card (adjectives) ──────────────── */
+.adjective-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent), var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.adjective-card h2 {
+  margin: 0;
+  padding: 14px 16px;
+  font-size: 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+
+.adjective-card > div[id^="fields-"] {
+  padding: 16px;
+}
+
+.adjective-card .actions {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+
+/* Buttons */
+button {
+  border: 1px solid var(--border);
+  color: var(--text);
+  background: #0b1220;
+  padding: 10px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: filter .15s ease, transform .02s ease;
+}
+button:hover { filter: brightness(1.08); }
+button:active { transform: translateY(1px); }
+
+/* Emphasize common actions by position (Save / Cancel / Demote) */
+.adjective-card .actions button:first-child {
+  background: linear-gradient(180deg, rgba(34,197,94,0.18), rgba(34,197,94,0.06));
+  border-color: #1e5a3b;
+}
+.adjective-card .actions button:nth-child(2) {
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+}
+.adjective-card .actions button:last-child,
+.delete-row,
+.delete-btn {
+  background: linear-gradient(180deg, rgba(239,68,68,0.12), rgba(239,68,68,0.05));
+  border-color: #5a2121;
+  color: #ffdede;
+}
+
+/* Inputs - REMOVE 100% width to prevent stretching */
+input[type="text"],
+input[type="number"],
+input[type="search"],
+input[type="file"],
+select,
+textarea {
+  background: #0b1220; 
+  border: 1px solid var(--border); 
+  color: var(--text);
+  border-radius: 10px; 
+  padding: 10px 12px;
+  /* REMOVE width: 100% - this was causing the stretching */
+  width: auto; /* Let the container control the width */
+  min-width: 0; /* Allow shrinking */
+}
+input::placeholder, textarea::placeholder { color: #7f93ad; }
+input[disabled], select[disabled] { opacity: .7; cursor: not-allowed; }
+
+/* JSON editor (if present) */
+textarea.json-editor {
+  min-height: 160px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 12.5px;
+  color: #c7e1ff;
+  width: 100%; /* But keep JSON editor full width */
+}
+
+/* ───────────── Editor rows / form-like grids ───────────── */
+.editor-row {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.editor-row .label,
+.editor-row .tag-value,
+.editor-row .tag-explanation,
+.editor-row .filter-val,
+.editor-row .value,
+.editor-row select {
+  grid-column: span 6;
+}
+.editor-row .verbs-container,
+.editor-row .filter-attr,
+.editor-row .filter-noun { grid-column: span 3; }
+.editor-row .delete-row,
+.editor-row .delete-filter { grid-column: span 2; justify-self: start; }
+
+/* Verb checkbox "chips" */
+.verbs-container {
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.verbs-container label {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 10px;
+  background: var(--chip);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 12px; color: var(--text);
+}
+.verbs-container input[type="checkbox"] { accent-color: var(--accent); }
+
+/* ───────────────────────────────
+   FIXED: Compact Tag option rows 
+   ─────────────────────────────── */
+.tag-option-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+/* Let Tag value span half the card */
+.tag-option-row .tag-value {
+  flex: 1;
+  min-width:30%;
+  max-width: 35%;
+}
+
+/* Make Tag definition input full width */
+.tag-definition {
+  width: 100% !important;
+  max-width: none !important;
+  flex: 1 1 100%;
+}
+
+.tag-option-row .tag-explanation {
+  flex: 1; /* Take remaining space */
+  min-width: 200px;
+  max-width: 400px; /* Don't let it get too wide */
+}
+
+.tag-option-row label { 
+  display: flex; 
+  align-items: center; 
+  gap: 6px; 
+  color: var(--muted);
+  font-size: 13px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin: 0 8px;
+}
+
+.tag-option-row .tag-display { 
+  transform: translateY(1px); 
+  margin: 0;
+}
+
+.tag-option-row button { 
+  width: 32px; 
+  height: 32px; 
+  border-radius: 999px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Ensure inputs don't stretch */
+.tag-option-row input[type="text"] {
+  width: 100%; /* Now this only affects the container width */
+}
+
+/* ───────────────────────────────
+   FIXED: Compact ReferenceList filters
+   ─────────────────────────────── */
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.filter-row .filter-noun {
+  width: 160px;
+  flex-shrink: 0;
+}
+
+.filter-row .filter-attr {
+  width: 160px;
+  flex-shrink: 0;
+}
+
+.filter-row .filter-val {
+  flex: 1;
+  min-width: 180px;
+  max-width: 300px;
+}
+
+.filter-row .delete-filter {
+  width: 32px; 
+  height: 32px; 
+  border-radius: 999px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Register New Adjectives section */
+#register-adj-section {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent), var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 12px 14px; margin-top: 6px;
+}
+#register-adj-section h3 {
+  margin: 0 0 10px 0;
+  font-size: 15px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+}
+.register-row {
+  display: grid; grid-template-columns: 1fr 2fr auto; gap: 10px; align-items: center;
+  margin-bottom: 8px;
+}
+.register-row span { font-weight: 600; color: var(--text); }
+.register-row select {
+  background: #0b1220; border: 1px solid var(--border); color: var(--text);
+  border-radius: 10px; padding: 8px 10px;
+}
+.register-row button {
+  padding: 8px 12px;
+  background: linear-gradient(180deg, rgba(90,169,255,0.15), rgba(90,169,255,0.05));
+  border: 1px solid #274567;
+}
+
+/* Footer / status */
+footer {
+  padding: 16px 20px;
+  background: rgba(11,15,20,0.6);
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 12px;
+}
+#status {
+  display: inline-block;
+  padding: 8px 10px; border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #0b1220;
+}
+
+/* Small niceties */
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+::selection { background: rgba(90,169,255,0.25); }
+
+/* ───────────────────────────────
+   ActionRequirement: scrollable verbs
+   ─────────────────────────────── */
+.verbs-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);  /* exactly 5 columns */
+  overflow-y: auto;                       /* scroll vertically */
+  overflow-x: hidden;                     /* prevent sideways scroll */
+  gap: 10px;
+  max-height: 260px;              /* make it reasonable */
+  overflow: auto;                 /* scroll inside */
+  padding: 8px;
+  background: var(--chip);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.verbs-container label {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+}
+
+/* Responsive tweaks */
+@media (max-width: 720px) {
+  header select { min-width: 0; }
+  .editor-row { grid-template-columns: 1fr; }
+  
+  .tag-option-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  
+  .tag-option-row .tag-value,
+  .tag-option-row .tag-explanation {
+    width: 100% !important;
+    max-width: none !important;
+  }
+  
+  .tag-option-row label {
+    margin: 0;
+    justify-content: flex-start;
+  }
+  
+  .filter-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .filter-row .filter-noun,
+  .filter-row .filter-attr,
+  .filter-row .filter-val {
+    width: 100% !important;
+    max-width: none !important;
+  }
+  
+  .register-row { grid-template-columns: 1fr; }
+}

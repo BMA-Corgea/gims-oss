@@ -1,0 +1,12 @@
+{
+  "default": {
+    "strategy": "hard",
+    "on_reference": "tombstone",
+    "archive_after_days": 0,
+    "max_items": null,
+    "include_files": true,
+    "schema_versioning": true
+  },
+  "nouns": {},
+  "verbs": {}
+}
