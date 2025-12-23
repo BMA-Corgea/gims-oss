@@ -227,10 +227,9 @@ Advanced compliance features (e.g. cryptographic signatures) may exist in separa
         Follow PEP8, keep logic in /core, and keep GUI layers thin.
 
 ## Closing
-    Closing
 
-        GIMS is a general engine. Today it ships configured for lab workflows, but the same grammar models HR, finance, or any operational process.
+    GIMS is a general engine. Today it ships configured for lab workflows, but the same grammar models HR, finance, or any operational process.
 
-        One platform. Many domains.
+    One platform. Many domains.
 
-        Happy tracking.
+    Happy tracking.
