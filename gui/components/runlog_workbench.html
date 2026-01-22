@@ -3,11 +3,32 @@
 <head>
   <meta charset="UTF-8" />
   <title>Runlog Workbench</title>
+
+  <!-- Local styles -->
   <link rel="stylesheet" href="/static/styles/runlog_workbench.css" />
-  <link rel="stylesheet" href="https://esm.sh/@glideapps/glide-data-grid@6/dist/index.css">
+
+  <!-- Glide Data Grid styles -->
+  <link
+    rel="stylesheet"
+    href="https://esm.sh/@glideapps/glide-data-grid@6/dist/index.css"
+  />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
+
+  <!-- 🔑 IMPORT MAP: fixes bare module specifiers -->
+  <script type="importmap">
+  {
+    "imports": {
+      "react": "https://esm.sh/react@19?dev",
+      "react-dom": "https://esm.sh/react-dom@19?dev",
+      "react-dom/client": "https://esm.sh/react-dom@19/client?dev",
+      "@glideapps/glide-data-grid": "https://esm.sh/@glideapps/glide-data-grid@6"
+    }
+  }
+  </script>
 </head>
+
 <body>
   <div class="container">
     <header>
@@ -47,8 +68,13 @@
     </footer>
   </div>
 
-	<script src="/static/scripts/runlog_workbench.js?v=20250806193822"></script>
-  <!-- Required by Glide Data Grid -->
+  <!-- Required by Glide Data Grid portals -->
   <div id="portal"></div>
+
+  <!-- 🚀 Your JS must be a module -->
+  <script
+    type="module"
+    src="/static/scripts/runlog_workbench.js?v=20250806193822">
+  </script>
 </body>
 </html>
