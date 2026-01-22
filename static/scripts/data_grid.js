@@ -10,17 +10,17 @@ import React, {
   useImperativeHandle,
   forwardRef,
   useLayoutEffect,
-} from "https://esm.sh/react@18.3.1";
+} from "https://esm.sh/react@19?dev";
 
-import { createRoot } from "https://esm.sh/react-dom@18.3.1/client";
+import { createRoot } from "https://esm.sh/react-dom@19/client?dev";
 
 import DataEditor, {
   GridCellKind
-} from "https://esm.sh/@glideapps/glide-data-grid@6.0.3?deps=react@18.3.1&deps=react-dom@18.3.1";
+} from "https://esm.sh/@glideapps/glide-data-grid@latest?dev&deps=react@19?dev&deps=react-dom@19?dev&external=react,react-dom";
 
 // ---------- tiny helpers ----------
 // Debug control - set to false to disable all grid debug logging
-const DEBUG_ENABLED = false; // Change to true to enable debug logs
+const DEBUG_ENABLED = true; // Change to true to enable debug logs
 
 // Debug helper that respects the flag
 const debug = DEBUG_ENABLED ? console.debug.bind(console) : () => {};
@@ -79,7 +79,7 @@ function ensureGlideStyles() {
     return;
   }
   const href =
-    "https://esm.sh/@glideapps/glide-data-grid@6.0.3/dist/index.css";
+    "https://esm.sh/@glideapps/glide-data-grid@latest/dist/index.css";
   const link = document.createElement("link");
   link.rel = "stylesheet";
   link.href = href;
