@@ -1,297 +1,127 @@
+/* ══════════════════════════════════════════════════════════════
+   Adverb Manager — Watery v2 (page-specific layout only).
+   Colours/surfaces come from watery.css + shell.css tokens; the bespoke
+   light-theme (#f5f5f5 / #2c3e50 / #2ecc71 …) :root-less palette was dropped.
+   Class names (.adverb-manager / .left-panel / .type-config / .tag-option-item /
+   .edit-btn / .delete-btn / .hidden …) are the adverb_editor.js DOM contract and
+   are preserved — this file only restyles them onto Watery.
+═══════════════════════════════════════════════════════════════ */
 
-/* Base styles */
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  margin: 0;
-  padding: 20px;
-  background-color: #f5f5f5;
-  color: #333;
+.adverb-manager { display: flex; flex-direction: column; gap: 18px; }
+
+/* ── Toolbar (project picker) ── */
+.adv-toolbar-row { flex-direction: row; flex-wrap: wrap; align-items: flex-end; gap: 16px; }
+.adv-project { min-width: 240px; }
+
+/* ── Two-column workspace ── */
+.main-container { display: flex; gap: 18px; align-items: flex-start; }
+.left-panel { width: 280px; flex-shrink: 0; }
+.right-panel { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
+
+/* Verb list (native multi-select restyled onto Watery) */
+.verb-selector { padding: 14px; }
+.adv-verb-list { height: auto; min-height: 300px; padding: 6px; overflow-y: auto; }
+.adv-verb-list option { padding: 7px 9px; border-radius: var(--radius-sm); color: var(--text-mid); }
+.adv-verb-list option:checked { background: var(--accent-light); color: var(--text); }
+
+/* push panel-head trailing actions to the right edge */
+.adv-head-right { margin-left: auto; }
+
+/* ── Adverb table ── */
+.adverb-list { overflow-x: auto; max-height: 60vh; overflow-y: auto; }
+.adv-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.adv-table thead th {
+  position: sticky; top: 0; z-index: 1; text-align: left; padding: 10px 14px;
+  font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px;
+  color: var(--text-soft); background: var(--surface); border-bottom: 1px solid var(--card-edge);
 }
+.adv-table tbody td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; color: var(--text-mid); }
+.adv-table tbody tr:hover { background: var(--accent-light); }
+.adv-table td[colspan] { text-align: center; color: var(--text-soft); padding: 28px 14px; font-style: italic; }
+.adv-col-actions { width: 150px; }
 
-.adverb-manager {
-  max-width: 1200px;
-  margin: 0 auto;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-}
+/* ── Form ── */
+#adverb-form .field { gap: 6px; }
+.adv-required-field { flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; }
+.adv-required-field .field-label { margin: 0; }
+.form-actions { display: flex; gap: 10px; margin-top: 6px; justify-content: flex-end; }
 
-/* Header section */
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #eee;
-}
-
-.section-header h2 {
-  margin: 0;
-  color: #2c3e50;
-}
-
-.project-selector {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.project-selector select {
-  padding: 8px 12px;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-  background-color: #fff;
-  min-width: 200px;
-}
-
-/* Main container layout */
-.main-container {
-  display: flex;
-  gap: 20px;
-  height: calc(100vh - 150px);
-  min-height: 500px;
-}
-
-.left-panel {
-  width: 25%;
-  border-right: 1px solid #eee;
-  padding-right: 20px;
-}
-
-.right-panel {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-/* Verb selector */
-.verb-selector h3 {
-  margin-top: 0;
-  color: #2c3e50;
-}
-
-.verb-selector select {
-  width: 100%;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-  background-color: #fff;
-}
-
-/* Adverb list */
-.adverb-list-container {
-  background-color: #f9f9f9;
-  border-radius: 6px;
-  padding: 15px;
-  flex: 1;
-}
-
-.panel-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.panel-header h3 {
-  margin: 0;
-  color: #2c3e50;
-}
-
-.adverb-list table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.adverb-list th {
-  text-align: left;
-  padding: 10px;
-  background-color: #f1f1f1;
-  border-bottom: 2px solid #ddd;
-  color: #555;
-}
-
-.adverb-list td {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-}
-
-.adverb-list tr:hover {
-  background-color: #f5f5f5;
-}
-
-/* Form styles */
-#adverb-form-container {
-  background-color: #f9f9f9;
-  border-radius: 6px;
-  padding: 15px;
-  flex: 1;
-}
-
-.form-group {
-  margin-bottom: 15px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: 500;
-  color: #555;
-}
-
-.form-group input[type="text"],
-.form-group textarea,
-.form-group select {
-  width: 100%;
-  padding: 8px 12px;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-  background-color: #fff;
-}
-
-.form-group textarea {
-  resize: vertical;
-}
-
-/* Button styles */
-.action-button {
-  padding: 8px 12px;
-  border-radius: 4px;
-  border: none;
-  background-color: #3498db;
-  color: white;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.action-button:hover {
-  background-color: #2980b9;
-}
-
-.action-button:disabled {
-  background-color: #95a5a6;
-  cursor: not-allowed;
-}
-
-.primary-button {
-  padding: 10px 16px;
-  border-radius: 4px;
-  border: none;
-  background-color: #2ecc71;
-  color: white;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.primary-button:hover {
-  background-color: #27ae60;
-}
-
-.secondary-button {
-  padding: 8px 12px;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-  background-color: #f9f9f9;
-  color: #555;
-  cursor: pointer;
-}
-
-.secondary-button:hover {
-  background-color: #f1f1f1;
-}
-
-.form-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 20px;
-  justify-content: flex-end;
-}
-
-/* Type-specific config sections */
+/* ── Type-specific config blocks ── */
 .type-config {
-  background-color: #f1f1f1;
-  padding: 15px;
-  border-radius: 6px;
-  margin-top: 15px;
-  margin-bottom: 15px;
+  display: flex; flex-direction: column; gap: 13px;
+  background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 15px; margin-top: 4px;
 }
+.adv-config-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-2); }
+.adv-config-subtitle { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-soft); }
 
-.type-config h4 {
-  margin-top: 0;
-  color: #2c3e50;
-}
+.tag-options-container,
+.filters-container { display: flex; flex-direction: column; gap: 11px; }
+#tag-options-list,
+#filters-list,
+#reference-nouns-container { display: flex; flex-direction: column; gap: 10px; }
 
-/* Tag options */
-.tag-options-container {
-  margin-top: 10px;
-}
-
-.tag-option-item {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-  padding: 10px;
-  background-color: #fff;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-}
-
-/* Filters */
-.filters-container {
-  margin-top: 15px;
-}
-
-.filter-item {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-  padding: 10px;
-  background-color: #fff;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-}
-
-/* Reference nouns */
+/* repeated rows (built by JS as plain inputs/selects — give them Watery surfaces) */
+.tag-option-item,
+.filter-item,
 .reference-noun-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-  padding: 10px;
-  background-color: #fff;
-  border-radius: 4px;
-  border: 1px solid #ddd;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 10px 12px; background: var(--surface); border: 1px solid var(--card-edge); border-radius: var(--radius-sm);
+}
+.tag-option-item input[type="text"],
+.tag-option-value,
+.tag-option-explanation,
+.filter-item input[type="text"],
+.filter-value,
+.filter-item select,
+.filter-field,
+.reference-noun-item select,
+.reference-noun-select {
+  flex: 1 1 140px; min-width: 0; padding: 8px 11px; font-size: 13px; font-family: inherit;
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--surface2);
+  color: var(--text); outline: none; appearance: none; transition: border-color .18s, box-shadow .18s, background .18s;
+}
+.tag-option-item input[type="text"]:focus,
+.filter-item input[type="text"]:focus,
+.filter-item select:focus,
+.reference-noun-item select:focus {
+  border-color: var(--accent); background: rgba(45,212,191,0.06); box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.tag-option-item label {
+  display: inline-flex; align-items: center; gap: 7px; flex: 0 0 auto;
+  font-size: 12px; color: var(--text-mid); white-space: nowrap; cursor: pointer;
+}
+.tag-option-display { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+
+/* ── JS-built action buttons (.edit-btn / .delete-btn DOM contract) ── */
+.edit-btn, .delete-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 6px 11px; font-size: 12px; font-weight: 600; font-family: inherit;
+  border-radius: var(--radius-sm); border: 1.5px solid; cursor: pointer;
+  transition: transform .12s, box-shadow .15s, background .15s, border-color .15s, color .15s;
+}
+.edit-btn { background: var(--blue-light); border-color: var(--blue-border); color: var(--blue-text); }
+.edit-btn:hover { color: #fff; background: var(--blue-light); border-color: var(--blue); transform: translateY(-1px); box-shadow: 0 3px 14px var(--blue-glow); }
+.delete-btn { background: var(--red-light); border-color: var(--red-border); color: var(--red-text); }
+.delete-btn:hover { color: #fff; border-color: var(--red); transform: translateY(-1px); box-shadow: 0 3px 14px rgba(240,114,106,0.4); }
+/* inline "×" removers inside the repeated rows render compact + square */
+.tag-option-item .delete-btn,
+.filter-item .delete-btn,
+.reference-noun-item .delete-btn {
+  flex: 0 0 auto; width: 30px; height: 30px; padding: 0; font-size: 16px; line-height: 1; margin-left: auto;
 }
 
-/* Utility classes */
-.hidden {
-  display: none;
-}
+/* ── Confirm modal ── */
+.adv-confirm-msg { font-size: 13.5px; line-height: 1.5; color: var(--text-mid); }
 
-.delete-btn {
-  background-color: #e74c3c;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 5px 10px;
-  cursor: pointer;
-}
+/* status bar kept for JS fallback; toolkit toasts are the primary channel now */
+#status-bar { display: none; }
 
-.delete-btn:hover {
-  background-color: #c0392b;
-}
+.hidden { display: none !important; }
 
-.edit-btn {
-  background-color: #3498db;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 5px 10px;
-  cursor: pointer;
-}
-
-.edit-btn:hover {
-  background-color: #2980b9;
+/* ── Responsive ── */
+@media (max-width: 860px) {
+  .main-container { flex-direction: column; }
+  .left-panel { width: 100%; }
+  .adv-verb-list { min-height: 160px; }
 }

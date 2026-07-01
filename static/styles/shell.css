@@ -1,0 +1,219 @@
+/* ══════════════════════════════════════════════════════════════
+   GIMS App Shell — Watery v2 (deep water · tan sun-shaft frames · blue actions)
+   The reusable chrome every UI page renders inside: section rail (workspace nav),
+   header (title + profile chip), first-class login card, content slot, toasts.
+   Injected server-side by core/orchestration/page_node.py (shell=True).
+   Colours/components come from watery.css; this file is layout + shell structure.
+   The launcher keeps its own launcher.css (it predates this and adds sections).
+═══════════════════════════════════════════════════════════════ */
+
+:root { --rail-w: 244px; }
+
+body { min-height: 100vh; }
+[hidden] { display: none !important; }
+
+/* richer 3-blob ambient drift (matches the launcher) */
+body.watery-bg::before {
+  content: ''; position: fixed; inset: -25%; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(ellipse 38% 34% at 16% 8%,  var(--warm-glow) 0%, transparent 62%),
+    radial-gradient(ellipse 40% 38% at 88% 22%, var(--glow-aqua) 0%, transparent 62%),
+    radial-gradient(ellipse 50% 42% at 60% 112%, var(--blue-light) 0%, transparent 60%);
+  animation: drift 24s ease-in-out infinite alternate;
+}
+
+/* userchip replaces the floating State Dock on watery shell pages */
+body.watery-bg #state-dock { display: none !important; }
+
+/* ════════ App shell grid ════════ */
+.app-shell { display: grid; grid-template-columns: var(--rail-w) minmax(0, 1fr); min-height: 100vh; }
+body.is-anon .app-shell,
+body.is-loading .app-shell { grid-template-columns: minmax(0, 1fr); }
+
+/* ════════ State visibility (driven by /login/inject.js body classes) ════════ */
+.userchip      { display: none; }
+.auth-loading  { display: none; }
+#gims-login    { display: none; }
+.shell-content { display: none; }
+.shell-help    { display: none; }
+body.is-loading .auth-loading { display: flex; }
+body.is-anon    #gims-login   { display: block; }
+body.is-authed  .shell-content{ display: flex; flex-direction: column; gap: 18px; }
+body.is-authed  .userchip     { display: block; }
+body.is-authed  .shell-help   { display: inline-flex; }
+body.is-anon    .rail,
+body.is-loading .rail         { display: none; }
+
+/* ════════ Section rail (workspace navigator) ════════ */
+.rail {
+  position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 2px; padding: 18px 14px;
+  border-right: 1px solid var(--card-edge);
+  background:
+    radial-gradient(120% 30% at 12% 0%,  var(--warm-glow) 0%, transparent 60%),
+    radial-gradient(100% 36% at 60% 102%, var(--glow-aqua) 0%, transparent 70%),
+    linear-gradient(180deg, var(--bg2), var(--bg));
+}
+.rail-brand { display: flex; align-items: center; gap: 11px; padding: 4px 8px 16px; text-decoration: none; }
+.rail-brand-mark { width: 36px; height: 36px; }
+.rail-brand-mark .icon { width: 21px; height: 21px; filter: drop-shadow(0 0 6px var(--accent-glow)); }
+.rail-brand-text {
+  font-weight: 700; font-size: 17px; letter-spacing: 0.5px;
+  background: linear-gradient(100deg, var(--text), var(--accent-2));
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.rail-nav { display: flex; flex-direction: column; gap: 2px; }
+.rail-group-label {
+  font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.4px;
+  color: var(--text-mute); padding: 13px 10px 5px;
+}
+.rail-link {
+  display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: var(--radius-sm);
+  color: var(--text-mid); text-decoration: none; font-weight: 600; font-size: 12.5px;
+  border: 1px solid transparent; transition: background .15s, color .15s, border-color .15s;
+}
+.rail-link-icon { width: 26px; height: 26px; }
+.rail-link-icon .icon { width: 14px; height: 14px; }
+.rail-link-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rail-link:hover { background: var(--surface); color: var(--text); border-color: var(--border2); }
+.rail-link.active {
+  color: var(--text); border-color: var(--card-edge);
+  background: linear-gradient(180deg, var(--card), var(--surface));
+  box-shadow: inset 3px 0 0 var(--accent), var(--shadow-sm);
+}
+.rail-link.active .rail-link-icon { color: var(--accent); }
+.rail-foot { margin-top: auto; padding-top: 14px; display: flex; flex-direction: column; gap: 2px; }
+
+/* ════════ Main column ════════ */
+.app-main { width: 100%; max-width: 1180px; margin: 0 auto; padding: clamp(20px, 3vw, 38px); }
+
+/* ── Header ── */
+.shell-header {
+  display: flex; align-items: center; gap: 18px; margin-bottom: 24px; padding-bottom: 20px;
+  border-bottom: 1px solid var(--card-edge);
+}
+.shell-head-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.shell-kicker {
+  font-size: 10.5px; font-weight: 700; letter-spacing: 2.2px; text-transform: uppercase; color: var(--accent);
+  display: flex; align-items: center; gap: 9px;
+}
+.shell-kicker::before { content: ''; width: 18px; height: 2px; border-radius: 2px; background: linear-gradient(90deg, var(--accent), transparent); }
+.shell-title {
+  font-size: clamp(1.5rem, 2.4vw, 2.05rem); font-weight: 700; line-height: 1.04; letter-spacing: -0.5px;
+  background: linear-gradient(100deg, var(--text) 14%, var(--accent-2) 56%, var(--blue-2) 96%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.shell-head-actions { margin-left: auto; display: flex; align-items: center; gap: 10px; flex-shrink: 0; align-self: flex-start; }
+.shell-help {
+  display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; cursor: pointer;
+  border-radius: 50%; background: var(--card); border: 1px solid var(--card-edge); color: var(--text-mid);
+  transition: border-color .15s, color .15s, box-shadow .15s;
+}
+.shell-help:hover { border-color: var(--card-edge-strong); color: var(--text); box-shadow: 0 3px 14px var(--accent-glow); }
+.shell-help .icon { width: 18px; height: 18px; }
+
+/* ── Profile chip (same DOM contract as the launcher) ── */
+.userchip { position: relative; flex-shrink: 0; }
+.userchip-btn {
+  display: flex; align-items: center; gap: 10px; padding: 6px 12px 6px 7px; cursor: pointer;
+  border-radius: 99px; background: var(--card); border: 1px solid var(--card-edge); color: var(--text);
+  font-family: inherit; transition: border-color .15s, box-shadow .15s, background .15s;
+}
+.userchip-btn:hover { border-color: var(--card-edge-strong); box-shadow: 0 3px 14px var(--accent-glow); }
+.userchip-avatar { width: 30px; height: 30px; }
+.userchip-avatar .icon { width: 17px; height: 17px; }
+.userchip-avatar.lg { width: 42px; height: 42px; }
+.userchip-avatar.lg .icon { width: 23px; height: 23px; }
+.userchip-meta { display: flex; flex-direction: column; line-height: 1.2; text-align: left; }
+.userchip-name { font-size: 13px; font-weight: 700; }
+.userchip-sub  { font-size: 11px; color: var(--text-mid); }
+.userchip-caret { width: 15px; height: 15px; color: var(--text-soft); transition: transform .2s; }
+.userchip-btn[aria-expanded="true"] .userchip-caret { transform: rotate(180deg); }
+.userchip-menu {
+  position: absolute; right: 0; top: calc(100% + 8px); width: 300px; z-index: 60;
+  display: flex; flex-direction: column; gap: 12px; padding: 14px;
+}
+.userchip-id { display: flex; align-items: center; gap: 12px; }
+.userchip-id-text { display: flex; flex-direction: column; min-width: 0; }
+.userchip-email { font-size: 12px; color: var(--text-soft); word-break: break-all; }
+.userchip-badges { display: flex; flex-wrap: wrap; gap: 6px; }
+.userchip-badges:empty { display: none; }
+.userchip-kv {
+  display: flex; justify-content: space-between; gap: 10px; font-size: 12px; color: var(--text-mid);
+  border-top: 1px solid var(--card-edge); padding-top: 11px;
+}
+.userchip-kv span:last-child { color: var(--text); text-align: right; }
+.userchip-menu-foot { display: flex; gap: 8px; }
+.userchip-menu-foot .btn { flex: 1; }
+
+/* ── Loading shim ── */
+.auth-loading { align-items: center; gap: 11px; color: var(--text-soft); font-size: 14px; padding: 56px 4px; }
+.auth-loading-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); animation: pulse-dot 1.6s ease infinite; }
+
+/* ════════ Login card (same DOM contract as the launcher) ════════ */
+.auth-card { max-width: 440px; margin: 4vh auto 0; padding: 26px; position: relative; }
+.auth-card::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 3px; background: linear-gradient(90deg, var(--warm-2), var(--warm)); opacity: 0.9; }
+.auth-head { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+.auth-mark { width: 46px; height: 46px; box-shadow: inset 0 0 18px var(--accent-light); }
+.auth-mark .icon { width: 24px; height: 24px; }
+.auth-title { font-size: 19px; font-weight: 700; }
+.auth-sub { font-size: 13px; color: var(--text-mid); margin-top: 2px; }
+.auth-form { display: flex; flex-direction: column; gap: 14px; }
+.auth-submit { width: 100%; margin-top: 4px; }
+.auth-msg { font-size: 12.5px; line-height: 1.45; padding: 9px 12px; border-radius: var(--radius-sm); }
+.auth-msg.err { color: var(--red-text); background: var(--red-light); border: 1px solid var(--red-border); }
+.auth-msg.ok  { color: var(--green-text); background: var(--green-light); border: 1px solid rgba(52,224,161,0.4); }
+.auth-foot { margin-top: 16px; text-align: center; font-size: 13px; color: var(--text-soft); }
+.auth-switch { all: unset; cursor: pointer; color: var(--blue-text); font-weight: 700; border-radius: 4px; }
+.auth-switch:hover { color: var(--blue-2); text-decoration: underline; }
+.auth-switch:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* ════════ Content slot ════════ */
+/* visibility is driven by the body.is-* state rules above (hidden until is-authed);
+   this only adds the entrance motion so it doesn't re-declare `display` and unhide it. */
+body.is-authed .shell-content { animation: rise .4s ease both; }
+
+/* ════════ Canonical states (rendered by gims.js renderEmpty/Loading/Error) ════════ */
+.gims-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+  text-align: center; padding: 48px 20px; color: var(--text-soft);
+}
+.gims-state-mark { width: 52px; height: 52px; }
+.gims-state-mark .icon { width: 24px; height: 24px; }
+.gims-state.is-error .gims-state-mark { color: var(--red-text); background: var(--red-light); border-color: var(--red-border); }
+.gims-state-title { color: var(--text); font-size: 16px; font-weight: 700; }
+.gims-state-msg { max-width: 440px; font-size: 13.5px; line-height: 1.55; }
+.gims-spinner {
+  width: 30px; height: 30px; border-radius: 50%; border: 3px solid var(--border2);
+  border-top-color: var(--accent); animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ════════ Tooltip ════════ */
+.tooltip {
+  position: absolute; max-width: 270px; padding: 9px 12px; z-index: 1000; pointer-events: none;
+  font-size: 12.5px; line-height: 1.45; color: var(--text); background: var(--surface);
+  border: 1px solid var(--accent); border-radius: var(--radius-sm); box-shadow: var(--shadow-lg);
+  opacity: 0; transition: opacity .18s ease;
+}
+
+/* ════════ Responsive ════════ */
+@media (max-width: 880px) {
+  .app-shell { grid-template-columns: minmax(0, 1fr); }
+  body.is-authed .rail { display: flex; }
+  .rail {
+    position: static; height: auto; overflow: visible; flex-direction: row; flex-wrap: wrap;
+    align-items: center; gap: 6px; border-right: none; border-bottom: 1px solid var(--card-edge);
+  }
+  .rail-brand { padding: 4px 8px; }
+  .rail-group-label { display: none; }
+  .rail-nav { flex-direction: row; flex-wrap: wrap; gap: 6px; }
+  .rail-link { padding: 6px 10px; }
+  .rail-link-text { display: none; }
+  .rail-foot { margin: 0; flex-direction: row; }
+  .shell-header { flex-wrap: wrap; }
+}
+@media (max-width: 560px) {
+  .userchip-meta { display: none; }
+  .userchip-menu { width: min(86vw, 300px); }
+}

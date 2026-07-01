@@ -1,60 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>GIMS Investigator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="/static/styles/investigation.css" />
-</head>
-<body>
-  <header>
-    <h1>🧬 GIMS Lineage Investigator</h1>
-  </header>
-
-  <div class="controls-panel">
-    <div class="control-group">
-      <label for="project">Project</label>
-      <select id="project"></select>
-    </div>
-    <div class="control-group">
-      <label for="noun">Noun Type</label>
-      <select id="noun"></select>
-    </div>
-    <div class="control-group">
-      <label for="filter">Filter</label>
-      <input id="filter" type="text" placeholder="Filter by any text…" />
-    </div>
-    <button id="load-button" onclick="loadRecords()">🔍 Load Records</button>
-  </div>
-
-  <div class="main-container">
-    <div class="panel records-panel">
-      <h2>Records</h2>
-      <div class="records-container">
-        <table id="record-table">
-          <thead></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="panel lineage-panel">
-      <h2>Lineage Details</h2>
-      <div id="output" class="lineage-content">
-        <div class="placeholder-message">Select a record from the table to view its lineage</div>
-      </div>
-    </div>
-  </div>
-
-  <footer>
-    <div class="footer-content">GIMS Investigation Tool</div>
-  </footer>
-
-  <script>
-    const s = document.createElement("script");
-    s.src = `/static/scripts/investigation.js?v=${Date.now()}`;
-    document.body.appendChild(s);
-  </script>
-</body>
-</html>
+<!-- Investigation (Lineage Investigator) — content fragment (rendered inside the Watery app-shell; see
+     core/orchestration/page_node.py shell=True). Phase 6 (remaining vanilla R1): a React page.
+     investigation.jsx (built to static/lib/investigation.js, loaded via the node's head_extra after
+     vendor.js) fills #investigation-root — the reactive records GridTable (left) → the visual lineage
+     story (right). The page reuses investigation.css. The tour targets #project/.records-panel/
+     .lineage-panel are preserved. DOM contract: #investigation-root. -->
+<div id="investigation-root"></div>

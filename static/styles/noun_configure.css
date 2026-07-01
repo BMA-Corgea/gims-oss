@@ -1,197 +1,127 @@
-/* Dark modern facelift for Noun Configure */
+/* ══════════════════════════════════════════════════════════════
+   Noun Configure — Watery v2 (page-specific layout only).
+   Colours/surfaces come from watery.css + shell.css tokens; the bespoke
+   dark-navy :root palette (--bg/--panel/--accent/…) was dropped. Class names
+   (.nc-*) are the noun_configure.js DOM contract and are preserved — this file
+   restyles them onto Watery. JS-built rows use the bare .nc-input/.nc-select/
+   .nc-btn classes (no Watery class), so those carry the full look here.
+═══════════════════════════════════════════════════════════════ */
 
-.nc-body {
-  --bg: #0f1115;
-  --panel: #151923;
-  --panel-2: #1b2130;
-  --text: #e7ecf3;
-  --muted: #98a2b3;
-  --border: #2a3244;
-  --accent: #7c9cff;
-  --accent-2: #5de2a5;
-  --danger: #ff6b6b;
+/* ── Toolbar (project / noun / mode / run) ── */
+.nc-toolbar { flex-direction: row; flex-wrap: wrap; align-items: flex-end; gap: 14px; }
+.nc-field { display: flex; flex-direction: column; gap: 6px; min-width: 190px; }
+.nc-field > span { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-soft); }
+#configure-button { margin-left: auto; align-self: flex-end; }
 
-  background: var(--bg);
-  color: var(--text);
-  font: 14px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
-  padding: 20px;
-}
-
-.nc-header { margin-bottom: 16px; }
-
-.nc-title {
-  font-size: 28px;
-  margin: 0 0 10px;
-  letter-spacing: 0.5px;
-}
-
-.nc-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-  background: var(--panel);
-  padding: 10px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-}
-
-.nc-field { display: grid; gap: 4px; min-width: 180px; }
-.nc-field > span { font-size: 12px; color: var(--muted); }
-
+/* ── Inputs / selects (JS-created rows use bare .nc-input / .nc-select) ── */
 .nc-input, .nc-select {
-  background: var(--panel-2);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 8px 10px;
-  outline: none;
+  width: 100%; padding: 9px 12px; font-size: 13px; font-family: inherit;
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--surface2);
+  color: var(--text); outline: none; appearance: none;
+  transition: border-color .18s, box-shadow .18s, background .18s;
 }
-.nc-input:focus, .nc-select:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent);
-}
+.nc-input:focus, .nc-select:focus { border-color: var(--accent); background: rgba(45,212,191,0.06); box-shadow: 0 0 0 3px var(--accent-glow); }
+.nc-input:hover:not(:focus), .nc-select:hover:not(:focus) { border-color: var(--border2); }
 
-.nc-radio-group { display: inline-flex; gap: 10px; border: 0; }
-.nc-radio { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
+/* ── Radio mode toggle ── */
+.nc-radio-group { display: inline-flex; align-items: center; gap: 14px; border: 0; padding-bottom: 9px; }
+.nc-radio { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-mid); cursor: pointer; }
+.nc-radio input { accent-color: var(--accent); width: 15px; height: 15px; }
 
+/* ── Buttons (.nc-btn is the JS contract; map onto Watery .btn) ── */
 .nc-btn {
-  background: var(--panel-2);
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 9px 14px;
+  font-size: 13px; font-weight: 600; font-family: inherit; border: 1.5px solid var(--border2);
+  border-radius: var(--radius-sm); background: var(--surface2); color: var(--text); cursor: pointer;
+  transition: transform .12s, box-shadow .15s, background .15s, border-color .15s, color .15s;
 }
-.nc-btn:hover { border-color: var(--accent); }
+.nc-btn:hover:not(:disabled) { border-color: var(--accent); color: #fff; transform: translateY(-1px); box-shadow: 0 3px 14px var(--accent-glow); }
+.nc-btn:active:not(:disabled) { transform: translateY(0); }
+.nc-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.nc-btn .icon { width: 14px; height: 14px; }
+
+/* primary CTA — Watery action blue (aqua stays the accent for borders/focus/icons) */
 .nc-btn-primary {
-  background: var(--accent);
-  color: #0b1022;
-  border-color: transparent;
-  font-weight: 600;
+  position: relative; overflow: hidden; color: #fff; border: none; padding: 10px 16px; font-weight: 700;
+  letter-spacing: 0.2px; background: linear-gradient(135deg, var(--blue-cta-1) 0%, var(--blue-cta-2) 100%);
+  box-shadow: 0 4px 20px var(--blue-glow);
 }
+.nc-btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 30px var(--blue-glow); color: #fff; }
+
+/* icon-only destructive button (delete field / remove row / mark for delete) */
 .nc-btn-icon {
-  padding: 4px 8px;
-  line-height: 1;
-  color: var(--danger);
-  border-color: color-mix(in srgb, var(--danger) 40%, var(--border));
+  padding: 6px; line-height: 0; gap: 0; color: var(--red-text); background: transparent;
+  border: 1.5px solid var(--red-border);
 }
+.nc-btn-icon:hover:not(:disabled) { border-color: var(--red); color: #fff; background: var(--red-light); box-shadow: 0 3px 14px rgba(240,114,106,0.3); }
 
-.nc-main { display: grid; grid-template-columns: 1fr; gap: 16px; }
+/* ── Sections inside the schema panel ── */
+.nc-result-body { display: flex; flex-direction: column; gap: 13px; }
+.nc-section { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+.nc-section:empty { display: none; }
+.nc-inline { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+.nc-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.nc-checkbox { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-mid); cursor: pointer; }
+.nc-checkbox input { accent-color: var(--accent); width: 16px; height: 16px; }
 
-.nc-card {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 14px;
-}
-.nc-card-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: end;
-  margin-bottom: 8px;
-}
-.nc-inline { display: inline-flex; gap: 10px; align-items: center; }
-.nc-section { margin-bottom: 12px; }
-.nc-actions { margin-top: 10px; }
+/* ── Result states (gims-state empty/loading/error blocks live here when not idle) ── */
+.nc-result-state { min-height: 120px; }
 
-.nc-sep {
-  width: 1px;
-  height: 28px;
-  background: var(--border);
-  margin: 0 8px;
-}
-
-.nc-grid { display: grid; gap: 10px; }
-.nc-gap { margin-top: 8px; }
-
-.nc-table-wrap { overflow: auto; border-radius: 10px; border: 1px solid var(--border); }
-.nc-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 560px;
-}
-.nc-table th, .nc-table td {
-  border-bottom: 1px solid var(--border);
-  padding: 10px;
-}
+/* ── Tables ── */
+.nc-table-wrap { overflow: auto; max-height: 60vh; border-radius: var(--radius-sm); border: 1px solid var(--card-edge); }
+.nc-table { width: 100%; border-collapse: collapse; min-width: 560px; font-size: 13px; }
+.nc-table th, .nc-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; color: var(--text-mid); text-align: left; }
 .nc-table thead th {
-  background: var(--panel-2);
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  text-align: left;
-  font-weight: 600;
-  color: var(--muted);
+  position: sticky; top: 0; z-index: 1; background: var(--surface);
+  font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; color: var(--text-soft);
+  border-bottom: 1px solid var(--card-edge);
 }
+.nc-table tbody tr:hover { background: var(--accent-light); }
+.nc-table td .nc-input, .nc-table td .nc-select { min-width: 120px; }
 .nc-center { text-align: center; }
-
 .nc-row-deleting { opacity: 0.5; text-decoration: line-through; }
+.nc-row-deleting td { color: var(--red-text); }
 
-.nc-checkbox { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
+/* ── Primary-ID row (selector + Update) — a clean left-aligned row across the panel width ── */
+.nc-primary-row { width: 100%; }
+.nc-primary-row .nc-grow { flex: 1 1 auto; }
 
-.nc-flex { display: flex; gap: 8px; align-items: center; margin: 6px 0; }
-.nc-flex-fill { display: flex; gap: 8px; flex: 1; }
+/* ── Autogenerate segment editor rows ── */
+.nc-segment-rows { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+.nc-flex { display: flex; gap: 8px; align-items: center; }
+/* the type select stays compact so the value control(s) get the rest of the row */
+.nc-flex > .nc-select { flex: 0 0 140px; width: 140px; }
+.nc-flex-fill { display: flex; gap: 8px; flex: 1; min-width: 0; }
+.nc-flex-fill .nc-input, .nc-flex-fill .nc-select { flex: 1 1 auto; min-width: 0; }
+.nc-preview { color: var(--text-soft); font-style: italic; font-size: 12.5px; }
 
-.nc-segment-rows { margin: 6px 0 10px; }
-
-.nc-preview {
-  margin-top: 6px;
-  color: var(--muted);
-  font-style: italic;
-}
-
+/* ── Output (describe JSON dump) ── */
 .nc-output {
-  margin-top: 12px;
-  background: #0c0f16;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  max-height: 240px;
-  overflow: auto;
-  white-space: pre-wrap;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px;
+  color: var(--text-mid); background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 14px; max-height: 280px; overflow: auto;
+  white-space: pre-wrap; word-break: break-word;
 }
+.nc-output:empty { display: none; }
 
-/* Toasts */
-.nc-toast-container {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  pointer-events: none; /* clicks pass through except on the toast itself */
-}
-
+/* ── Legacy in-page toast fallback (gims.js .toasts is primary; this only fires
+      when window.GIMS is absent, e.g. served outside the shell). Watery tokens. ── */
+.nc-toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
 .nc-toast {
-  pointer-events: auto;
-  background: var(--panel-2);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-left: 4px solid var(--accent);
-  border-radius: 10px;
-  padding: 10px 12px;
-  min-width: 180px;
-  max-width: 340px;
-  box-shadow: 0 6px 18px rgba(0,0,0,.35);
-  opacity: 0;
-  transform: translateY(-8px);
-  transition: opacity .22s ease, transform .22s ease;
-  font-size: 13px;
-  line-height: 1.35;
+  pointer-events: auto; background: var(--surface); color: var(--text);
+  border: 1px solid var(--border2); border-left: 4px solid var(--accent);
+  border-radius: var(--radius); padding: 10px 12px; min-width: 180px; max-width: 340px;
+  box-shadow: var(--shadow-lg); opacity: 0; transform: translateY(-8px);
+  transition: opacity .22s ease, transform .22s ease; font-size: 13px; line-height: 1.35;
 }
+.nc-toast-show { opacity: 1; transform: translateY(0); }
+.nc-toast-hide { opacity: 0; transform: translateY(-8px); }
+.nc-toast-success { border-left-color: var(--green); }
+.nc-toast-error   { border-left-color: var(--red); }
+.nc-toast-info    { border-left-color: var(--blue); }
 
-.nc-toast-show {
-  opacity: 1;
-  transform: translateY(0);
+@media (max-width: 720px) {
+  .nc-toolbar { flex-direction: column; align-items: stretch; }
+  #configure-button { margin-left: 0; align-self: stretch; }
+  .nc-field { min-width: 0; }
 }
-
-.nc-toast-hide {
-  opacity: 0;
-  transform: translateY(-8px);
-}
-
-.nc-toast-success { border-left-color: var(--accent-2); }
-.nc-toast-error   { border-left-color: var(--danger); }
-.nc-toast-info    { border-left-color: var(--accent); }

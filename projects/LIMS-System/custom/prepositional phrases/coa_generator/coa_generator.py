@@ -1284,69 +1284,23 @@ def _load_noun_instance(project_path: Path, noun_type: str, primary_val: str) ->
     schema = get_noun_schema(project_path, noun_type) or {}
     primary_field = (schema or {}).get("primary_id_field") or "id"
 
-    kind, conn = _open_noun_db(project_path)
-    if not conn or kind == "none":
-        return None
-
-    project_name = project_path.name
-
+    # Phase 6/R17: read the CURRENT record from the unified `instances` store (provider-aware:
+    # SQLite locally, Postgres/JSONB in RDS). Replaces the legacy per-noun-table + meta_tables
+    # lookup, which read STALE data after the nouns→instances cutover. (_open_noun_db / _prefixed
+    # / _sanitize_table_name above are now unused by this path.)
     try:
-        if kind == "pg":
-            cur = conn.cursor()
-            try:
-                table_name = _prefixed(project_name, _sanitize_table_name(noun_type))
-
-                # Try meta_tables override if present
-                try:
-                    cur.execute("""
-                        SELECT table_name, primary_id
-                        FROM meta_tables
-                        WHERE project = %s AND noun_name = %s
-                        LIMIT 1
-                    """, (project_name, noun_type))
-                    row = cur.fetchone()
-                    if row:
-                        tname, pid = row
-                        if tname:
-                            table_name = tname
-                        if pid:
-                            primary_field = pid
-                except Exception as e:
-                    dbg("[noun-db] meta_tables lookup failed; using fallback table name:", e)
-
-                try:
-                    cur.execute(f'SELECT * FROM "{table_name}" WHERE "{primary_field}" = %s LIMIT 1', (primary_val,))
-                    row = cur.fetchone()
-                except Exception as e:
-                    dbg(f"[noun-db] PG query failed for table {table_name}: {e}")
-                    return None
-
-                if row is None:
-                    return None
-
-                cols = [c.name for c in cur.description]
-                return dict(zip(cols, row))
-            finally:
-                cur.close()
-
-        elif kind == "sqlite":
-            import sqlite3
-            table_name = _sanitize_table_name(noun_type)
-            try:
-                cur = conn.execute(f'SELECT * FROM "{table_name}" WHERE "{primary_field}" = ?', (primary_val,))
-            except Exception as e:
-                dbg(f"[noun-db] SQLite query failed for table {table_name}: {e}")
-                return None
-            row = cur.fetchone()
-            if row is None:
-                return None
-            return dict(row)
-
-    finally:
-        try:
-            conn.close()
-        except Exception:
-            pass
+        from core.storage.factory import get_record_store, collection_for_noun  # type: ignore
+    except Exception as e:
+        dbg("[noun-db] cannot import storage factory; skipping DB lookup:", e)
+        return None
+    try:
+        rec = get_record_store(project_path).get_record(
+            collection_for_noun(noun_type), primary_field, primary_val
+        )
+        return rec or None
+    except Exception as e:
+        dbg(f"[noun-db] instances lookup failed for noun_type={noun_type!r}: {e}")
+        return None
 
     return None
 

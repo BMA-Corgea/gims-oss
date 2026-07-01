@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build:react": "node build.mjs",
+    "watch:react": "node build.mjs --watch",
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
     "preview": "vite preview --port 5174",
@@ -19,6 +21,7 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "esbuild": "^0.25.8",
     "@types/node": "^20.14.11",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",

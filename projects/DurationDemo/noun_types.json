@@ -1,0 +1,25 @@
+{
+  "Specimen": {
+    "description": "A specimen logged into the lab, with intake + due instants and a live hold clock.",
+    "fields": {
+      "specimen_id": {
+        "type": "string",
+        "required": true
+      },
+      "received_at": {
+        "type": "datetime",
+        "required": true
+      },
+      "due_at": {
+        "type": "datetime",
+        "required": true
+      },
+      "hold_clock": {
+        "type": "adjective",
+        "adjective_class": "Duration"
+      }
+    },
+    "primary_id_field": "specimen_id",
+    "autogenerate_id": false
+  }
+}

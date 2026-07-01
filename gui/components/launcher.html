@@ -4,143 +4,353 @@
   <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
   <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>GIMS Project Launcher</title>
+  <link rel="stylesheet" href="/static/styles/watery.css">
   <link rel="stylesheet" href="/static/styles/launcher.css">
 </head>
-<body>
+<!-- is-loading until /login/inject.js resolves auth, then is-anon | is-authed -->
+<body class="watery-bg is-loading">
 
-  <!-- Floating gnome on the right -->
-  <img src="/static/images/Transparent%20Gnome.png" alt="GIMS Gnome" class="gnome-float">
+  <div class="app-shell">
 
-  <div class="launcher-container">
-    <h1>🧭 GIMS Project Launcher</h1>
+    <!-- ════════ Section rail (workspace index) ════════ -->
+    <aside class="rail" id="rail" aria-label="Workspace sections">
+      <a class="rail-brand" href="/launcher">
+        <span class="rail-brand-mark icon-chip"><svg class="icon"><use href="/static/icons.svg#i-compass"/></svg></span>
+        <span class="rail-brand-text">GIMS</span>
+      </a>
 
-    <div class="card-container">
-      <!-- Schemas -->
-      <section class="launcher-card">
-        <h2>Schemas</h2>
-        <div class="button-grid">
-          <a href="/noun_configure" class="launcher-button" data-tag="noun-configure"
-             data-tooltip="Define and manage entity types (samples, products, etc.)">
-            📦 Noun Configure
-          </a>
-          <a href="/adjective_editor" class="launcher-button" data-tag="adjective-editor"
-             data-tooltip="Set descriptive states, tools, or tags for nouns">
-            🏷️ Adjective Editor
-          </a>
-          <a href="/verb_editor" class="launcher-button" data-tag="verb-editor"
-             data-tooltip="Define actions (tests, moves, processes) that nouns can undergo">
-            ⚡ Verb Editor
-          </a>
-          <a href="/adverb_editor" class="launcher-button" data-tag="adverb-editor"
-             data-tooltip="Configure modifiers for verbs to specify how actions are performed">
-            🎯 Adverb Editor
-          </a>
-          <a href="/conjunction_editor" class="launcher-button" data-tag="conjunction-editor"
-             data-tooltip="Edit status overrides and test result annotations">
-            🔗 Conjunction Editor
-          </a>
+      <nav class="rail-nav" aria-label="Jump to section">
+        <a class="rail-link" href="#sec-schemas" data-target="sec-schemas">
+          <span class="rail-link-icon icon-chip"><svg class="icon"><use href="/static/icons.svg#i-noun"/></svg></span>
+          <span class="rail-link-text">Schemas</span><span class="rail-link-count count-pill" data-count></span>
+        </a>
+        <a class="rail-link" href="#sec-searches" data-target="sec-searches">
+          <span class="rail-link-icon icon-chip"><svg class="icon"><use href="/static/icons.svg#i-search"/></svg></span>
+          <span class="rail-link-text">Searches</span><span class="rail-link-count count-pill" data-count></span>
+        </a>
+        <a class="rail-link" href="#sec-operations" data-target="sec-operations">
+          <span class="rail-link-icon icon-chip"><svg class="icon"><use href="/static/icons.svg#i-runlog"/></svg></span>
+          <span class="rail-link-text">Operations</span><span class="rail-link-count count-pill" data-count></span>
+        </a>
+        <a class="rail-link" href="#sec-tools" data-target="sec-tools">
+          <span class="rail-link-icon icon-chip"><svg class="icon"><use href="/static/icons.svg#i-terminal"/></svg></span>
+          <span class="rail-link-text">Tools</span><span class="rail-link-count count-pill" data-count></span>
+        </a>
+        <a class="rail-link" href="#sec-admin" data-target="sec-admin">
+          <span class="rail-link-icon icon-chip"><svg class="icon"><use href="/static/icons.svg#i-key"/></svg></span>
+          <span class="rail-link-text">Admin</span><span class="rail-link-count count-pill" data-count></span>
+        </a>
+        <a class="rail-link" href="#sec-tests" data-target="sec-tests">
+          <span class="rail-link-icon icon-chip"><svg class="icon"><use href="/static/icons.svg#i-flask"/></svg></span>
+          <span class="rail-link-text">Tests</span><span class="rail-link-count count-pill" data-count></span>
+        </a>
+      </nav>
+
+      <div class="rail-foot">
+        <a class="rail-link" href="/tutorial" data-tooltip="How GIMS works">
+          <span class="rail-link-icon icon-chip"><svg class="icon"><use href="/static/icons.svg#i-help"/></svg></span>
+          <span class="rail-link-text">Tutorial</span>
+        </a>
+        <button class="rail-collapse" id="rail-expand-all" type="button" title="Expand all sections">
+          <svg class="icon"><use href="/static/icons.svg#i-chevron"/></svg><span>Expand all</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ════════ Main ════════ -->
+    <div class="app-main">
+
+      <header class="launcher-header">
+        <img class="brand-gnome" src="/static/images/Transparent%20Gnome.png" alt="GIMS Gnome mascot" decoding="async">
+        <span class="brand-text">
+          <span class="brand-kicker">General Information Management System</span>
+          <h1>GIMS Project Launcher</h1>
+          <span class="launcher-sub">Choose a workspace to dive in — every schema, search, and operation, in one place.</span>
+        </span>
+
+        <div class="launcher-head-actions">
+        <a class="btn sm ghost launcher-tutorial" href="/tutorial" title="Tutorial — how GIMS works">
+          <svg class="icon"><use href="/static/icons.svg#i-help"/></svg><span>Tutorial</span>
+        </a>
+        <!--gims:theme-switch-->
+        <!-- Profile chip (shown when authed) -->
+        <div class="userchip" id="gims-userchip">
+          <button class="userchip-btn" id="userchip-btn" type="button" aria-haspopup="true" aria-expanded="false">
+            <span class="userchip-avatar icon-chip blue round"><svg class="icon"><use href="/static/icons.svg#i-user"/></svg></span>
+            <span class="userchip-meta">
+              <span class="userchip-name" data-userchip-name>Account</span>
+              <span class="userchip-sub" data-userchip-sub>signed in</span>
+            </span>
+            <svg class="icon userchip-caret"><use href="/static/icons.svg#i-chevron"/></svg>
+          </button>
+          <div class="userchip-menu w-pop" id="userchip-menu" hidden>
+            <div class="userchip-id">
+              <span class="userchip-avatar lg icon-chip blue round"><svg class="icon"><use href="/static/icons.svg#i-user"/></svg></span>
+              <span class="userchip-id-text">
+                <span class="userchip-name" data-userchip-name>Account</span>
+                <span class="userchip-email" data-userchip-email>—</span>
+              </span>
+            </div>
+            <div class="userchip-badges" data-userchip-badges></div>
+            <div class="userchip-kv"><span>Projects</span><span data-userchip-projects>—</span></div>
+            <div class="userchip-menu-foot">
+              <a class="btn sm ghost" href="/account_roles"><svg class="icon"><use href="/static/icons.svg#i-key"/></svg>Roles &amp; tags</a>
+              <button class="btn sm blue" id="auth-logout" type="button"><svg class="icon"><use href="/static/icons.svg#i-logout"/></svg>Sign out</button>
+            </div>
+          </div>
         </div>
+        </div>
+      </header>
+
+      <!-- Loading shim (while auth resolves) -->
+      <div class="auth-loading" id="auth-loading" role="status" aria-live="polite">
+        <span class="auth-loading-dot"></span> Loading workspace…
+      </div>
+
+      <!-- ════════ LOGGED OUT — first-class sign-in card ════════ -->
+      <section class="auth-card panel" id="gims-login" aria-labelledby="auth-title">
+        <div class="auth-head">
+          <span class="auth-mark icon-chip"><svg class="icon"><use href="/static/icons.svg#i-lock"/></svg></span>
+          <span class="auth-head-text">
+            <h2 class="auth-title" id="auth-title">Welcome back</h2>
+            <p class="auth-sub" id="auth-sub">Sign in to open your GIMS workspace.</p>
+          </span>
+        </div>
+
+        <form class="auth-form" id="gims-login-form" autocomplete="on" novalidate>
+          <label class="field">
+            <span class="field-label"><svg class="icon"><use href="/static/icons.svg#i-mail"/></svg>Email</span>
+            <input class="input" id="auth-email" name="email" type="email" autocomplete="username"
+                   placeholder="you@example.com" required>
+          </label>
+          <label class="field">
+            <span class="field-label"><svg class="icon"><use href="/static/icons.svg#i-lock"/></svg>Password</span>
+            <input class="input" id="auth-pass" name="password" type="password" autocomplete="current-password"
+                   placeholder="••••••••" required>
+          </label>
+          <label class="field" id="auth-project-row" hidden>
+            <span class="field-label"><svg class="icon"><use href="/static/icons.svg#i-compass"/></svg>Project code</span>
+            <input class="input" id="auth-project" name="project" type="text" autocomplete="off"
+                   placeholder="e.g. LIMS-System">
+          </label>
+
+          <div class="auth-msg" id="auth-msg" role="alert" hidden></div>
+
+          <button class="btn-primary auth-submit" id="auth-submit" type="submit">Sign in</button>
+        </form>
+
+        <p class="auth-foot">
+          <span id="auth-foot-text">New to GIMS?</span>
+          <button class="auth-switch" id="auth-toggle" type="button">Create an account</button>
+        </p>
       </section>
 
-      <!-- Searches -->
-      <section class="launcher-card">
-        <h2>Searches</h2>
-        <div class="button-grid">
-          <a href="/investigation" class="launcher-button" data-tag="investigation"
-             data-tooltip="Explore relationships, runs, and results across entities">
-            🕵️‍♀️ Investigation GUI
-          </a>
-          <a href="/deep_search" class="launcher-button" data-tag="deep-search"
-             data-tooltip="Search across schemas, noun instances, and verb runs">
-            🔍 Deep Search
-          </a>
-          <a href="/audit" class="launcher-button" data-tag="audit"
-             data-tooltip="Verify that all nouns, verbs, adverbs, and adjectives match their schemas and reference rules">
-            🛡️ Audit
-          </a>
-          <a href="/archive-workbench" class="launcher-button" data-tag="archive-workbench"
-             data-tooltip="Archive or restore noun instances and runs according to policy.">
-            🗄️ Archive
-          </a>
-        </div>
-      </section>
+      <!-- ════════ LOGGED IN — collapsible workspace sections ════════ -->
+      <main class="sections" id="sections">
 
-      <!-- Operations -->
-      <section class="launcher-card">
-        <h2>Operations</h2>
-        <div class="button-grid">
-          <a href="/runlog_workbench" class="launcher-button" data-tag="runlog-workbench"
-             data-tooltip="Inspect and edit run entries: statuses, overrides, attachments, and linked instances.">
-            🧰 Runlog Workbench
-          </a>
-          <a href="/noun_workbench" class="launcher-button" data-tag="noun-workbench"
-             data-tooltip="Create, edit, and bulk upload noun instances according to schema.">
-            📇 Noun Workbench
-          </a>
-          <a href="/verb_workbench" class="launcher-button" data-tag="verb-workbench"
-             data-tooltip="Create and edit verb instances according to schema.">
-            ✨ Verb Workbench
-          </a>
-        </div>
-      </section>
-      
-      <!-- Tools -->
-      <section class="launcher-card">
-        <h2>Tools</h2>
-        <div class="button-grid">
-          <a href="/camera" class="launcher-button" data-tag="camera"
-             data-tooltip="Capture and upload images for entities">
-            📸 Image Capture
-          </a>
-          <a href="/custom_upload" class="launcher-button" data-tag="custom-upload"
-             data-tooltip="Upload and manage custom parsers and prepositional phrases">
-            📝 Custom Parsers
-          </a>
-          <a href="/prepositional_phrase_runner" class="launcher-button" data-tag="prepositional-phrase-runner"
-             data-tooltip="Run custom prepositional phrase code to generate output files.">
-            📜 Prepositional Phrase Runner
-          </a>
-        </div>
-      </section>
+        <!-- Schemas -->
+        <section class="launcher-card panel interactive" id="sec-schemas" data-section="schemas">
+          <button class="card-head" type="button" aria-expanded="true" aria-controls="grid-schemas">
+            <span class="card-head-icon icon-chip"><svg class="icon"><use href="/static/icons.svg#i-noun"/></svg></span>
+            <h2>Schemas</h2>
+            <span class="card-count count-pill" data-count></span>
+            <svg class="icon card-chevron"><use href="/static/icons.svg#i-chevron"/></svg>
+          </button>
+          <div class="button-grid" id="grid-schemas">
+            <a href="/noun_configure" class="launcher-button" data-tag="noun-configure"
+               data-tooltip="Define and manage entity types (samples, products, etc.)">
+              <span class="lb-icon icon-chip blue"><svg class="icon"><use href="/static/icons.svg#i-noun"/></svg></span>
+              <span class="lb-text">Noun Configure</span>
+              <svg class="icon lb-arrow"><use href="/static/icons.svg#i-arrow"/></svg>
+            </a>
+            <a href="/adjective_editor" class="launcher-button" data-tag="adjective-editor"
+               data-tooltip="Set descriptive states, tools, or tags for nouns">
+              <span class="lb-icon icon-chip blue"><svg class="icon"><use href="/static/icons.svg#i-adjective"/></svg></span>
+              <span class="lb-text">Adjective Editor</span>
+              <svg class="icon lb-arrow"><use href="/static/icons.svg#i-arrow"/></svg>
+            </a>
+            <a href="/verb_editor" class="launcher-button" data-tag="verb-editor"
+               data-tooltip="Define actions (tests, moves, processes) that nouns can undergo">
+              <span class="lb-icon icon-chip blue"><svg class="icon"><use href="/static/icons.svg#i-verb"/></svg></span>
+              <span class="lb-text">Verb Editor</span>
+              <svg class="icon lb-arrow"><use href="/static/icons.svg#i-arrow"/></svg>
+            </a>
+            <a href="/adverb_editor" class="launcher-button" data-tag="adverb-editor"
+               data-tooltip="Configure modifiers for verbs to specify how actions are performed">
+              <span class="lb-icon icon-chip blue"><svg class="icon"><use href="/static/icons.svg#i-adverb"/></svg></span>
+              <span class="lb-text">Adverb Editor</span>
+              <svg class="icon lb-arrow"><use href="/static/icons.svg#i-arrow"/></svg>
+            </a>
+            <a href="/conjunction_editor" class="launcher-button" data-tag="conjunction-editor"
+               data-tooltip="Edit status overrides and test result annotations">
+              <span class="lb-icon icon-chip blue"><svg class="icon"><use href="/static/icons.svg#i-conjunction"/></svg></span>
+              <span class="lb-text">Conjunction Editor</span>
+              <svg class="icon lb-arrow"><use href="/static/icons.svg#i-arrow"/></svg>
+            </a>
+          </div>
+        </section>
 
-      <!-- Admin -->
-      <section class="launcher-card">
-        <h2>Admin</h2>
-        <div class="button-grid">
-          <a href="/template" class="launcher-button" data-tag="template"
-            data-tooltip="Export or import full project templates.">
-            🌱 Template Manager
-          </a>
-          <a href="/account_roles" class="launcher-button" data-tag="account-roles"
-            data-tooltip="Manage user accounts, approvals, and role permissions per project.">
-            🔑 Account & Roles
-          </a>
-          <a href="/backup" class="launcher-button" data-tag="backup"
-            data-tooltip="Create, restore, and manage project backups.">
-            💾 Backup Manager
-          </a>
-          <a href="/nodes_compliance" class="launcher-button" data-tag="nodes-compliance"
-            data-tooltip="View and export compliance & audit logs from nodes.db.">
-            🏛️ Nodes Compliance
-          </a>
-        </div>
-      </section>
+        <!-- Searches -->
+        <section class="launcher-card panel interactive" id="sec-searches" data-section="searches">
+          <button class="card-head" type="button" aria-expanded="true" aria-controls="grid-searches">
+            <span class="card-head-icon icon-chip"><svg class="icon"><use href="/static/icons.svg#i-search"/></svg></span>
+            <h2>Searches</h2>
+            <span class="card-count count-pill" data-count></span>
+            <svg class="icon card-chevron"><use href="/static/icons.svg#i-chevron"/></svg>
+          </button>
+          <div class="button-grid" id="grid-searches">
+            <a href="/investigation" class="launcher-button" data-tag="investigation"
+               data-tooltip="Explore relationships, runs, and results across entities">
+              <span class="lb-icon icon-chip blue"><svg class="icon"><use href="/static/icons.svg#i-investigation"/></svg></span>
+              <span class="lb-text">Investigation GUI</span>
+              <svg class="icon lb-arrow"><use href="/static/icons.svg#i-arrow"/></svg>
+            </a>
+            <a href="/deep_search" class="launcher-button" data-tag="deep-search"
+               data-tooltip="Search across schemas, noun instances, and verb runs">
+              <span class="lb-icon icon-chip blue"><svg class="icon"><use href="/static/icons.svg#i-search"/></svg></span>
+              <span class="lb-text">Deep Search</span>
+              <svg class="icon lb-arrow"><use href="/static/icons.svg#i-arrow"/></svg>
+            </a>
+            <a href="/audit" class="launcher-button" data-tag="audit"
+               data-tooltip="Verify that all nouns, verbs, adverbs, and adjectives match their schemas and reference rules">
+              <span class="lb-icon icon-chip blue"><svg class="icon"><use href="/static/icons.svg#i-audit"/></svg></span>
+              <span class="lb-text">Audit</span>
+              <svg class="icon lb-arrow"><use href="/static/icons.svg#i-arrow"/></svg>
+            </a>
+            <a href="/archive-workbench" class="launcher-button" data-tag="archive-workbench"
+               data-tooltip="Archive or restore noun instances and runs according to policy.">
+              <span class="lb-icon icon-chip blue"><svg class="icon"><use href="/static/icons.svg#i-archive"/></svg></span>
+              <span class="lb-text">Archive</span>
+              <svg class="icon lb-arrow"><use href="/static/icons.svg#i-arrow"/></svg>
+            </a>
+          </div>
+        </section>
 
-      <!-- Tests -->
-      <section class="launcher-card">
-        <h2>Tests</h2>
-        <div class="button-grid">
-          <a href="/gui/test_page" class="launcher-button" data-tag="grid-test"
-             data-tooltip="Try the grid adapter and send data to Glide">
-            🧪 Grid Test Page
-          </a>
-          <a href="/gui/test_parser" class="launcher-button" data-tag="parser-test"
-             data-tooltip="Test custom parsers and prepositional phrase functionality">
-            🤖 Parser Test Page
-          </a>
+        <!-- Operations -->
+        <section class="launcher-card panel interactive" id="sec-operations" data-section="operations">
+          <button class="card-head" type="button" aria-expanded="true" aria-controls="grid-operations">
+            <span class="card-head-icon icon-chip"><svg class="icon"><use href="/static/icons.svg#i-runlog"/></svg></span>
+            <h2>Operations</h2>
+            <span class="card-count count-pill" data-count></span>
+            <svg class="icon card-chevron"><use href="/static/icons.svg#i-chevron"/></svg>
+          </button>
+          <div class="button-grid" id="grid-operations">
+            <a href="/runlog_workbench" class="launcher-button" data-tag="runlog-workbench"
+               data-tooltip="Inspect and edit run entries: statuses, overrides, attachments, and linked instances.">
+              <span class="lb-icon icon-chip blue"><svg class="icon"><use href="/static/icons.svg#i-runlog"/></svg></span>
+              <span class="lb-text">Runlog Workbench</span>
+              <svg class="icon lb-arrow"><use href="/static/icons.svg#i-arrow"/></svg>
+            </a>
+            <a href="/noun_workbench" class="launcher-button" data-tag="noun-workbench"
+               data-tooltip="Create, edit, and bulk upload noun instances according to schema.">
+              <span class="lb-icon icon-chip blue"><svg class="icon"><use href="/static/icons.svg#i-grid"/></svg></span>
+              <span class="lb-text">Noun Workbench</span>
+              <svg class="icon lb-arrow"><use href="/static/icons.svg#i-arrow"/></svg>
+            </a>
+            <a href="/verb_workbench" class="launcher-button" data-tag="verb-workbench"
+               data-tooltip="Create and edit verb instances according to schema.">
+              <span class="lb-icon icon-chip blue"><svg class="icon"><use href="/static/icons.svg#i-sparkle"/></svg></span>
+              <span class="lb-text">Verb Workbench</span>
+              <svg class="icon lb-arrow"><use href="/static/icons.svg#i-arrow"/></svg>
+            </a>
+          </div>
+        </section>
+
+        <!-- Tools -->
+        <section class="launcher-card panel interactive" id="sec-tools" data-section="tools">
+          <button class="card-head" type="button" aria-expanded="true" aria-controls="grid-tools">
+            <span class="card-head-icon icon-chip"><svg class="icon"><use href="/static/icons.svg#i-terminal"/></svg></span>
+            <h2>Tools</h2>
+            <span class="card-count count-pill" data-count></span>
+            <svg class="icon card-chevron"><use href="/static/icons.svg#i-chevron"/></svg>
+          </button>
+          <div class="button-grid" id="grid-tools">
+            <a href="/camera" class="launcher-button" data-tag="camera"
+               data-tooltip="Capture and upload images for entities">
+              <span class="lb-icon icon-chip blue"><svg class="icon"><use href="/static/icons.svg#i-camera"/></svg></span>
+              <span class="lb-text">Image Capture</span>
+              <svg class="icon lb-arrow"><use href="/static/icons.svg#i-arrow"/></svg>
+            </a>
+            <a href="/custom_upload" class="launcher-button" data-tag="custom-upload"
+               data-tooltip="Upload and manage custom parsers and prepositional phrases">
+              <span class="lb-icon icon-chip blue"><svg class="icon"><use href="/static/icons.svg#i-parser"/></svg></span>
+              <span class="lb-text">Custom Parsers</span>
+              <svg class="icon lb-arrow"><use href="/static/icons.svg#i-arrow"/></svg>
+            </a>
+            <a href="/prepositional_phrase_runner" class="launcher-button" data-tag="prepositional-phrase-runner"
+               data-tooltip="Run custom prepositional phrase code to generate output files.">
+              <span class="lb-icon icon-chip blue"><svg class="icon"><use href="/static/icons.svg#i-terminal"/></svg></span>
+              <span class="lb-text">Prepositional Phrase Runner</span>
+              <svg class="icon lb-arrow"><use href="/static/icons.svg#i-arrow"/></svg>
+            </a>
+          </div>
+        </section>
+
+        <!-- Admin -->
+        <section class="launcher-card panel interactive" id="sec-admin" data-section="admin">
+          <button class="card-head" type="button" aria-expanded="true" aria-controls="grid-admin">
+            <span class="card-head-icon icon-chip"><svg class="icon"><use href="/static/icons.svg#i-key"/></svg></span>
+            <h2>Admin</h2>
+            <span class="card-count count-pill" data-count></span>
+            <svg class="icon card-chevron"><use href="/static/icons.svg#i-chevron"/></svg>
+          </button>
+          <div class="button-grid" id="grid-admin">
+            <a href="/template" class="launcher-button" data-tag="template"
+               data-tooltip="Export or import full project templates.">
+              <span class="lb-icon icon-chip blue"><svg class="icon"><use href="/static/icons.svg#i-template"/></svg></span>
+              <span class="lb-text">Template Manager</span>
+              <svg class="icon lb-arrow"><use href="/static/icons.svg#i-arrow"/></svg>
+            </a>
+            <a href="/account_roles" class="launcher-button" data-tag="account-roles"
+               data-tooltip="Manage user accounts, approvals, and role permissions per project.">
+              <span class="lb-icon icon-chip blue"><svg class="icon"><use href="/static/icons.svg#i-key"/></svg></span>
+              <span class="lb-text">Account &amp; Roles</span>
+              <svg class="icon lb-arrow"><use href="/static/icons.svg#i-arrow"/></svg>
+            </a>
+            <a href="/backup" class="launcher-button" data-tag="backup"
+               data-tooltip="Create, restore, and manage project backups.">
+              <span class="lb-icon icon-chip blue"><svg class="icon"><use href="/static/icons.svg#i-backup"/></svg></span>
+              <span class="lb-text">Backup Manager</span>
+              <svg class="icon lb-arrow"><use href="/static/icons.svg#i-arrow"/></svg>
+            </a>
+            <a href="/nodes_compliance" class="launcher-button" data-tag="nodes-compliance"
+               data-tooltip="View and export compliance &amp; audit logs from nodes.db.">
+              <span class="lb-icon icon-chip blue"><svg class="icon"><use href="/static/icons.svg#i-compliance"/></svg></span>
+              <span class="lb-text">Nodes Compliance</span>
+              <svg class="icon lb-arrow"><use href="/static/icons.svg#i-arrow"/></svg>
+            </a>
+          </div>
+        </section>
+
+        <!-- Tests -->
+        <section class="launcher-card panel interactive" id="sec-tests" data-section="tests">
+          <button class="card-head" type="button" aria-expanded="true" aria-controls="grid-tests">
+            <span class="card-head-icon icon-chip"><svg class="icon"><use href="/static/icons.svg#i-flask"/></svg></span>
+            <h2>Tests</h2>
+            <span class="card-count count-pill" data-count></span>
+            <svg class="icon card-chevron"><use href="/static/icons.svg#i-chevron"/></svg>
+          </button>
+          <div class="button-grid" id="grid-tests">
+            <a href="/test_parser" class="launcher-button" data-tag="parser-test"
+               data-tooltip="Test custom parsers and prepositional phrase functionality">
+              <span class="lb-icon icon-chip blue"><svg class="icon"><use href="/static/icons.svg#i-robot"/></svg></span>
+              <span class="lb-text">Parser Test Page</span>
+              <svg class="icon lb-arrow"><use href="/static/icons.svg#i-arrow"/></svg>
+            </a>
+          </div>
+        </section>
+
+        <!-- Shown when the user can see no sections at all -->
+        <div class="sections-empty" id="sections-empty" hidden>
+          <span class="sections-empty-mark icon-chip round"><svg class="icon"><use href="/static/icons.svg#i-compass"/></svg></span>
+          <h2>No workspaces yet</h2>
+          <p>Your account is signed in but has no feature access for this project. An admin may still need to verify your account or assign a role.</p>
+          <a class="btn blue" href="/account_roles"><svg class="icon"><use href="/static/icons.svg#i-key"/></svg>Account &amp; Roles</a>
         </div>
-      </section>
+
+      </main>
     </div>
   </div>
 

@@ -1,0 +1,33 @@
+/* Instance Inspector — read-only viewer for a single noun or run (Watery tokens). */
+.insp { max-width: 920px; margin: 0 auto; }
+.insp-root { display: flex; flex-direction: column; gap: 16px; }
+
+/* header */
+.insp-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  background: var(--card); border: 1px solid var(--card-edge); border-radius: var(--radius-lg); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+.insp-head-id { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.insp-head-titlerow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.insp-head-title { font-size: 20px; font-weight: 700; color: var(--text); margin: 0; }
+.insp-kind { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; padding: 2px 9px; border-radius: 99px;
+  color: var(--blue-2); background: var(--blue-light); border: 1px solid var(--blue-border); }
+.insp-kind.kind-run { color: var(--warm); background: var(--warm-glow); border-color: rgba(244, 201, 135, 0.4); }
+.insp-head-sub { display: flex; align-items: center; gap: 10px; margin-top: 4px; flex-wrap: wrap; }
+.insp-head-idval { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; color: var(--accent-2); }
+.insp-head-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.insp-action { white-space: nowrap; }
+.insp-action-ico { display: inline-flex; } .insp-action-ico .icon { width: 15px; height: 15px; }
+
+/* cards */
+.insp-card { background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius); padding: 14px 18px; }
+.insp-card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.insp-card-ico { display: inline-flex; color: var(--accent); } .insp-card-ico .icon { width: 15px; height: 15px; }
+.insp-card-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-soft); }
+
+/* output file chips */
+.insp-file { display: inline-flex; align-items: center; gap: 7px; padding: 5px 11px; border-radius: 99px; text-decoration: none;
+  background: var(--surface2); border: 1px solid var(--border2); color: var(--text-mid); font-size: 12.5px; transition: border-color .15s, color .15s, background .15s; }
+.insp-file:hover { border-color: var(--accent); color: var(--text); background: var(--accent-light); }
+.insp-file-ico { display: inline-flex; color: var(--text-soft); } .insp-file-ico .icon { width: 14px; height: 14px; }
+.insp-file:hover .insp-file-ico { color: var(--accent); }
+.insp-file-name { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 11.5px; }
+.muted { color: var(--text-soft); }

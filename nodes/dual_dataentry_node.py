@@ -8,23 +8,24 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Query
 import httpx
 
+from core.errors import AppError
 from core.orchestration.node import Node, NodeKind
 from api import i_o  # provides get_url_base(project_path)
 
-from gui.noun_workbench_gui      import router as noun_workbench_gui_router
+# Phase 6: this node calls the noun-workbench API over HTTP (httpx, via
+# i_o.get_url_base) — it does NOT import the GUI router, so orchestration no longer
+# depends on the GUI layer.
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Debug
 # ──────────────────────────────────────────────────────────────────────────────
 
-DEBUG_ENABLED = False
-
-def debug(*args, **kwargs):
-    if DEBUG_ENABLED:
-        print("[dual-dataentry]", *args, **kwargs)
+from utils.logger import get_logger
+log = get_logger(__name__)
+DEBUG_ENABLED = log.is_debug()
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Helpers
@@ -32,12 +33,12 @@ def debug(*args, **kwargs):
 
 def _iso_now() -> str:
     s = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-    debug("iso_now", s)
+    log.debug("iso_now", s)
     return s
 
 def _rand8() -> str:
     rid = "".join(random.choices(string.ascii_uppercase + string.digits, k=8))
-    debug("rand8", rid)
+    log.debug("rand8", rid)
     return rid
 
 def _make_payload(params: Dict[str, Any], which: str) -> Dict[str, Any]:
@@ -59,7 +60,7 @@ def _make_payload(params: Dict[str, Any], which: str) -> Dict[str, Any]:
         "Time of Capture":  toc,
         # Intentionally omit "Star Spirit Ability"
     }
-    debug(f"payload:{which}", payload)
+    log.debug(f"payload:{which}", payload)
     return payload
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -67,7 +68,7 @@ def _make_payload(params: Dict[str, Any], which: str) -> Dict[str, Any]:
 # ──────────────────────────────────────────────────────────────────────────────
 
 router = APIRouter(prefix="/chains/dual-dataentry", tags=["Dual DataEntry"])
-debug("router:init", {"prefix": "/chains/dual-dataentry"})
+log.debug("router:init", {"prefix": "/chains/dual-dataentry"})
 
 @router.get("/run")
 async def run_dual_dataentry(
@@ -89,7 +90,7 @@ async def run_dual_dataentry(
 
     Returns both responses; raises 502 if either fails at HTTP level.
     """
-    debug("run:begin", {
+    log.debug("run:begin", {
         "project": project, "star_name": star_name, "spirit": spirit,
         "user_id": user_id, "label_a": label_a, "label_b": label_b
     })
@@ -97,7 +98,7 @@ async def run_dual_dataentry(
     # Resolve same-origin base from project (lives outside core)
     base = i_o.get_url_base(Path("projects") / project)
     url = f"{base}/api/noun_workbench/Star%20Spirit%20Lore/create?project={project}"
-    debug("resolved:base", {"base": base, "url": url})
+    log.debug("resolved:base", {"base": base, "url": url})
 
     params = {
         "star_name": star_name,
@@ -118,33 +119,43 @@ async def run_dual_dataentry(
     timeout = httpx.Timeout(10.0, connect=5.0)
     async with httpx.AsyncClient(timeout=timeout) as client:
         # ── Step 1 ────────────────────────────────────────────────────────────
-        debug("step:1:POST", {"url": url, "body": body_a})
+        log.debug("step:1:POST", {"url": url, "body": body_a})
         try:
             r1 = await client.post(url, json=body_a)
-            debug("step:1:resp", {"status": r1.status_code})
+            log.debug("step:1:resp", {"status": r1.status_code})
             r1.raise_for_status()
             data1 = r1.json() if "application/json" in (r1.headers.get("content-type") or "") else {"text": r1.text}
             results.append({"step": "A", "status": r1.status_code, "response": data1})
         except Exception as e:
-            debug("step:1:error", repr(e))
-            raise HTTPException(status_code=502, detail={"step": "A", "error": str(e)})
+            log.debug("step:1:error", repr(e))
+            raise AppError(
+                "DUAL_DATAENTRY_WRITE_FAILED",
+                f"Dual DataEntry write failed at step A: {e}",
+                status=502,
+                details={"step": "A", "error": str(e), "project": project},
+            )
 
         # ── Step 2 ────────────────────────────────────────────────────────────
-        debug("step:2:POST", {"url": url, "body": body_b})
+        log.debug("step:2:POST", {"url": url, "body": body_b})
         try:
             r2 = await client.post(url, json=body_b)
-            debug("step:2:resp", {"status": r2.status_code})
+            log.debug("step:2:resp", {"status": r2.status_code})
             r2.raise_for_status()
             data2 = r2.json() if "application/json" in (r2.headers.get("content-type") or "") else {"text": r2.text}
             results.append({"step": "B", "status": r2.status_code, "response": data2})
         except Exception as e:
-            debug("step:2:error", repr(e))
-            raise HTTPException(status_code=502, detail={"step": "B", "error": str(e)})
+            log.debug("step:2:error", repr(e))
+            raise AppError(
+                "DUAL_DATAENTRY_WRITE_FAILED",
+                f"Dual DataEntry write failed at step B: {e}",
+                status=502,
+                details={"step": "B", "error": str(e), "project": project},
+            )
 
     ok = True
     # If the noun API returns {"ok": False}, we still return 200 here with details;
     # callers can inspect results[*].response.ok
-    debug("run:end", {"ok": ok, "results": results})
+    log.debug("run:end", {"ok": ok, "results": results})
     return {"ok": ok, "writes": results}
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -157,4 +168,4 @@ dual_dataentry_node = Node(
     router=router,  # <-- now mounted via FastAPI
     meta={"label": "Dual DataEntry"},
 )
-debug("node:created", {"name": dual_dataentry_node.name})
+log.debug("node:created", {"name": dual_dataentry_node.name})

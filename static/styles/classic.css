@@ -1,0 +1,301 @@
+/* ══════════════════════════════════════════════════════════════
+   CLASSIC — alternate GIMS skin (Win9x/2000/XP "classic desktop").
+   Light 3D gray chrome, white sunken fields, raised beveled buttons,
+   navy title bars, square corners, Tahoma. No gradients, glows, blur,
+   web fonts, or decorative motion (functional spinners stay) — the
+   opposite of Watery. Runs on a toaster.
+
+   ── How it works ──
+   Everything is scoped under html[data-theme="classic"], so this file is
+   inert until the header skin switcher (or the pre-paint script in
+   page_node.py) sets that attribute. It works in two layers:
+     1. TOKENS — redefines the watery.css :root variables (light palette,
+        glows→transparent, shadows→flat, radii→0, CTA gradient stops equal).
+        That alone re-skins every token-driven rule across watery.css,
+        components.css, and all 22 page stylesheets automatically.
+     2. BEVELS — explicit overrides give the shared controls their classic
+        3D character (raised buttons, sunken fields, ridged windows).
+   The class names (.panel/.btn/.input/.rail/… + the page .nc-* primitives)
+   are the same contract Watery styles; recolour a token, not 40 rules.
+
+   Watery stays the untouched default. Launcher + tutorial are standalone
+   vanilla pages (not shell-wrapped) and keep Watery for now.
+══════════════════════════════════════════════════════════════ */
+
+html[data-theme="classic"] {
+  /* ── surfaces — light 3D gray chrome + white client areas ── */
+  --bg:#d6d3ce; --bg2:#cac6bf; --surface:#ffffff; --surface2:#ffffff;
+  --card:#d6d3ce; --card-2:#ece9e2;
+  --card-border:#9a968e; --card-edge:#808080; --card-edge-strong:#404040;
+  --border:#9a968e; --border2:#808080;
+
+  /* ── text — classic black ── */
+  --text:#000000; --text-mid:#1a1a1a; --text-soft:#404040; --text-mute:#6b6b6b;
+
+  /* ── accent — professional classic navy (title bars, selection, focus, links) ── */
+  --accent:#0a3d6e; --accent-2:#1565a8; --accent-light:#cfe0f2; --accent-glow:transparent;
+
+  /* ── the system blue collapses to the same navy; CTA gradient stops equal → flat gray ── */
+  --blue:#0a3d6e; --blue-2:#1565a8; --blue-deep:#082f54;
+  --blue-light:#cfe0f2; --blue-glow:transparent; --blue-border:#0a3d6e; --blue-text:#0a3d6e;
+  --blue-cta-1:#d6d3ce; --blue-cta-2:#d6d3ce;
+
+  /* ── ambient warmth/glow → off ── */
+  --warm:#c8b48a; --warm-2:#c8b48a; --warm-glow:transparent;
+  --glow-aqua:transparent; --glow-floor:transparent;
+
+  /* ── semantic — flat classic ── */
+  --green:#0a7d32; --green-light:#dff0e1; --green-glow:transparent; --green-text:#0a5d26;
+  --amber:#9a6a00; --amber-light:#f6ecd2;
+  --red:#a40000; --red-light:#f6dcdc; --red-border:#a40000; --red-text:#7d0000;
+
+  /* ── elevation — bevels do the work; hard offset (no blur) for floaters ── */
+  --shadow-sm:none; --shadow-md:none; --shadow-lg:2px 2px 0 rgba(0,0,0,0.35);
+
+  /* ── square corners ── */
+  --radius:0; --radius-sm:0; --radius-lg:0;
+
+  /* ── reusable classic 3D bevels (values per the well-worn 98.css technique) ── */
+  --bevel-raise:  inset -1px -1px #0a0a0a, inset 1px 1px #ffffff, inset -2px -2px #808080, inset 2px 2px #dfdfdf;
+  --bevel-press:  inset -1px -1px #ffffff, inset 1px 1px #0a0a0a, inset -2px -2px #dfdfdf, inset 2px 2px #808080;
+  --bevel-sunken: inset -1px -1px #ffffff, inset 1px 1px #808080, inset -2px -2px #dfdfdf, inset 2px 2px #0a0a0a;
+}
+
+/* ── base canvas: flat gray, system font, no ambient drift ── */
+html[data-theme="classic"] body {
+  font-family: Tahoma, "Segoe UI", Verdana, "MS Sans Serif", system-ui, sans-serif;
+  font-size:13px; color:var(--text); background:var(--bg); -webkit-font-smoothing:auto;
+}
+html[data-theme="classic"] body.watery-bg::before { display:none; }
+
+/* ── icon chips flatten to bare glyphs (no rounded tinted tiles) ── */
+html[data-theme="classic"] .icon-chip,
+html[data-theme="classic"] .icon-chip.blue { background:transparent; border:none; border-radius:0; color:var(--accent); }
+
+/* ════════ WINDOWS — raised gray frame + navy title bar ════════ */
+html[data-theme="classic"] .panel,
+html[data-theme="classic"] .w-pop,
+html[data-theme="classic"] .modal {
+  background:var(--bg); border:none; border-radius:0; box-shadow:var(--bevel-raise); animation:none;
+}
+/* Head = a light raised "group-box" band (deliberately NOT a navy title bar): page heads
+   carry wildly varied markup — titles, subtitles, result tabs, counts, status pills, mode
+   toggles — and the page rules that colour them are .shell-content-scoped at higher
+   specificity than a [data-theme] skin can beat without an !important arms race. Keeping the
+   head light lets every one of those keep its dark-on-light token colour and stay legible
+   across all 22 pages with ZERO per-page overrides. Classic character comes from the raised
+   bevel edge + bold title; navy stays the accent (head icon, rail selection, title, focus). */
+html[data-theme="classic"] .panel-head,
+html[data-theme="classic"] .modal-head {
+  background:var(--bg2); border-bottom:1px solid #808080; box-shadow:inset 0 1px 0 #fff; gap:7px;
+}
+html[data-theme="classic"] .panel-body { background:var(--bg); }
+html[data-theme="classic"] .panel-title,
+html[data-theme="classic"] .modal-title { color:#000; text-transform:none; letter-spacing:.2px; font-size:12px; font-weight:700; }
+html[data-theme="classic"] .panel-head .icon,
+html[data-theme="classic"] .modal-head .icon { color:var(--accent); }
+
+/* ════════ FIELDS — sunken white ════════ */
+html[data-theme="classic"] .input,
+html[data-theme="classic"] .select,
+html[data-theme="classic"] textarea.input,
+html[data-theme="classic"] .nc-input,
+html[data-theme="classic"] .nc-select {
+  background:#fff; color:#000; border:none; border-radius:0; box-shadow:var(--bevel-sunken);
+  padding:4px 6px; transition:none; appearance:none;
+}
+html[data-theme="classic"] .input:focus,
+html[data-theme="classic"] .select:focus,
+html[data-theme="classic"] textarea.input:focus,
+html[data-theme="classic"] .nc-input:focus,
+html[data-theme="classic"] .nc-select:focus {
+  background:#fff; box-shadow:var(--bevel-sunken); outline:1px dotted #000; outline-offset:-3px;
+}
+/* classic dropdown triangle (appearance is removed above) */
+html[data-theme="classic"] .select,
+html[data-theme="classic"] .nc-select {
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='8' height='6'><path d='M0 0h8L4 6z' fill='%23000'/></svg>");
+  background-repeat:no-repeat; background-position:right 7px center; padding-right:20px;
+}
+
+/* ════════ BUTTONS — raised gray, press to sunken ════════ */
+html[data-theme="classic"] .btn,
+html[data-theme="classic"] .btn-primary,
+html[data-theme="classic"] .nc-btn,
+html[data-theme="classic"] .nc-btn-primary {
+  background:var(--bg); color:#000; border:none; border-radius:0; box-shadow:var(--bevel-raise);
+  transform:none !important; transition:none; font-weight:400; padding:5px 12px;
+}
+html[data-theme="classic"] .btn:hover:not(:disabled),
+html[data-theme="classic"] .btn-primary:hover:not(:disabled),
+html[data-theme="classic"] .nc-btn:hover:not(:disabled),
+html[data-theme="classic"] .nc-btn-primary:hover:not(:disabled) {
+  background:var(--bg); color:#000; box-shadow:var(--bevel-raise);
+}
+html[data-theme="classic"] .btn:active:not(:disabled),
+html[data-theme="classic"] .btn-primary:active:not(:disabled),
+html[data-theme="classic"] .nc-btn:active:not(:disabled),
+html[data-theme="classic"] .nc-btn-primary:active:not(:disabled) {
+  box-shadow:var(--bevel-press);
+}
+/* default button — the extra 1px dark ring convention */
+html[data-theme="classic"] .btn-primary,
+html[data-theme="classic"] .nc-btn-primary { border:1px solid #000; padding:4px 12px; }
+html[data-theme="classic"] .btn-primary::before { display:none; }
+html[data-theme="classic"] .btn .icon,
+html[data-theme="classic"] .btn-primary .icon,
+html[data-theme="classic"] .nc-btn .icon { color:#000; }
+html[data-theme="classic"] .btn:focus-visible,
+html[data-theme="classic"] .btn-primary:focus-visible { outline:1px dotted #000; outline-offset:-4px; }
+/* semantic affordance via text colour (face stays gray) */
+html[data-theme="classic"] .btn.red,
+html[data-theme="classic"] .nc-btn-icon { color:var(--red); }
+html[data-theme="classic"] .btn.green { color:var(--green); }
+html[data-theme="classic"] .btn.blue { color:var(--accent); }
+
+/* ════════ LABELS / CHIPS / PILLS ════════ */
+html[data-theme="classic"] .field-label,
+html[data-theme="classic"] .nc-field > span {
+  text-transform:none; letter-spacing:0; color:#000; font-weight:400; font-size:12px;
+}
+html[data-theme="classic"] .chip {
+  border-radius:0; border:1px solid #808080; background:#ece9e2; color:#000;
+  text-transform:none; letter-spacing:0;
+}
+html[data-theme="classic"] .count-pill {
+  border-radius:0; border:1px solid #808080; background:#fff; color:#000;
+}
+
+/* ════════ TOGGLE → classic checkbox ════════ */
+html[data-theme="classic"] .toggle { width:13px; height:13px; }
+html[data-theme="classic"] .toggle .track {
+  border-radius:0; background:#fff; border:none; box-shadow:var(--bevel-sunken); transition:none;
+}
+html[data-theme="classic"] .toggle .track::after { display:none; }
+html[data-theme="classic"] .toggle input:checked + .track { background:#fff; }
+html[data-theme="classic"] .toggle input:checked + .track::before {
+  content:""; position:absolute; left:4px; top:1px; width:3px; height:7px;
+  border:solid #000; border-width:0 2px 2px 0; transform:rotate(40deg);
+}
+
+/* ════════ MODAL / OVERLAY ════════ */
+html[data-theme="classic"] .overlay { background:rgba(0,0,0,0.35); backdrop-filter:none; animation:none; }
+html[data-theme="classic"] .modal { box-shadow:var(--bevel-raise), var(--shadow-lg); }
+/* .modal-head shares the navy title-bar treatment with .panel-head (above) */
+
+/* ════════ TOASTS ════════ */
+html[data-theme="classic"] .toast {
+  border-radius:0; background:var(--bg); border:none; box-shadow:var(--bevel-raise); color:#000; animation:none;
+}
+
+/* ════════ TOOLTIP → classic pale-yellow ════════ */
+html[data-theme="classic"] .tooltip {
+  background:#ffffe1; color:#000; border:1px solid #000; box-shadow:none; border-radius:0;
+}
+
+/* ════════ APP SHELL — rail (raised gray), header, content ════════ */
+html[data-theme="classic"] .rail { background:var(--bg); border-right:1px solid #808080; box-shadow:inset -1px 0 0 #fff; }
+html[data-theme="classic"] .rail-brand-mark .icon { filter:none; }
+html[data-theme="classic"] .rail-brand-text { background:none; -webkit-text-fill-color:#000; color:#000; letter-spacing:0; }
+html[data-theme="classic"] .rail-group-label { color:#404040; }
+html[data-theme="classic"] .rail-link {
+  border-radius:0; border:1px solid transparent; color:#000; font-weight:400; transition:none;
+}
+html[data-theme="classic"] .rail-link .rail-link-icon { color:var(--accent); }
+html[data-theme="classic"] .rail-link:hover { background:#cfe0f2; border-color:transparent; color:#000; }
+html[data-theme="classic"] .rail-link.active { background:var(--accent); color:#fff; border-color:transparent; box-shadow:none; }
+html[data-theme="classic"] .rail-link.active .rail-link-icon,
+html[data-theme="classic"] .rail-link.active .rail-link-icon .icon { color:#fff; }
+
+html[data-theme="classic"] .shell-header { border-bottom:1px solid #808080; box-shadow:0 1px 0 #fff; }
+html[data-theme="classic"] .shell-kicker { color:var(--accent); letter-spacing:1px; }
+html[data-theme="classic"] .shell-kicker::before { background:var(--accent); }
+html[data-theme="classic"] .shell-title { background:none; -webkit-text-fill-color:var(--accent); color:var(--accent); letter-spacing:0; }
+html[data-theme="classic"] .shell-help {
+  border-radius:0; width:30px; height:30px; background:var(--bg); border:none; box-shadow:var(--bevel-raise); color:#000;
+}
+html[data-theme="classic"] .shell-help:hover { box-shadow:var(--bevel-raise); color:#000; }
+html[data-theme="classic"] .shell-help:active { box-shadow:var(--bevel-press); }
+html[data-theme="classic"] body.is-authed .shell-content { animation:none; }
+
+/* userchip + login flourishes */
+html[data-theme="classic"] .userchip-btn { border-radius:0; background:var(--bg); border:none; box-shadow:var(--bevel-raise); color:#000; }
+html[data-theme="classic"] .userchip-btn:hover { box-shadow:var(--bevel-raise); }
+html[data-theme="classic"] .userchip-caret { color:#000; }
+html[data-theme="classic"] .auth-card::before { display:none; }
+html[data-theme="classic"] .auth-mark { box-shadow:none; }
+
+/* ════════ TABLES — classic raised column headers ════════ */
+html[data-theme="classic"] .ui-grid thead th,
+html[data-theme="classic"] .nc-table thead th,
+html[data-theme="classic"] .data-table thead th {
+  background:var(--bg); color:#000; text-transform:none; letter-spacing:0; box-shadow:var(--bevel-raise); border-bottom:none;
+}
+
+/* ════════ SCROLLBARS — chunky beveled gray ════════ */
+html[data-theme="classic"] ::-webkit-scrollbar { width:16px; height:16px; }
+html[data-theme="classic"] ::-webkit-scrollbar-track { background:#cfccc4; }
+html[data-theme="classic"] ::-webkit-scrollbar-thumb { background:var(--bg); border:none; border-radius:0; box-shadow:var(--bevel-raise); }
+html[data-theme="classic"] ::-webkit-scrollbar-thumb:hover { background:var(--bg); }
+
+/* ════════ HEADER SKIN SWITCHER ════════ */
+html[data-theme="classic"] .theme-switch { border-radius:0; background:var(--bg); border:none; box-shadow:var(--bevel-raise); color:#000; padding:3px 8px; }
+html[data-theme="classic"] .theme-switch .icon { color:var(--accent); }
+html[data-theme="classic"] .theme-select { color:#000; }
+
+/* ════════ LAUNCHER (standalone page — launcher.css classes) ════════ */
+html[data-theme="classic"] .launcher-header { border-bottom:1px solid #808080; box-shadow:0 1px 0 #fff; }
+html[data-theme="classic"] .launcher-header h1 { background:none; -webkit-text-fill-color:var(--accent); color:var(--accent); letter-spacing:0; }
+html[data-theme="classic"] .brand-kicker { color:var(--accent); }
+html[data-theme="classic"] .brand-kicker::before { background:var(--accent); }
+html[data-theme="classic"] .brand-gnome { filter:none; animation:none; }
+html[data-theme="classic"] .launcher-sub { color:var(--text-mid); }
+/* collapse-all + section heads */
+html[data-theme="classic"] .rail-collapse { border:none; border-radius:0; background:var(--bg); color:#000; box-shadow:var(--bevel-raise); transition:none; }
+html[data-theme="classic"] .rail-collapse:hover { background:var(--bg); color:#000; box-shadow:var(--bevel-raise); }
+html[data-theme="classic"] .rail-collapse:active { box-shadow:var(--bevel-press); }
+html[data-theme="classic"] .card-head { background:var(--bg2); border-bottom:1px solid #808080; box-shadow:inset 0 1px 0 #fff; }
+html[data-theme="classic"] .card-head:hover { background:var(--card-2); }
+html[data-theme="classic"] .card-head h2 { color:#000; }
+html[data-theme="classic"] .card-head-icon { color:var(--accent); }
+/* workspace buttons → classic raised gray buttons (kill blue gradient / glow / lift) */
+html[data-theme="classic"] .launcher-button {
+  background:var(--bg); border:none; border-radius:0; box-shadow:var(--bevel-raise);
+  color:#000; transform:none !important; transition:none;
+}
+html[data-theme="classic"] .launcher-button:hover {
+  background:var(--bg); color:#000; border:none; box-shadow:var(--bevel-raise);
+}
+html[data-theme="classic"] .launcher-button:active { box-shadow:var(--bevel-press); }
+html[data-theme="classic"] .lb-text { color:#000; }
+html[data-theme="classic"] .lb-icon,
+html[data-theme="classic"] .launcher-button:hover .lb-icon { background:transparent; border:none; color:var(--accent); box-shadow:none; }
+html[data-theme="classic"] .lb-arrow,
+html[data-theme="classic"] .launcher-button:hover .lb-arrow { color:var(--accent); }
+html[data-theme="classic"] .sections-empty h2 { color:#000; }
+
+/* ════════ TUTORIAL (content — tutorial.css classes) ════════ */
+html[data-theme="classic"] .tut-kicker { color:var(--accent); }
+html[data-theme="classic"] .tut-h2 { background:none; -webkit-text-fill-color:var(--accent); color:var(--accent); }
+html[data-theme="classic"] .tut-card {
+  background:var(--bg); border:none; border-radius:0; box-shadow:var(--bevel-raise);
+  transform:none !important; transition:none;
+}
+html[data-theme="classic"] .tut-card:hover { box-shadow:var(--bevel-raise); transform:none !important; }
+html[data-theme="classic"] .tut-card-icon { color:var(--accent); }
+html[data-theme="classic"] .tut-card-text em { color:var(--accent); }
+html[data-theme="classic"] .tut-step-num {
+  border-radius:0; background:#fff; border:none; box-shadow:var(--bevel-sunken); color:#000;
+}
+
+/* ════════ STATE-DOCK LOGIN WIDGET (the login node — .lp-* / .acc, injected at runtime) ════════ */
+html[data-theme="classic"] .lp-row label { color:#000; }
+html[data-theme="classic"] .lp-row input { background:#fff; color:#000; border:none; border-radius:0; box-shadow:var(--bevel-sunken); }
+html[data-theme="classic"] .lp-row input:focus { box-shadow:var(--bevel-sunken); }
+html[data-theme="classic"] .lp-btn { background:var(--bg); color:#000; border:none; border-radius:0; box-shadow:var(--bevel-raise); transition:none; }
+html[data-theme="classic"] .lp-btn:hover { box-shadow:var(--bevel-raise); }
+html[data-theme="classic"] .lp-btn:active { box-shadow:var(--bevel-press); }
+html[data-theme="classic"] #lp-login,
+html[data-theme="classic"] #lp-register[data-stage="confirm"] { background:var(--bg); color:#000; border:1px solid #000; box-shadow:var(--bevel-raise); }
+html[data-theme="classic"] .acc { background:#fff; border:1px solid #808080; border-radius:0; }
+html[data-theme="classic"] .lp-warn { border-radius:0; }

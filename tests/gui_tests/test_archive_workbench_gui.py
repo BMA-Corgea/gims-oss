@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import sqlite3
 import sys
 from pathlib import Path
@@ -13,22 +14,15 @@ from fastapi.testclient import TestClient
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Helper: dynamically import the target module (gui/archive_workbench_gui.py
-# with fallback to gui/archive_gui.py)
+# Helper: import the seam module the route handlers read. The package was split
+# (__init__ -> _seams.py [seams + service layer + router] + routes.py [handlers]);
+# the 12 monkeypatch seams now live on `_seams`, and the route handlers read them
+# from there, so the patches below must target `_seams` (the canonical seam home).
 # ──────────────────────────────────────────────────────────────────────────────
 @pytest.fixture()
 def awg_module() -> Any:
-    repo_root = Path(__file__).resolve().parents[2]
-    mod_path = repo_root / "gui" / "archive_workbench_gui.py"
-    if not mod_path.exists():
-        alt = repo_root / "gui" / "archive_gui.py"
-        mod_path = alt if alt.exists() else mod_path
-    spec = importlib.util.spec_from_file_location("archive_workbench_gui", mod_path)
-    assert spec and spec.loader, f"Could not load module at {mod_path}"
-    mod = importlib.util.module_from_spec(spec)
-    sys.modules["archive_workbench_gui"] = mod
-    spec.loader.exec_module(mod)
-    return mod
+    import importlib
+    return importlib.import_module("api.routers.archive_workbench._seams")
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -168,13 +162,17 @@ def client(awg_module, temp_project) -> TestClient:
 # ──────────────────────────────────────────────────────────────────────────────
 # Helpers: create noun tables + sample data
 # ──────────────────────────────────────────────────────────────────────────────
+_INSTANCES_DDL = (
+    "CREATE TABLE IF NOT EXISTS instances ("
+    "collection TEXT NOT NULL, key TEXT NOT NULL, data TEXT NOT NULL, "
+    "PRIMARY KEY(collection,key))"
+)
+
+
 def _mk_hot_noun_table(db: Path, table: str = "noun_Sample"):
     con = sqlite3.connect(db.as_posix())
     cur = con.cursor()
-    cur.execute(
-        f'CREATE TABLE IF NOT EXISTS "{table}" ('
-        'id TEXT PRIMARY KEY, archived INTEGER, archived_at TEXT, _runID TEXT)'
-    )
+    cur.execute(_INSTANCES_DDL)
     con.commit()
     con.close()
 
@@ -182,26 +180,39 @@ def _mk_hot_noun_table(db: Path, table: str = "noun_Sample"):
 def _mk_arc_noun_table(db: Path, table: str = "noun_Sample"):
     con = sqlite3.connect(db.as_posix())
     cur = con.cursor()
-    cur.execute(f'CREATE TABLE IF NOT EXISTS "{table}" (id TEXT PRIMARY KEY)')
+    cur.execute(_INSTANCES_DDL)
     con.commit()
     con.close()
 
 
 def _insert_hot_noun(db: Path, pid: str, archived: int = 0, run_id: Optional[str] = None, table="noun_Sample"):
+    # `table` kept for signature compat but ignored — collection is always "Sample".
     con = sqlite3.connect(db.as_posix())
     cur = con.cursor()
+    data = json.dumps(
+        {
+            "id": pid,
+            "archived": archived,
+            "archived_at": "2024-01-01T00:00:00Z" if archived else None,
+            "_runID": run_id,
+        }
+    )
     cur.execute(
-        f'INSERT OR REPLACE INTO "{table}" (id, archived, archived_at, _runID) VALUES (?,?,?,?)',
-        (pid, archived, "2024-01-01T00:00:00Z" if archived else None, run_id),
+        "INSERT OR REPLACE INTO instances (collection, key, data) VALUES (?,?,?)",
+        ("Sample", pid, data),
     )
     con.commit()
     con.close()
 
 
 def _insert_arc_noun(db: Path, pid: str, table="noun_Sample"):
+    # `table` kept for signature compat but ignored — collection is always "Sample".
     con = sqlite3.connect(db.as_posix())
     cur = con.cursor()
-    cur.execute(f'INSERT OR REPLACE INTO "{table}" (id) VALUES (?)', (pid,))
+    cur.execute(
+        "INSERT OR REPLACE INTO instances (collection, key, data) VALUES (?,?,?)",
+        ("Sample", pid, json.dumps({"id": pid})),
+    )
     con.commit()
     con.close()
 
@@ -264,9 +275,13 @@ def test_noun_candidates_and_restore(client: TestClient, temp_project: Dict[str,
 
     con = sqlite3.connect(temp_project["hot_db"].as_posix())
     cur = con.cursor()
-    row = cur.execute('SELECT archived FROM "noun_Sample" WHERE id=?', ("S1",)).fetchone()
+    row = cur.execute(
+        "SELECT data FROM instances WHERE collection='Sample' AND key=?", ("S1",)
+    ).fetchone()
     con.close()
-    assert row and (row[0] == 0 or row[0] is None)
+    assert row is not None
+    rec = json.loads(row[0])
+    assert rec.get("archived") in (0, None)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -324,9 +339,12 @@ def test_run_archive_and_restore_flow(client: TestClient, temp_project: Dict[str
 
     con = sqlite3.connect(temp_project["hot_db"].as_posix())
     cur = con.cursor()
-    row = cur.execute('SELECT archived FROM "noun_Sample" WHERE id=?', ("N1",)).fetchone()
+    row = cur.execute(
+        "SELECT data FROM instances WHERE collection='Sample' AND key=?", ("N1",)
+    ).fetchone()
     con.close()
-    assert row and (row[0] == 1)
+    assert row is not None
+    assert json.loads(row[0]).get("archived") == 1
 
     r = client.get(f"/api/archive_workbench/{project}/runs/list?verb_group=Chemistry&where=active")
     assert r.status_code == 200
@@ -348,9 +366,12 @@ def test_run_archive_and_restore_flow(client: TestClient, temp_project: Dict[str
 
     con = sqlite3.connect(temp_project["hot_db"].as_posix())
     cur = con.cursor()
-    row = cur.execute('SELECT archived FROM "noun_Sample" WHERE id=?', ("N1",)).fetchone()
+    row = cur.execute(
+        "SELECT data FROM instances WHERE collection='Sample' AND key=?", ("N1",)
+    ).fetchone()
     con.close()
-    assert row and (row[0] == 0 or row[0] is None)
+    assert row is not None
+    assert json.loads(row[0]).get("archived") in (0, None)
 
 
 

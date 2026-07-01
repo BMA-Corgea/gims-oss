@@ -1,548 +1,147 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+/* ══════════════════════════════════════════════════════════════
+   Parser Test — Watery v2 (page-specific layout only).
+   Colours/surfaces/components come from watery.css + shell.css tokens; the
+   bespoke animated gradient + light/dark :root palette were dropped entirely.
+   Class names (.cards-container / .card / .card-body / .status-* / .result-area /
+   .test-button / .spinner / .script-select / .form-row / .multiselect-* / #prep-
+   settings-*) are the parser_test.js DOM contract and are preserved — this file
+   just restyles them onto Watery.
+═══════════════════════════════════════════════════════════════ */
 
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-    color: #333;
-    line-height: 1.6;
-    position: relative;
-    min-height: 100vh;
-    overflow-x: hidden;
-}
+/* ── Project toolbar ── */
+.pt-toolbar-row { flex-direction: row; flex-wrap: wrap; align-items: flex-end; gap: 16px; }
+.pt-project-field { min-width: 240px; }
+#project-select:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* Animated gradient background */
-body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-        45deg,
-        #667eea 0%,
-        #764ba2 25%,
-        #f093fb 50%,
-        #f5576c 75%,
-        #4facfe 100%
-    );
-    background-size: 400% 400%;
-    animation: gradientShift 15s ease infinite;
-    z-index: -2;
-}
-
-/* Floating orbs for extra glow effect */
-body::after {
-    content: '';
-    position: fixed;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: 
-        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
-    animation: float 20s ease-in-out infinite;
-    z-index: -1;
-}
-
-@keyframes gradientShift {
-    0% {
-        background-position: 0% 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-    100% {
-        background-position: 0% 50%;
-    }
-}
-
-@keyframes float {
-    0%, 100% {
-        transform: translate(0px, 0px) rotate(0deg);
-    }
-    33% {
-        transform: translate(30px, -30px) rotate(120deg);
-    }
-    66% {
-        transform: translate(-20px, 20px) rotate(240deg);
-    }
-}
-
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
-    position: relative;
-    z-index: 1;
-}
-
-h1 {
-    text-align: center;
-    margin-bottom: 2rem;
-    color: white;
-    font-size: 2.5rem;
-    font-weight: 300;
-    text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-}
-
-.project-selector {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    margin-bottom: 3rem;
-    padding: 1rem;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    max-width: 400px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.project-selector label {
-    font-weight: 600;
-    color: #2c3e50;
-    font-size: 1rem;
-}
-
-.project-selector select {
-    padding: 0.5rem 1rem;
-    border: 2px solid #e0e0e0;
-    border-radius: 6px;
-    font-size: 1rem;
-    background: white;
-    cursor: pointer;
-    transition: border-color 0.3s ease;
-    min-width: 200px;
-}
-
-.project-selector select:focus {
-    outline: none;
-    border-color: #3498db;
-}
-
-.project-selector select:disabled {
-    background: #f5f5f5;
-    cursor: not-allowed;
-    color: #999;
-}
-
+/* ── Cards grid ── */
 .cards-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 2rem;
-    justify-items: center;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 18px; align-items: start;
 }
 
-.card {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.1),
-        0 0 20px rgba(255, 255, 255, 0.1);
-    padding: 2rem;
-    width: 100%;
-    max-width: 500px;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
+/* outer cards are .panel.card → the Watery frame comes from .panel; .card adds nothing heavy here */
+.card { display: flex; flex-direction: column; }
+.panel.card.interactive:hover { border-color: var(--card-edge-strong); }
 
-.card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.1) 0%,
-        rgba(255, 255, 255, 0.05) 50%,
-        rgba(255, 255, 255, 0.1) 100%
-    );
-    pointer-events: none;
-    z-index: 1;
-}
+/* the outer card head doubles as .panel-head; keep the status indicator pinned right */
+.card-header.panel-head { gap: 9px; }
+.card-header.panel-head .status-indicator { margin-left: auto; }
 
-.card > * {
-    position: relative;
-    z-index: 2;
-}
+.card-body { gap: 11px; }
+.card-desc { font-size: 13px; color: var(--text-mid); }
 
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 
-        0 20px 40px rgba(0, 0, 0, 0.15),
-        0 0 30px rgba(255, 255, 255, 0.2);
-}
-
-.card-header {
-    margin-bottom: 1.5rem;
-}
-
-.card-header h2 {
-    color: #2c3e50;
-    margin-bottom: 0.5rem;
-    font-size: 1.5rem;
-}
-
-.status-indicator {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
+/* ── Status indicator (dot + text) — the page's loading/ready/error state machine ── */
+.status-indicator { display: flex; align-items: center; gap: 7px; }
 .status-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background-color: #95a5a6;
-    transition: background-color 0.3s ease;
+  width: 10px; height: 10px; border-radius: 50%; background: var(--text-mute);
+  transition: background-color .3s ease;
 }
+.status-dot.checking { background: var(--amber); animation: pt-pulse 1.5s ease-in-out infinite alternate; }
+.status-dot.ready { background: var(--green); box-shadow: 0 0 0 3px var(--green-light); }
+.status-dot.error { background: var(--red); }
+.status-text { font-size: 12px; font-weight: 600; color: var(--text-soft); }
 
-.status-dot.checking {
-    background-color: #f39c12;
-    animation: pulse 1.5s ease-in-out infinite alternate;
-}
-
-.status-dot.ready {
-    background-color: #27ae60;
-}
-
-.status-dot.error {
-    background-color: #e74c3c;
-}
-
-.status-text {
-    font-size: 0.9rem;
-    color: #7f8c8d;
-    font-weight: 500;
-}
-
-.card-body p {
-    margin-bottom: 1rem;
-    color: #555;
-}
-
+/* ── Expected-path hint ── */
 .file-path {
-    font-size: 0.85rem;
-    color: #7f8c8d;
-    background-color: #f8f9fa;
-    padding: 0.5rem;
-    border-radius: 6px;
-    border-left: 3px solid #3498db;
+  font-size: 12px; color: var(--text-soft); background: var(--bg2);
+  padding: 8px 11px; border-radius: var(--radius-sm); border-left: 3px solid var(--accent);
+  word-break: break-word;
 }
-
 .file-path code {
-    background: none;
-    font-family: 'Monaco', 'Menlo', monospace;
-    font-size: 0.8rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11.5px; color: var(--text);
 }
 
-.test-button {
-    width: 100%;
-    padding: 1rem;
-    background: linear-gradient(135deg, #3498db, #2980b9);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-top: 1.5rem;
-}
-
-.test-button:hover:not(:disabled) {
-    background: linear-gradient(135deg, #2980b9, #1f639a);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
-}
-
-.test-button:disabled {
-    background: #bdc3c7;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-}
-
-.test-button:active:not(:disabled) {
-    transform: translateY(0);
-}
-
-.spinner {
-    width: 16px;
-    height: 16px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top: 2px solid white;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    display: none;
-}
-
-.spinner.active {
-    display: block;
-}
-
-.result-area {
-    margin-top: 1.5rem;
-    padding: 1rem;
-    border-radius: 6px;
-    font-family: 'Monaco', 'Menlo', monospace;
-    font-size: 0.85rem;
-    line-height: 1.4;
-    display: none;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-}
-
-.result-area.success {
-    background-color: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: #155724;
-    display: block;
-}
-
-.result-area.error {
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
-    display: block;
-}
-
-.result-area.info {
-    background-color: #d1ecf1;
-    border: 1px solid #bee5eb;
-    color: #0c5460;
-    display: block;
-}
-
-@keyframes pulse {
-    0% {
-        opacity: 1;
-    }
-    100% {
-        opacity: 0.5;
-    }
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-@media (max-width: 768px) {
-    .container {
-        padding: 1rem;
-    }
-    
-    .cards-container {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-    }
-    
-    h1 {
-        font-size: 2rem;
-        margin-bottom: 2rem;
-    }
-    
-    .card {
-        padding: 1.5rem;
-    }
-}
-
+/* ── Selects (.script-select is the JS contract for both static + dynamically-built dropdowns) ── */
 .script-select {
-    display: block;
-    width: 100%;
-    margin: 8px 0 12px;
-    padding: 8px 12px;
-    font-size: 14px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
+  display: block; width: 100%; padding: 9px 12px; font-size: 13px; font-family: inherit;
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--surface2);
+  color: var(--text); outline: none; appearance: none;
+  transition: border-color .18s, box-shadow .18s, background .18s;
 }
+.script-select:focus { border-color: var(--accent); background: rgba(45,212,191,0.06); box-shadow: 0 0 0 3px var(--accent-glow); }
+.script-select:hover:not(:focus) { border-color: var(--border2); }
+.script-select:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* ===========================
-   Pre-phrase Settings Card
-   =========================== */
-
-:root {
-  --pp-card-bg: #ffffff;
-  --pp-text: #111827;      /* Added: main text color */
-  --pp-border: #e5e7eb;
-  --pp-accent: #0ea5e9;   /* cyan-500 */
-  --pp-accent-ink: #075985;
-  --pp-muted: #6b7280;
-  --pp-input-bg: #f9fafb;
-  --pp-shadow: 0 6px 18px rgba(0,0,0,0.08);
+/* ── Run-test button (.test-button rides on .btn-primary; spinner lives inside) ── */
+.test-button {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px;
 }
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --pp-card-bg: #0b0f14;
-    --pp-text: #f9fafb;     /* Added: light text for dark mode */
-    --pp-border: #1f2937;
-    --pp-accent: #22d3ee; /* cyan-400 */
-    --pp-accent-ink: #0891b2;
-    --pp-muted: #9ca3af;
-    --pp-input-bg: #0f172a;
-    --pp-shadow: 0 10px 24px rgba(0,0,0,0.35);
-  }
+.button-text { font-weight: 700; letter-spacing: 0.2px; }
+.spinner {
+  width: 15px; height: 15px; border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff;
+  border-radius: 50%; animation: pt-spin 0.9s linear infinite; display: none;
 }
+.spinner.active { display: block; }
 
-/* Container card */
+/* ── Result area (JS sets .result-area + .success/.error/.info and toggles display) ── */
+.result-area {
+  margin-top: 4px; padding: 12px 14px; border-radius: var(--radius-sm);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; line-height: 1.5;
+  display: none; white-space: pre-wrap; word-break: break-word; border: 1px solid var(--border);
+}
+.result-area.success { display: block; color: var(--green-text); background: var(--green-light); border-color: rgba(52,224,161,0.4); }
+.result-area.error   { display: block; color: var(--red-text);   background: var(--red-light);   border-color: var(--red-border); }
+.result-area.info    { display: block; color: var(--blue-text);  background: var(--blue-light);  border-color: var(--blue-border); }
+/* icon header (built by parser_test.js for success/error) */
+.result-head {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+  font-family: 'Inter', sans-serif; font-weight: 700; font-size: 13px;
+}
+.result-head .icon { width: 17px; height: 17px; }
+.result-pre { margin: 0; white-space: pre-wrap; word-break: break-word; font: inherit; }
+
+/* ══════════════════════════════════════════════════════════════
+   Pre-phrase settings card — built dynamically by parser_test.js as a lone .card
+   (id #prep-settings-card) inside the prep card-body. Styled as a nested sub-panel.
+═══════════════════════════════════════════════════════════════ */
 #prep-settings-card {
-  background: var(--pp-card-bg);
-  border: 1px solid var(--pp-border);
-  border-radius: 14px;
-  box-shadow: var(--pp-shadow);
-  overflow: hidden;
-  color: var(--pp-text); /* Added: base text color */
+  margin-top: 4px; background: var(--surface); border: 1.5px solid var(--card-edge);
+  border-radius: var(--radius); box-shadow: var(--shadow-sm); overflow: hidden; color: var(--text);
+  display: block;
 }
-
-/* Header */
 #prep-settings-card .card-header {
-  background: linear-gradient(180deg, rgba(14,165,233,0.10), rgba(14,165,233,0.03));
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--pp-border);
-  font-weight: 600;
-  letter-spacing: 0.2px;
-  color: var(--pp-accent-ink);
+  background: var(--accent-light); padding: 10px 13px; border-bottom: 1px solid var(--border);
+  font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-2);
 }
+#prep-settings-body { padding: 13px; display: block; }
 
-/* Body */
-#prep-settings-body {
-  padding: 12px;
-}
-
-/* Muted helper text under the header */
 #prep-settings-info {
-  color: var(--pp-muted);
-  font-size: 0.9rem;
-  border-left: 3px solid var(--pp-border);
-  padding-left: 8px;
-  line-height: 1.25rem;
+  color: var(--text-soft); font-size: 12.5px; border-left: 3px solid var(--border2);
+  padding-left: 9px; line-height: 1.45;
 }
 
-/* Form layout */
-#prep-settings-form {
-  margin-top: 8px;
-  display: grid;
-  gap: 10px;
-}
+#prep-settings-form { margin-top: 9px; display: grid; gap: 10px; }
+#prep-settings-form .form-row { display: grid; grid-template-columns: 190px 1fr; align-items: center; gap: 10px; }
+#prep-settings-form label { color: var(--text-mid); font-weight: 600; font-size: 12.5px; user-select: none; }
 
-#prep-settings-form .form-row {
-  display: grid;
-  grid-template-columns: 190px 1fr;
-  align-items: center;
-  gap: 10px;
-}
-
-#prep-settings-form label {
-  color: var(--pp-muted);
-  font-weight: 600;
-  user-select: none;
-}
-
-/* Inputs */
 #prep-settings-form input[type="text"],
 #prep-settings-form input[type="number"],
 #prep-settings-form input[type="date"],
 #prep-settings-form select,
 #prep-settings-form textarea {
-  width: 100%;
-  background: var(--pp-input-bg);
-  border: 1px solid var(--pp-border);
-  border-radius: 10px;
-  padding: 8px 10px;
-  line-height: 1.25rem;
-  outline: none;
-  transition: border-color 120ms ease, box-shadow 120ms ease;
-  color: var(--pp-text); /* Added: input text color */
+  width: 100%; background: var(--surface2); border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  padding: 8px 10px; font-size: 13px; font-family: inherit; line-height: 1.4; outline: none; color: var(--text);
+  transition: border-color .18s, box-shadow .18s;
 }
-
-#prep-settings-form select[multiple] {
-  min-height: 110px;
-  padding: 8px;
-}
-
-#prep-settings-form input[type="checkbox"] {
-  transform: translateY(1px);
-  width: 18px;
-  height: 18px;
-}
-
-/* Focus rings */
+#prep-settings-form select[multiple] { min-height: 110px; padding: 8px; }
+#prep-settings-form input[type="checkbox"] { width: 17px; height: 17px; accent-color: var(--accent); }
 #prep-settings-form input:focus,
 #prep-settings-form select:focus,
-#prep-settings-form textarea:focus {
-  border-color: var(--pp-accent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pp-accent) 20%, transparent);
+#prep-settings-form textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+
+/* multiselect rendered by renderUiSpecForm() as a stack of checkbox rows */
+.multiselect-checkboxes { display: flex; flex-direction: column; gap: 6px; }
+.multiselect-option { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-mid); }
+.multiselect-option input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); }
+
+/* the dynamic Confirm/Reset buttons already carry .btn / .btn-primary (watery.css) */
+
+.muted { color: var(--text-soft); }
+
+/* ── Animations (page-scoped names so they don't shadow the shared spin/pulse) ── */
+@keyframes pt-pulse { 0% { opacity: 1; } 100% { opacity: 0.45; } }
+@keyframes pt-spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 768px) {
+  .cards-container { grid-template-columns: 1fr; gap: 14px; }
+  #prep-settings-form .form-row { grid-template-columns: 1fr; }
 }
-
-/* Actions row (the two buttons area in the card body) */
-#prep-settings-body > div:last-child {
-  margin-top: 10px;
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-/* Buttons inside the settings card (IDs come from JS) */
-#prep-settings-confirm,
-#prep-settings-reset {
-  border-radius: 10px;
-  padding: 8px 14px;
-  border: 1px solid var(--pp-border);
-  cursor: pointer;
-  transition: transform 80ms ease, box-shadow 120ms ease, background 120ms ease;
-}
-
-#prep-settings-confirm {
-  background: var(--pp-accent);
-  color: white;
-  border-color: color-mix(in srgb, var(--pp-accent) 60%, black);
-}
-
-#prep-settings-reset {
-  background: var(--pp-input-bg);
-  color: var(--pp-text); /* Added: explicit text color for reset button */
-}
-
-#prep-settings-confirm:hover { transform: translateY(-1px); }
-#prep-settings-reset:hover { transform: translateY(-1px); }
-
-#prep-settings-confirm:disabled,
-#prep-settings-reset:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* Responsive form: stack label over input on narrow screens */
-@media (max-width: 760px) {
-  #prep-settings-form .form-row {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Tiny utility */
-.muted { color: var(--pp-muted); }

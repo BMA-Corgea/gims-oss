@@ -1,674 +1,381 @@
-/* Runlog Data Dump Viewer - Enhanced Aesthetic Design */
+/* ══════════════════════════════════════════════════════════════
+   Runlog Workbench — Watery v2 (page-specific layout only).
+   Colours/surfaces/components come from watery.css + shell.css tokens; the bespoke
+   blue/gray :root palette, the `*` reset, and the bare body/header/footer/section
+   rules were DROPPED. EVERY selector below is scoped under `.shell-content ` so the
+   page can't restyle the shell's rail/header/login (the one exception, documented
+   inline, is #toast-container — the JS mounts it on <body>, outside the content slot).
+   Class/id names (.data-table, .tab-*, .gate-*, .ls-*, .raw-*, .override-*, .status-*, …)
+   are the runlog_workbench.js DOM contract and are preserved — restyled, not renamed.
+═══════════════════════════════════════════════════════════════ */
 
-:root {
-  --primary: #4361ee;
-  --primary-light: #4895ef;
-  --secondary: #3f37c9;
-  --accent: #4cc9f0;
-  --success: #4ade80;
-  --warning: #fbbf24;
-  --danger: #f87171;
-  --dark: #1e293b;
-  --light: #f8fafc;
-  --gray-100: #f1f5f9;
-  --gray-200: #e2e8f0;
-  --gray-300: #cbd5e1;
-  --gray-400: #94a3b8;
-  --gray-500: #64748b;
-  --gray-600: #475569;
-  --gray-700: #334155;
-  --gray-800: #1e293b;
-  --gray-900: #0f172a;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --radius-sm: 0.25rem;
-  --radius: 0.5rem;
-  --radius-lg: 0.75rem;
-  --transition: all 0.2s ease;
+/* ── Toolbar (project + verb-group pickers) ── */
+.shell-content .rw-toolbar-row { flex-direction: row; flex-wrap: wrap; align-items: flex-end; gap: 14px; }
+.shell-content .rw-field { min-width: 240px; flex: 1 1 240px; }
+.shell-content #create-verb-instance-btn { align-self: flex-end; }
+
+/* ── Status bar (was the footer) ── */
+.shell-content .rw-status { padding: 0; }
+.shell-content .status-bar {
+  display: flex; align-items: center; gap: 8px; padding: 11px 16px;
+  font-size: 12.5px; color: var(--text-soft);
+}
+.shell-content .status-bar::before {
+  content: ''; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 0 0 var(--accent-glow); flex-shrink: 0;
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+/* ── Data-dump panel head: push the close button to the right ── */
+.shell-content #data-dump-section .panel-head .close-button { margin-left: auto; }
+.shell-content .close-button {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
+  background: transparent; border: 1px solid transparent; color: var(--text-soft);
+  transition: background .15s, color .15s, border-color .15s;
+}
+.shell-content .close-button:hover { background: var(--red-light); color: var(--red-text); border-color: var(--red-border); }
+.shell-content .close-button .icon { width: 16px; height: 16px; }
+
+/* ── Generic helpers (JS-built) ── */
+.shell-content .muted { color: var(--text-soft); font-size: 12.5px; }
+.shell-content .hidden { display: none !important; }
+.shell-content .loading {
+  display: inline-flex; align-items: center; gap: 9px; color: var(--text-soft);
+  font-size: 13px; padding: 14px 2px;
+}
+.shell-content .loading::before {
+  content: ''; width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid var(--border2); border-top-color: var(--accent); animation: rw-spin .8s linear infinite;
+}
+.shell-content .error-message {
+  color: var(--red-text); background: var(--red-light); border: 1px solid var(--red-border);
+  border-radius: var(--radius-sm); padding: 11px 14px; font-size: 13px;
+}
+.shell-content .no-data { color: var(--text-soft); font-size: 13px; padding: 10px 2px; }
+@keyframes rw-spin { to { transform: rotate(360deg); } }
+
+/* ── Run-log table ── */
+.shell-content .table-container {
+  overflow-x: auto; max-height: 62vh; overflow-y: auto;
+  border: 1px solid var(--card-edge); border-radius: var(--radius);
+}
+.shell-content .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.shell-content .data-table th {
+  position: sticky; top: 0; z-index: 1; text-align: left; padding: 11px 13px;
+  font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px;
+  color: var(--text-soft); background: var(--surface); border-bottom: 1px solid var(--card-edge);
+  white-space: nowrap;
+}
+.shell-content .data-table td {
+  padding: 10px 13px; border-bottom: 1px solid var(--border); color: var(--text-mid); vertical-align: top;
+}
+.shell-content .data-table tr:last-child td { border-bottom: none; }
+.shell-content .data-table tbody tr:hover { background: var(--accent-light); }
+.shell-content .clickable-row { cursor: pointer; }
+
+/* ── Runlog header actions (Create New) — built above the table by JS ── */
+.shell-content .runlog-header-actions {
+  display: flex; justify-content: flex-end; gap: 8px;
+  padding: 10px 13px; border-bottom: 1px solid var(--border);
 }
 
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  background: var(--light);
-  color: var(--gray-800);
-  line-height: 1.6;
+/* ── Status badge (run-log __status column) + status colour classes ── */
+.shell-content .status-badge {
+  display: inline-flex; align-items: center; gap: 5px; padding: 2px 10px; border-radius: 99px;
+  font-size: 11px; font-weight: 700; border: 1px solid var(--border2); background: var(--surface2);
+}
+.shell-content .status-badge.status-complete { color: var(--green-text); border-color: rgba(52,224,161,0.4); background: var(--green-light); }
+.shell-content .status-badge.status-good     { color: var(--accent-2);  border-color: rgba(45,212,191,0.4); background: var(--accent-light); }
+.shell-content .status-badge.status-warning  { color: var(--amber);     border-color: rgba(246,197,96,0.4); background: var(--amber-light); }
+.shell-content .status-badge.status-pending  { color: var(--text-soft); }
+
+.shell-content .status-complete { color: var(--green-text); }
+.shell-content .status-good     { color: var(--accent-2); }
+.shell-content .status-warning  { color: var(--amber); }
+.shell-content .status-error    { color: var(--red-text); }
+.shell-content .status-pending  { color: var(--text-soft); }
+
+/* ── Data-dump tabs ── */
+.shell-content .tabs {
+  display: flex; flex-wrap: wrap; gap: 4px;
+  border-bottom: 1px solid var(--card-edge); padding-bottom: 0; margin-bottom: 4px;
+}
+.shell-content .tab-button {
+  background: transparent; border: 1px solid transparent; border-bottom: none;
+  padding: 8px 14px; border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  font-size: 12.5px; font-weight: 600; font-family: inherit; color: var(--text-soft);
+  cursor: pointer; transition: background .15s, color .15s; margin-bottom: -1px;
+}
+.shell-content .tab-button:hover { color: var(--text); background: var(--accent-light); }
+.shell-content .tab-button.active {
+  color: var(--text); background: linear-gradient(180deg, var(--card), var(--surface));
+  border-color: var(--card-edge); border-bottom: 1px solid var(--card); font-weight: 700;
+}
+.shell-content .tab-content { display: none; padding: 14px 0; }
+.shell-content .tab-content.active { display: block; animation: rw-fade .3s ease; }
+@keyframes rw-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* ── Viewers ── */
+.shell-content .text-viewer, .shell-content .json-viewer {
+  margin: 0; padding: 13px 15px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--bg2); color: var(--text-mid); white-space: pre-wrap; word-break: break-word;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; line-height: 1.55;
+  max-height: 60vh; overflow: auto;
 }
 
-.container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  gap: 1.5rem;
+/* ── React data-dump (Phase 6) ── */
+.shell-content .rw-grid-host { position: relative; width: 100%; min-height: 120px; }
+/* Status tab (5.2d): ring + timeline + spec instead of pills + text grid */
+.shell-content .rw-status-panel { display: flex; flex-direction: column; gap: 16px; }
+.shell-content .rw-status-head { display: flex; align-items: center; gap: 12px; }
+.shell-content .rw-status-title { font-weight: 650; color: var(--text); }
+.shell-content .rw-status-refresh { margin-left: auto; }
+.shell-content .rw-status-sub { display: flex; flex-direction: column; gap: 7px; }
+.shell-content .rw-status-subtitle {
+  font-size: 11px; font-weight: 650; letter-spacing: .04em; text-transform: uppercase; color: var(--text-soft);
+}
+/* Raw-data tab (React) */
+.shell-content .rw-raw { display: flex; flex-direction: column; gap: 12px; }
+.shell-content .raw-file-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.shell-content .raw-file { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.shell-content .raw-file-name { flex: 1 1 auto; min-width: 0; }
+.shell-content .raw-upload-form { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.shell-content .raw-overwrite { display: inline-flex; align-items: center; gap: 5px; }
+
+/* ── Sub-cards (override/adverb forms, parsers, interpretation files) ── */
+.shell-content .card {
+  background: linear-gradient(180deg, var(--card), var(--surface));
+  border: 1px solid var(--card-edge); border-radius: var(--radius); box-shadow: var(--shadow-sm);
+  margin-bottom: 14px; overflow: hidden;
+}
+.shell-content .card-header {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  padding: 11px 14px; border-bottom: 1px solid var(--card-edge); color: var(--text); font-size: 13.5px;
+}
+.shell-content .card-header strong { color: var(--text); font-weight: 700; }
+.shell-content .card-body { padding: 14px; }
+
+/* ── Form rows / fields (JS builds raw <label>+control) ── */
+.shell-content .form-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 12px; }
+.shell-content .form-row > label { font-size: 12.5px; font-weight: 600; color: var(--text-mid); min-width: 7rem; }
+.shell-content .form-actions { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+.shell-content .ref-field { align-items: flex-start; }
+.shell-content .adverb-control { flex: 1 1 240px; }
+
+/* ── Form controls inside the dump area (raw <select>/<input>/<textarea> built by JS).
+      Scoped to #data-dump-contents so the toolbar's .input.select pickers keep their
+      watery look (these element rules would otherwise out-rank the .select class). ── */
+.shell-content #data-dump-contents select,
+.shell-content #data-dump-contents textarea,
+.shell-content #data-dump-contents input[type="text"],
+.shell-content #data-dump-contents input[type="number"],
+.shell-content #data-dump-contents input[type="date"] {
+  font-family: inherit; font-size: 13px; color: var(--text);
+  background: var(--surface2); border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  padding: 8px 10px; outline: none; appearance: none;
+  transition: border-color .18s, box-shadow .18s, background .18s;
+}
+.shell-content #data-dump-contents select:focus,
+.shell-content #data-dump-contents textarea:focus,
+.shell-content #data-dump-contents input[type="text"]:focus,
+.shell-content #data-dump-contents input[type="number"]:focus,
+.shell-content #data-dump-contents input[type="date"]:focus {
+  border-color: var(--accent); background: rgba(45,212,191,0.06); box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.shell-content #data-dump-contents input[type="checkbox"],
+.shell-content #data-dump-contents input[type="radio"] { accent-color: var(--accent); width: 15px; height: 15px; cursor: pointer; }
+.shell-content #data-dump-contents input[type="file"] {
+  font-size: 12.5px; color: var(--text-mid); padding: 5px 8px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface2); cursor: pointer;
+}
+.shell-content #data-dump-contents input:disabled,
+.shell-content #data-dump-contents select:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Buttons: page keeps .btn-sm/.btn-small/.btn-danger/.mini (JS-built); base .btn /
+      .btn-primary come from watery.css. Re-map onto Watery. ── */
+.shell-content .btn-sm, .shell-content .btn-small { padding: 6px 10px; font-size: 12px; }
+.shell-content .btn-danger {
+  border-color: var(--red-border); color: var(--red-text); background: var(--red-light);
+}
+.shell-content .btn-danger:hover:not(:disabled) {
+  border-color: var(--red); color: #fff; background: var(--red); box-shadow: 0 3px 14px rgba(240,114,106,0.3);
+}
+.shell-content .btn.disabled, .shell-content .btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+.shell-content .mini {
+  padding: 4px 9px; font-size: 11.5px; font-weight: 600; font-family: inherit; cursor: pointer;
+  color: var(--text-mid); background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--radius-sm);
+}
+.shell-content .mini:hover { color: var(--text); border-color: var(--accent); }
+.shell-content .mini-tools { display: flex; gap: 8px; margin-top: 8px; }
+
+/* small index badge in the override list */
+.shell-content .badge {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px;
+  padding: 0 6px; border-radius: 99px; font-size: 11px; font-weight: 700;
+  color: var(--accent); background: var(--accent-light); border: 1px solid var(--card-border);
 }
 
-header {
-  background: white;
-  border-radius: var(--radius);
-  padding: 1.5rem;
-  box-shadow: var(--shadow);
-  border-top: 4px solid var(--primary);
-  transition: var(--transition);
+/* ── Checkbox grids (reference pickers in override + adverb editors) ── */
+.shell-content .checkbox-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 6px 12px;
+  padding: 10px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  max-height: 240px; overflow: auto;
 }
+.shell-content .checkbox-grid .cb { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--text-mid); cursor: pointer; }
+.shell-content .checkbox-inline { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-mid); }
+.shell-content .file-label { color: var(--text); }
 
-header:hover {
-  box-shadow: var(--shadow-lg);
+/* ── Override editor ── */
+.shell-content .override-editor h3,
+.shell-content .adverb-editor h3 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+.shell-content .override-list { display: grid; gap: 8px; margin-bottom: 16px; }
+.shell-content .override-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  padding: 11px 13px; background: var(--surface); border: 1px solid var(--card-edge); border-radius: var(--radius-sm);
 }
+.shell-content .override-main { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; color: var(--text-mid); }
+.shell-content .override-main strong { color: var(--text); }
+.shell-content .override-main em { color: var(--accent-2); font-style: normal; font-weight: 600; }
+.shell-content .override-actions { display: flex; gap: 8px; }
 
-h1 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--gray-900);
-  margin-bottom: 1.5rem;
-  display: flex;
-  align-items: center;
+/* ── Status breakdown (bucket mode) ── */
+.shell-content .status-breakdown { display: grid; gap: 14px; }
+.shell-content .sb-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.shell-content .status-item { display: grid; gap: 5px; }
+.shell-content .status-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-soft); }
+.shell-content .status-value { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-mid); }
+.shell-content .status-value.muted { color: var(--text-soft); }
+.shell-content .status-value .icon { width: 14px; height: 14px; }
+.shell-content .override-block { padding-top: 10px; border-top: 1px solid var(--border); }
+
+/* ════════ Linear status breakdown ════════ */
+.shell-content .linear-status { font-size: 13px; }
+.shell-content .ls-summary {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;
+  padding: 14px; margin-bottom: 18px; background: var(--surface2);
+  border: 1px solid var(--card-edge); border-radius: var(--radius);
 }
-
-h1::before {
-  content: "📊";
-  margin-right: 0.75rem;
-  font-size: 1.5rem;
+.shell-content .ls-row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 4px 6px; }
+.shell-content .ls-row span { color: var(--text-soft); font-size: 12.5px; }
+.shell-content .ls-row strong {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-weight: 600; color: var(--text);
+  background: var(--surface); padding: 2px 7px; border-radius: var(--radius-sm); border: 1px solid var(--border);
 }
-
-h2 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--gray-800);
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
+.shell-content .ls-row.header-row { grid-column: 1 / -1; align-items: center; }
+.shell-content .ls-heading {
+  font-size: 13.5px; font-weight: 700; color: var(--text); margin-bottom: 10px;
+  padding-bottom: 7px; border-bottom: 1px solid var(--border);
 }
+.shell-content .ls-steps { display: grid; gap: 8px; }
 
-.controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.25rem;
-  align-items: flex-end;
+/* step accordions */
+.shell-content .gate-acc {
+  background: var(--surface); border: 1px solid var(--card-edge); border-radius: var(--radius-sm);
+  overflow: hidden; transition: border-color .2s, box-shadow .2s;
 }
-
-.control-group {
-  display: flex;
-  flex-direction: column;
-  min-width: 220px;
-  flex: 1;
+.shell-content .gate-acc[open] { box-shadow: var(--shadow-sm); border-color: var(--card-edge-strong); }
+.shell-content .gate-acc.is-complete { border-left: 3px solid var(--green); }
+.shell-content .gate-summary {
+  display: flex; align-items: center; gap: 10px; padding: 11px 14px; cursor: pointer; list-style: none;
 }
-
-label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--gray-600);
-  margin-bottom: 0.5rem;
+.shell-content .gate-summary::-webkit-details-marker { display: none; }
+.shell-content .gate-summary:hover { background: var(--accent-light); }
+.shell-content .gate-acc[open] > .gate-summary { background: var(--surface2); }
+.shell-content .gate-step {
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 1.75rem; height: 1.75rem; border-radius: 50%; font-size: 0.8rem; font-weight: 700;
+  color: var(--text-soft); background: var(--surface2); border: 1px solid var(--border2);
 }
-
-select {
-  padding: 0.625rem 0.75rem;
-  font-size: 0.9375rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--gray-300);
-  background-color: white;
-  color: var(--gray-800);
-  transition: var(--transition);
-  cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.75rem center;
-  background-size: 1rem;
-  padding-right: 2.5rem;
+.shell-content .gate-acc.is-complete .gate-step { color: var(--green-text); background: var(--green-light); border-color: rgba(52,224,161,0.4); }
+.shell-content .gate-title { flex: 1; font-weight: 600; color: var(--text); }
+.shell-content .gate-pill {
+  font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 99px; line-height: 1;
+  text-transform: uppercase; letter-spacing: 0.3px; display: inline-flex; align-items: center; gap: 4px;
+  border: 1px solid var(--border2); color: var(--text-mid); background: var(--surface2);
 }
-
-select:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+.shell-content .gate-pill.ok { color: var(--green-text); border-color: rgba(52,224,161,0.4); background: var(--green-light); }
+.shell-content .gate-pill.current { color: var(--blue-2); border-color: var(--blue-border); background: var(--blue-light); }
+.shell-content .gate-pill.pending { color: var(--text-soft); }
+.shell-content .gate-pill .icon { width: 12px; height: 12px; }
+.shell-content .step-check {
+  color: var(--green); display: inline-flex; opacity: 0; transform: scale(0.5) rotate(-15deg);
+  transition: all .25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+.shell-content .step-check .icon { width: 16px; height: 16px; }
+.shell-content .gate-acc.is-complete .step-check.ok { opacity: 1; transform: scale(1) rotate(0deg); }
+.shell-content .gate-body { padding: 14px; border-top: 1px solid var(--border); background: var(--surface); animation: rw-fade .3s ease; }
+.shell-content .kv-list { display: grid; gap: 7px; }
+.shell-content .kv-row { display: grid; grid-template-columns: 120px 1fr; font-size: 12.5px; }
+.shell-content .kv-row dt { color: var(--text-soft); font-weight: 500; }
+.shell-content .kv-row dd { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--text); word-break: break-all; }
+.shell-content .gate-actions { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
 
-select:hover:not(:disabled) {
-  border-color: var(--gray-400);
+/* ════════ Raw-data / interpretation upload tables ════════ */
+.shell-content .raw-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+.shell-content .raw-table th, .shell-content .raw-table td { padding: 10px 13px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.shell-content .raw-table th {
+  text-align: left; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;
+  color: var(--text-soft); background: var(--surface); border-bottom: 1px solid var(--card-edge);
 }
+.shell-content .raw-table tr:last-child td { border-bottom: none; }
+.shell-content .raw-table td form { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.shell-content .raw-table label { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-mid); }
+.shell-content .raw-files ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.shell-content .raw-files li { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text-mid); }
 
-select:disabled {
-  background-color: var(--gray-100);
-  color: var(--gray-500);
-  cursor: not-allowed;
+/* gate banner (unlocked / locked) */
+.shell-content .raw-upload-gate {
+  display: flex; align-items: center; gap: 7px; margin-bottom: 12px;
+  padding: 10px 13px; border: 1px solid var(--border); border-left: 3px solid var(--border2);
+  border-radius: var(--radius-sm); background: var(--surface2); color: var(--text-mid); font-size: 12.5px;
 }
+.shell-content .raw-upload-gate .icon { width: 15px; height: 15px; flex-shrink: 0; }
+.shell-content .raw-upload-gate.ok { border-left-color: var(--green); background: var(--green-light); color: var(--green-text); }
+.shell-content .raw-upload-gate.locked { border-left-color: var(--amber); background: var(--amber-light); color: var(--amber); }
+.shell-content .raw-table form.is-locked { opacity: 0.6; }
+.shell-content .raw-table form.is-locked input,
+.shell-content .raw-table form.is-locked button { pointer-events: none; }
 
-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-section {
-  background: white;
-  border-radius: var(--radius);
-  padding: 1.5rem;
-  box-shadow: var(--shadow);
-  transition: var(--transition);
-}
-
-section:hover {
-  box-shadow: var(--shadow-lg);
-}
-
-.table-container {
-  overflow-x: auto;
-  margin-top: 1rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--gray-200);
-}
-
-.data-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  font-size: 0.9375rem;
-}
-
-.data-table th {
-  background: var(--gray-100);
-  color: var(--gray-700);
-  font-weight: 600;
-  padding: 0.875rem 1rem;
-  text-align: left;
-  border-bottom: 2px solid var(--gray-200);
-  position: sticky;
-  top: 0;
-}
-
-.data-table td {
-  padding: 0.875rem 1rem;
-  border-bottom: 1px solid var(--gray-200);
-  color: var(--gray-700);
-}
-
-.data-table tr {
-  transition: var(--transition);
-  cursor: pointer;
-}
-
-.data-table tr:hover {
-  background: rgba(67, 97, 238, 0.05);
-}
-
-.data-table tr:last-child td {
-  border-bottom: none;
-}
-
-.hidden {
-  display: none;
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.25rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--gray-200);
-}
-
-.close-button {
-  background: none;
-  border: none;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  color: var(--gray-500);
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.close-button:hover {
-  background: var(--gray-100);
-  color: var(--danger);
-}
-
-.tabs {
-  display: flex;
-  gap: 0.125rem;
-  border-bottom: 1px solid var(--gray-200);
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
-}
-
-.tab-button {
-  background: var(--gray-100);
-  padding: 0.625rem 1rem;
-  border: none;
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-  font-size: 0.875rem;
-  cursor: pointer;
-  color: var(--gray-600);
-  transition: var(--transition);
-  margin-bottom: -1px;
-  border: 1px solid transparent;
-}
-
-.tab-button:hover {
-  color: var(--primary);
-  background: var(--gray-50);
-}
-
-.tab-button.active {
-  background: white;
-  color: var(--primary);
-  font-weight: 600;
-  border: 1px solid var(--gray-200);
-  border-bottom: 2px solid white;
-}
-
-.tab-content {
-  display: none;
-  padding: 1rem 0;
-}
-
-.tab-content.active {
-  display: block;
-  animation: fadeIn 0.3s ease;
-}
-
-footer {
-  margin-top: auto;
-  padding: 1rem;
-  background: white;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-}
-
-.status-bar {
-  font-size: 0.875rem;
-  color: var(--gray-600);
-  display: flex;
-  align-items: center;
-}
-
-.status-bar::before {
-  content: "⚡";
-  margin-right: 0.5rem;
-  font-size: 1rem;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.status-item { margin-bottom: 0.5em; }
-.status-label { font-weight: bold; }
-.status-value { margin-left: 1em; }
-.status-complete { color: #16a34a; }
-.status-good { color: #ca8a04; }
-.status-warning { color: #ea580c; }
-.status-pending { color: var(--gray-500); }
-
-/* Buttons — base + variants */
-.btn {
-  --btn-bg: var(--primary);
-  --btn-fg: #fff;
-  --btn-bg-hover: #3554e6;
-  --btn-bg-active: #2b47c9;
-  --btn-ring: rgba(67,97,238,0.2);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.6rem 0.95rem;
-  border-radius: 0.5rem;
-  border: 1px solid transparent;
-  background: var(--btn-bg);
-  color: var(--btn-fg);
-  font-weight: 600;
-  line-height: 1;
-  cursor: pointer;
-  transition: var(--transition);
-  box-shadow: 0 1px 0 rgba(0,0,0,0.04);
-}
-.btn:hover { background: var(--btn-bg-hover); }
-.btn:active { background: var(--btn-bg-active); transform: translateY(0.5px); }
-.btn:focus-visible { box-shadow: 0 0 0 4px var(--btn-ring); }
-.btn[disabled], .btn.disabled { opacity: 0.6; cursor: not-allowed; }
-.btn-sm { padding: .25rem .5rem; font-size: .85rem; }
-.btn-danger {
-    --btn-bg: #fee2e2;
-    --btn-fg: #991b1b;
-    --btn-bg-hover: #fecaca;
-    --btn-bg-active: #fca5a5;
-}
-
-/* ===== Toast / Snackbar ===== */
+/* ════════ Page toast — NOTE: runlog_workbench.js mounts #toast-container on <body>,
+   OUTSIDE .shell-content, so these rules are id-scoped to #toast-container instead of
+   .shell-content. They cannot reach the shell chrome (rail/header/login). The base
+   .toast look comes from watery.css; this only adds the bottom-centre stack + variants. */
 #toast-container {
-  position: fixed;
-  left: 50%;
-  bottom: 18px;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  z-index: 9999;
-  pointer-events: none;
+  position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%);
+  display: flex; flex-direction: column; gap: 8px; z-index: 9999; pointer-events: none;
 }
-.toast {
-  min-width: 260px;
-  max-width: 520px;
-  background: #fff;
-  color: var(--gray-800);
-  border: 1px solid var(--gray-200);
-  border-left: 6px solid var(--primary);
-  border-radius: 10px;
-  padding: 10px 14px;
-  box-shadow: var(--shadow-lg);
-  font-size: 0.95rem;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  animation: toast-in 220ms ease-out;
-  pointer-events: auto;
+#toast-container .toast { pointer-events: auto; border-left: 4px solid var(--accent); animation: toast-in 220ms ease-out; }
+#toast-container .toast.success { border-left-color: var(--green); }
+#toast-container .toast.warn    { border-left-color: var(--amber); }
+#toast-container .toast.error   { border-left-color: var(--red); }
+#toast-container .toast-close {
+  margin-left: auto; border: none; background: transparent; color: var(--text-soft);
+  cursor: pointer; display: inline-flex; align-items: center; padding: 0;
 }
-.toast.success { border-left-color: var(--success); }
-.toast.warn    { border-left-color: var(--warning); }
-.toast.error   { border-left-color: var(--danger); }
-.toast .toast-close {
-  margin-left: auto;
-  border: none;
-  background: transparent;
-  color: var(--gray-500);
-  font-size: 18px;
-  cursor: pointer;
-}
-@keyframes toast-in {
-  from { opacity: 0; transform: translate(-50%, 8px); }
-  to   { opacity: 1; transform: translate(-50%, 0); }
-}
-@keyframes toast-out {
-  to { opacity: 0; transform: translate(-50%, 8px); }
+#toast-container .toast-close:hover { color: var(--text); }
+#toast-container .toast-close .icon { width: 14px; height: 14px; }
+@keyframes toast-in  { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@keyframes toast-out { to { opacity: 0; transform: translate(-50%, 8px); } }
+
+@media (max-width: 760px) {
+  .shell-content .rw-field { min-width: 100%; }
+  .shell-content .kv-row { grid-template-columns: 1fr; }
 }
 
-
-/* ================================================================================
-  LINEAR STATUS BREAKDOWN - REFRESHED STYLES
-================================================================================
-*/
-
-.linear-status {
-  font-size: 0.9rem;
-}
-
-/* --- Summary Box --- */
-.ls-summary {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 0.75rem;
-  padding: 1rem;
-  background-color: var(--gray-100);
-  border: 1px solid var(--gray-200);
-  border-radius: var(--radius);
-  margin-bottom: 1.5rem;
-}
-.ls-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  padding: 0.25rem 0.5rem;
-  border-bottom: 1px solid var(--gray-200);
-}
-.ls-row span {
-  color: var(--gray-600);
-}
-.ls-row strong {
-  font-weight: 600;
-  font-family: monospace;
-  font-size: 1.05em;
-  color: var(--gray-800);
-  background-color: white;
-  padding: 0.1rem 0.4rem;
-  border-radius: var(--radius-sm);
-}
-
-/* --- Block Headers (e.g., "Steps") --- */
-.ls-heading {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--gray-800);
-  margin-bottom: 0.75rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--gray-200);
-}
-
-/* --- Accordion Styles for each Step --- */
-.gate-acc {
-  background: white;
-  border: 1px solid var(--gray-200);
-  border-radius: var(--radius);
-  margin-bottom: 0.5rem;
-  transition: all 0.2s ease-in-out;
-  overflow: hidden; /* Important for border-radius */
-}
-.gate-acc[open] {
-  box-shadow: var(--shadow);
-  border-color: var(--primary-light);
-}
-.gate-acc.is-complete {
-  background-color: #f6fff9;
-  border-left: 4px solid var(--success);
-}
-
-/* --- Accordion Header (<summary>) --- */
-.gate-summary {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  cursor: pointer;
-  list-style: none; /* Hide default arrow */
-}
-.gate-summary::-webkit-details-marker { display: none; }
-.gate-summary:hover {
-  background-color: var(--gray-100);
-}
-.gate-acc[open] > .gate-summary {
-  background-color: #f0f3ff;
-}
-
-.gate-step {
-  font-size: 0.8rem;
-  font-weight: 700;
-  background-color: var(--gray-200);
-  color: var(--gray-600);
-  border-radius: 50%;
-  width: 1.75rem;
-  height: 1.75rem;
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-.gate-title {
-  font-weight: 600;
-  color: var(--gray-800);
-  flex: 1;
-}
-.gate-acc.is-complete .gate-title {
-  color: var(--gray-900);
-}
-
-/* --- Status Pills --- */
-.gate-pill {
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.25rem 0.6rem;
-  border-radius: 99px;
-  line-height: 1;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
-}
-.gate-pill.ok { background-color: #dcfce7; color: #166534; }
-.gate-pill.current { background-color: #e0e7ff; color: #3730a3; }
-.gate-pill.pending { background-color: var(--gray-200); color: var(--gray-600); }
-
-/* --- Checkmark --- */
-.step-check {
-  color: var(--success);
-  font-size: 1.25rem;
-  font-weight: bold;
-  opacity: 0;
-  transform: scale(0.5) rotate(-15deg);
-  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.gate-acc.is-complete .step-check.ok {
-  opacity: 1;
-  transform: scale(1) rotate(0deg);
-}
-
-/* --- Accordion Body --- */
-.gate-body {
-  padding: 1rem 1.25rem;
-  border-top: 1px solid var(--gray-200);
-  background-color: white;
-  animation: fadeIn 0.3s ease;
-}
-.kv-list {
-  display: grid;
-  gap: 0.5rem;
-}
-.kv-row {
-  display: grid;
-  grid-template-columns: 120px 1fr;
-  font-size: 0.85rem;
-}
-.kv-row dt {
-  font-weight: 500;
-  color: var(--gray-500);
-}
-.kv-row dd {
-  font-family: monospace;
-  color: var(--gray-800);
-  word-break: break-all;
-}
-.gate-actions {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--gray-200);
-}
-
-/* ================================================================================
-   RAW DATA UPLOADS — POLISHED UI
-================================================================================ */
-.raw-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-  margin-top: 0.75rem;
-}
-
-.raw-table th,
-.raw-table td {
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--gray-200);
-  vertical-align: middle;
-}
-
-.raw-table th {
-  background: var(--gray-100);
-  color: var(--gray-700);
-  text-align: left;
-  font-weight: 600;
-  font-size: 0.85rem;
-}
-
-.raw-table tr:last-child td {
-  border-bottom: none;
-}
-
-.raw-table td form {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.raw-table input[type="file"] {
-  font-size: 0.85rem;
-  padding: 0.3rem 0.5rem;
-  border: 1px solid var(--gray-300);
-  border-radius: var(--radius-sm);
-  background: white;
-  cursor: pointer;
-}
-
-.raw-table input[type="checkbox"] {
-  margin-left: 0.25rem;
-  transform: scale(1.1);
-  cursor: pointer;
-}
-
-.raw-table label {
-  display: flex;
-  align-items: center;
-  font-size: 0.8rem;
-  color: var(--gray-600);
-  gap: 0.25rem;
-}
-
-.raw-table button {
-  margin-left: auto;
-  padding: 0.45rem 0.9rem;
-  font-size: 0.85rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid transparent;
-  background: var(--primary);
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-  transition: var(--transition);
-}
-.raw-table button:hover {
-  background: var(--primary-light);
-}
-.raw-table button:active {
-  background: var(--secondary);
-}
-
-/* Raw upload lock banner + disabled look */
-.raw-upload-gate {
-  margin-bottom: .75rem;
-  padding: .6rem .8rem;
-  border: 1px solid var(--gray-200);
-  border-left: 4px solid var(--gray-300);
-  border-radius: var(--radius);
-  background: var(--gray-100);
-  color: var(--gray-700);
-}
-.raw-upload-gate.ok {
-  border-left-color: var(--success);
-  background: #f0fdf4;
-  color: #14532d;
-}
-.raw-upload-gate.locked {
-  border-left-color: var(--warning);
-  background: #fffbeb;
-  color: #7c2d12;
-}
-
-.raw-table form.is-locked { opacity: .60; }
-.raw-table form.is-locked input,
-.raw-table form.is-locked button { pointer-events: none; }
-
-.runlog-header-actions {
-  border-bottom: 1px solid #e5e7eb;
-  padding-bottom: 0.25rem;
-}
+/* ── §11.200 gate e-signature modal (Watery; replaces the old inline dark-navy overlay) ── */
+.gs-overlay { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center;
+  background: rgba(3, 14, 11, 0.62); backdrop-filter: blur(2px); }
+.gs-modal { width: min(440px, 92vw); background: var(--card); color: var(--text);
+  border: 1px solid var(--card-edge-strong); border-radius: var(--radius-lg);
+  padding: 22px 24px; box-shadow: var(--shadow-lg); }
+.gs-head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
+.gs-lock { display: grid; place-items: center; width: 36px; height: 36px; flex-shrink: 0; border-radius: 9px;
+  color: var(--amber); background: var(--amber-light); border: 1px solid rgba(244, 201, 135, 0.4); }
+.gs-lock .icon { width: 18px; height: 18px; }
+.gs-title { font-size: 16px; font-weight: 700; color: var(--text); }
+.gs-sub { font-size: 12px; color: var(--text-soft); line-height: 1.45; margin-top: 3px; }
+.gs-label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--text-soft); margin: 0 0 5px; }
+.gs-input.input { width: 100%; margin-bottom: 14px; }
+.gs-err { color: var(--red-text); font-size: 12px; min-height: 16px; margin-bottom: 8px; }
+.gs-actions { display: flex; justify-content: flex-end; gap: 10px; }

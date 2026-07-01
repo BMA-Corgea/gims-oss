@@ -1,0 +1,86 @@
+<!-- Tutorial / Onboarding — content fragment (Watery app-shell). Static explainer of the
+     GIMS mental model + the configure→enter→operate→investigate flow. No page JS needed;
+     tutorial.js only wires the "launch a tour" buttons (gims:tour:start). -->
+<section class="panel tut-hero">
+  <div class="panel-body">
+    <span class="tut-kicker">Welcome to GIMS</span>
+    <h2 class="tut-h2">How GIMS works</h2>
+    <p class="tut-lead">GIMS models your lab as a small <strong>grammar</strong>. Everything below is built
+      from five parts of speech — define them once, then enter data and run operations against them. Pick a
+      concept to learn, or jump straight into a workspace from the rail.</p>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-head"><svg class="icon"><use href="/static/icons.svg#i-noun"/></svg><span class="panel-title">The parts of speech</span></div>
+  <div class="panel-body tut-grid">
+    <a class="tut-card" href="/noun_configure">
+      <span class="tut-card-icon icon-chip blue"><svg class="icon"><use href="/static/icons.svg#i-noun"/></svg></span>
+      <span class="tut-card-text"><strong>Noun</strong> — an entity type (Sample, Batch, Product). You define
+        its fields + a primary ID in <em>Noun Configure</em>.</span>
+    </a>
+    <a class="tut-card" href="/adjective_editor">
+      <span class="tut-card-icon icon-chip blue"><svg class="icon"><use href="/static/icons.svg#i-adjective"/></svg></span>
+      <span class="tut-card-text"><strong>Adjective</strong> — a descriptor/state/tag applied to a noun
+        (status, tool, classification).</span>
+    </a>
+    <a class="tut-card" href="/verb_editor">
+      <span class="tut-card-icon icon-chip blue"><svg class="icon"><use href="/static/icons.svg#i-verb"/></svg></span>
+      <span class="tut-card-text"><strong>Verb</strong> — an action a noun undergoes (a test, move, process),
+        with a status workflow (buckets or linear steps + gates).</span>
+    </a>
+    <a class="tut-card" href="/adverb_editor">
+      <span class="tut-card-icon icon-chip blue"><svg class="icon"><use href="/static/icons.svg#i-adverb"/></svg></span>
+      <span class="tut-card-text"><strong>Adverb</strong> — modifies <em>how</em> a verb is performed
+        (parameters, references, attributes).</span>
+    </a>
+    <a class="tut-card" href="/conjunction_editor">
+      <span class="tut-card-icon icon-chip blue"><svg class="icon"><use href="/static/icons.svg#i-conjunction"/></svg></span>
+      <span class="tut-card-text"><strong>Conjunction</strong> — overrides + result annotations that link
+        and reconcile runs (e.g. retests).</span>
+    </a>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-head"><svg class="icon"><use href="/static/icons.svg#i-arrow"/></svg><span class="panel-title">The everyday flow</span></div>
+  <div class="panel-body tut-flow">
+    <div class="tut-step">
+      <span class="tut-step-num">1</span>
+      <div><strong>Configure schemas</strong> — define your nouns, verbs and modifiers in the
+        <em>Schemas</em> section. Do this once per project.</div>
+    </div>
+    <div class="tut-step">
+      <span class="tut-step-num">2</span>
+      <div><strong>Enter data</strong> — create/edit instances in the <a href="/noun_workbench">Noun</a> and
+        <a href="/verb_workbench">Verb Workbenches</a> (single or bulk CSV/XLSX).</div>
+    </div>
+    <div class="tut-step">
+      <span class="tut-step-num">3</span>
+      <div><strong>Operate</strong> — track and edit runs in the
+        <a href="/runlog_workbench">Runlog Workbench</a>: statuses, gates &amp; sign-offs, attachments, dumps.</div>
+    </div>
+    <div class="tut-step">
+      <span class="tut-step-num">4</span>
+      <div><strong>Find &amp; verify</strong> — explore lineage in <a href="/investigation">Investigation</a>,
+        search everything in <a href="/deep_search">Deep Search</a>, and check integrity in
+        <a href="/audit">Audit</a>.</div>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-head"><svg class="icon"><use href="/static/icons.svg#i-help"/></svg><span class="panel-title">Tips</span></div>
+  <div class="panel-body tut-tips">
+    <p><strong>Projects</strong> scope everything — pick yours from the selector on each page. Manage members
+      and roles in <a href="/account_roles">Account &amp; Roles</a>.</p>
+    <p>Use the <strong>?</strong> button in the header on any page to launch a guided tour of that page
+      (where available).</p>
+    <p>The left rail is your map — it lists every workspace, grouped by what it does. Click the GIMS mark to
+      return to the launcher.</p>
+    <div class="tut-actions">
+      <a class="btn-primary" href="/launcher"><svg class="icon"><use href="/static/icons.svg#i-compass"/></svg>Go to the launcher</a>
+      <button class="btn blue" id="tut-tour-launcher" type="button"><svg class="icon"><use href="/static/icons.svg#i-play"/></svg>Tour this page</button>
+    </div>
+  </div>
+</section>

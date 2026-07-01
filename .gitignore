@@ -31,7 +31,10 @@ output/
 
 # Optionally: ignore specific image folders in each docker subdir
 docker/*/images/
-projects/*/nouns/*/images/
+# Noun images now live under projects/<project>/images/<collection>/ (Phase 5 cutover);
+# keep the regulated binary blobs out of git (preserved on disk + in backups), as the
+# retired projects/*/nouns/*/images/ store was.
+projects/*/images/
 
 #I still want the backup schedule to be tracked
 !backups/_config/schedules.json
@@ -78,3 +81,17 @@ dist/
 aws_credentials.sh
 aws_env.sh
 aws_test_creds.txt
+
+# ------------------------------------------------------------------
+# Refactor hygiene (2026-06): never track live databases or local
+# secrets. These are runtime state, not source. Existing working
+# copies stay on disk; they are only removed from git tracking.
+# ------------------------------------------------------------------
+*.db
+*.db-wal
+*.db-shm
+.dev_jwt_secret
+.compliance_hmac_key
+
+# Advisory-lock sidecars created by utils/atomic.file_lock (runtime only)
+*.json.lock

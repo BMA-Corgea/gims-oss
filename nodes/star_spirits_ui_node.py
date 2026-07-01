@@ -477,6 +477,3 @@ ui_module = Module(
     description="Pixel-art spirits overlay; StateDock tab; reduced-motion aware fireworks; idempotent spawn and cleanup.",
     roles=set(),
 )
-
-def mount_into(app, prefix: str = "") -> None:
-  ui_module.mount(app, prefix=prefix)

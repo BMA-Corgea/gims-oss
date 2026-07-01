@@ -7,46 +7,48 @@ from core.orchestration.module import Module
 router = APIRouter(prefix="/state-dock", tags=["State Dock"])
 
 _DOCK_CSS = r"""
-/* State Dock — minimal, top-right, reddit-style affordance with tabs */
+/* State Dock — Watery-themed top-right affordance with tabs (tokens + safe fallbacks,
+   since this also renders on pages that have not adopted watery.css yet). On watery
+   shell pages the dock is hidden (the header profile chip replaces it). */
 #state-dock {
   position: fixed;
   top: 10px;
   right: 10px;
   z-index: 9999;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji';
+  font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif;
 }
 .sd-toggle {
   display: flex; align-items: center; justify-content: center;
   width: 36px; height: 36px; border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.15);
-  background: rgba(32,32,32,0.75);
+  border: 1px solid var(--card-edge, rgba(216,189,138,0.55));
+  background: var(--card, rgba(17,54,42,0.88));
   backdrop-filter: blur(4px);
-  cursor: pointer; font-size: 18px; color: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+  cursor: pointer; font-size: 18px; color: var(--text, #e8f4ee);
+  box-shadow: var(--shadow-md, 0 2px 8px rgba(2,18,14,0.45));
 }
-.sd-toggle:hover { background: rgba(40,40,40,0.9); }
+.sd-toggle:hover { border-color: var(--card-edge-strong, rgba(230,203,152,0.82)); }
 .sd-panel {
   margin-top: 8px;
   width: min(360px, calc(100vw - 24px));
-  background: #111; color: #eaeaea;
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 14px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+  background: var(--surface, #0e2a23); color: var(--text, #e8f4ee);
+  border: 1px solid var(--card-edge, rgba(216,189,138,0.55));
+  border-radius: var(--radius-lg, 14px);
+  box-shadow: var(--shadow-lg, 0 10px 30px rgba(2,14,11,0.6));
   display: none; overflow: hidden;
 }
 .sd-panel.open { display: grid; grid-template-rows: auto 1fr; }
 .sd-tabs {
   display: flex; gap: 6px; flex-wrap: nowrap; overflow-x: auto;
-  padding: 8px; background: #1a1a1a; border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 8px; background: var(--bg2, #0a1f1a); border-bottom: 1px solid var(--border, rgba(140,230,200,0.14));
 }
 .sd-tab {
   flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px;
   padding: 6px 10px; border-radius: 999px; font-size: 12px;
   border: 1px solid transparent; cursor: pointer;
-  background: #242424; color: #ddd;
+  background: var(--surface2, #143a30); color: var(--text-mid, #a6cabd);
 }
-.sd-tab:hover { background: #2b2b2b; }
-.sd-tab.active { background: #2f3e72; color: #fff; border-color: rgba(255,255,255,0.15); }
+.sd-tab:hover { background: var(--card-2, #173f2f); color: var(--text, #e8f4ee); }
+.sd-tab.active { background: var(--blue-light, rgba(79,157,255,0.18)); color: var(--text, #fff); border-color: var(--blue-border, rgba(79,157,255,0.42)); }
 .sd-tab .ico { font-size: 14px; }
 .sd-content {
   padding: 10px 12px; min-height: 140px; overflow: auto;
@@ -217,6 +219,3 @@ state_dock_module = Module(
     description="Top-right dock UI; providers register tabs at runtime. No DB.",
     roles=set(),
 )
-
-def mount_into(app, prefix: str = "") -> None:
-    state_dock_module.mount(app, prefix=prefix)

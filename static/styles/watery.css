@@ -1,0 +1,242 @@
+/* ════════════════════════════════════════════════════════════════
+   WATERY — GIMS house style (deep teal/green water · warm sun-shaft light
+   · luminous aqua/seafoam accent · bioluminescent-green verified)
+   Shared design system: :root tokens + base components + motion.
+   Every GIMS page links this first, then its page-specific stylesheet.
+   Recolor a :root variable, not 40 hex codes.
+═══════════════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* ── surfaces (deep water) ── */
+  --bg:        #06140f;
+  --bg2:       #0a1f1a;
+  --surface:   #0e2a23;
+  --surface2:  #143a30;
+
+  /* ── cards (green-tinted — lighter & greener than the near-black base) ── */
+  --card:        #11362a;
+  --card-2:      #173f2f;
+  --card-border: rgba(99,224,193,0.24);        /* subtle cyan edge for small icon chips */
+  --card-edge:        rgba(216,189,138,0.55);  /* TAN frame around panels/cards (sun-shaft warmth) */
+  --card-edge-strong: rgba(230,203,152,0.82);  /* tan frame on hover */
+
+  /* ── borders (seafoam hairline; tan card frames live in --card-edge) ── */
+  --border:        rgba(140,230,200,0.14);
+  --border2:       rgba(140,230,200,0.30);
+
+  /* ── text (warm off-white → soft seafoam) ── */
+  --text:      #e8f4ee;
+  --text-mid:  #a6cabd;
+  --text-soft: #6f988b;
+  --text-mute: #436055;
+
+  /* ── primary accent (luminous aqua → seafoam) — borders, focus, icons ── */
+  --accent:       #2dd4bf;
+  --accent-2:     #6ee7c7;
+  --accent-light: rgba(45,212,191,0.14);
+  --accent-glow:  rgba(45,212,191,0.32);
+
+  /* ── action blue (the system's only blue: primary CTAs + workspace buttons) ── */
+  --blue:        #4f9dff;
+  --blue-2:      #74b9ff;
+  --blue-deep:   #2f7fe6;
+  --blue-light:  rgba(79,157,255,0.14);
+  --blue-glow:   rgba(79,157,255,0.36);
+  --blue-border: rgba(79,157,255,0.42);
+  --blue-text:   #bcd9ff;
+  --blue-cta-1:  #1d56c9;   /* CTA fill — deep enough for WCAG-AA white text */
+  --blue-cta-2:  #2970d8;
+
+  /* ── warm light (sun shafts through water) ── */
+  --warm:      #f4c987;
+  --warm-2:    #f0a868;
+  --warm-glow: rgba(244,201,135,0.16);
+
+  /* ── ambient light blobs (tokenized so the page glow recolors in one place) ── */
+  --glow-aqua:  rgba(45,212,191,0.10);
+  --glow-floor: rgba(20,90,72,0.22);
+
+  /* ── semantic: verified (bioluminescent green), warn (amber), danger (coral) ── */
+  --green: #34e0a1; --green-light: rgba(52,224,161,0.13); --green-glow: rgba(52,224,161,0.40); --green-text: #6ef0bf;
+  --amber: #f6c560; --amber-light: rgba(246,197,96,0.13);
+  --red:   #f0726a; --red-light: rgba(240,114,106,0.10); --red-border: rgba(240,114,106,0.32); --red-text: #f89a93;
+
+  /* ── elevation (water-deep, faintly teal) ── */
+  --shadow-sm: 0 1px 3px rgba(2,18,14,0.34), 0 1px 2px rgba(2,18,14,0.24);
+  --shadow-md: 0 5px 22px rgba(2,18,14,0.46), 0 2px 7px rgba(2,18,14,0.3);
+  --shadow-lg: 0 14px 44px rgba(2,14,11,0.6), 0 5px 16px rgba(2,18,14,0.4);
+
+  --radius: 13px; --radius-sm: 9px; --radius-lg: 18px;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px; color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased;
+  /* "Light": warm sun shaft from above + aqua mid-glow over the deep-green floor. */
+  background:
+    radial-gradient(ellipse 55% 45% at 18% -5%,  var(--warm-glow) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 85% 8%,   var(--glow-aqua) 0%, transparent 58%),
+    radial-gradient(ellipse 80% 70% at 60% 108%, var(--glow-floor) 0%, transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+}
+
+/* slow living drift for ambient light blobs (opt-in via .watery-bg::before) */
+.watery-bg { position: relative; }
+.watery-bg::before {
+  content: ''; position: fixed; inset: -20%; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(ellipse 40% 36% at 25% 12%, var(--warm-glow) 0%, transparent 62%),
+    radial-gradient(ellipse 44% 40% at 78% 30%, var(--glow-aqua) 0%, transparent 62%);
+  animation: drift 22s ease-in-out infinite alternate;
+}
+
+/* ── Icons (pair with the SVG <symbol> sprite; see icons.svg) ── */
+.icon { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.7;
+  stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+.icon-lg { width: 22px; height: 22px; }
+
+/* ════════ MOTION — "Gentle Watery" (calm, not busy) ════════ */
+/* live indicator */        @keyframes pulse-dot { 0%,100% { box-shadow: 0 0 0 0 var(--green-glow); } 50% { box-shadow: 0 0 0 6px transparent; } }
+/* caustic CTA sweep */     @keyframes ripple    { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
+/* loading ring */          @keyframes pulse-ring{ 0% { box-shadow: 0 0 0 0 var(--accent-glow); } 70% { box-shadow: 0 0 0 8px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+/* toast entrance */        @keyframes slide-in  { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
+/* panel entrance */        @keyframes rise      { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: translateY(0); } }
+/* overlay / modal */       @keyframes fade      { from { opacity: 0; } to { opacity: 1; } }
+                            @keyframes pop       { from { opacity: 0; transform: translateY(10px) scale(.97); } to { opacity: 1; transform: none; } }
+/* ambient light drift */   @keyframes drift     { from { transform: translate3d(0,0,0) scale(1); } to { transform: translate3d(2.5%, 2%, 0) scale(1.06); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; }
+}
+
+/* ════════ FRAMED SURFACES — the formal Watery card ════════
+   Green water body + a tan sun-shaft frame. Use these classes for ANY boxed
+   surface (sections, login, menus) so the theme lives here, not hand-painted
+   per page: .panel (boxed section), .w-pop (floating menu/popover),
+   .icon-chip (icon tile), .count-pill (tally). Recolor a token, not 40 rules. */
+.panel { background: linear-gradient(180deg, var(--card), var(--surface)); border: 2px solid var(--card-edge);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-md); overflow: hidden; animation: rise .4s ease both; }
+.panel.interactive { transition: border-color .2s ease, box-shadow .2s ease; }
+.panel.interactive:hover { border-color: var(--card-edge-strong); box-shadow: var(--shadow-lg); }
+.panel-head { display: flex; align-items: center; gap: 9px; padding: 13px 16px;
+  border-bottom: 1px solid var(--card-edge); background: transparent; }
+.panel-head .icon { color: var(--accent); }
+.panel-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.1px; color: var(--text-soft); }
+.panel-body { padding: 16px; display: flex; flex-direction: column; gap: 13px; }
+
+/* floating framed surface (dropdown menus / popovers) */
+.w-pop { background: linear-gradient(180deg, var(--card), var(--surface)); border: 2px solid var(--card-edge);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); animation: pop .18s cubic-bezier(.2,.9,.3,1.2); }
+
+/* icon tile — cyan accent by default; .blue for action contexts; .round for avatars.
+   Size is set by the consumer (width/height + inner .icon); colour/edge live here. */
+.icon-chip { display: grid; place-items: center; flex-shrink: 0; border-radius: var(--radius-sm);
+  color: var(--accent); background: var(--accent-light); border: 1px solid var(--card-border); }
+.icon-chip.blue { color: var(--blue-2); background: var(--blue-light); border-color: var(--blue-border); }
+.icon-chip.round { border-radius: 50%; }
+
+/* count / tally pill */
+.count-pill { font-size: 11px; font-weight: 700; color: var(--accent); background: var(--accent-light);
+  border: 1px solid var(--card-border); border-radius: 99px; padding: 1px 9px; min-width: 16px; text-align: center; }
+
+/* ════════ FIELDS ════════ */
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field-label { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;
+  color: var(--text-soft); display: flex; align-items: center; gap: 5px; }
+.input, .select, textarea.input { width: 100%; padding: 9px 12px; font-size: 13px; font-family: inherit;
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--surface2);
+  color: var(--text); outline: none; appearance: none; transition: border-color .18s, box-shadow .18s, background .18s; }
+.input:focus, .select:focus, textarea.input:focus { border-color: var(--accent); background: rgba(45,212,191,0.06); box-shadow: 0 0 0 3px var(--accent-glow); }
+.input:hover:not(:focus), .select:hover:not(:focus) { border-color: var(--border2); }
+textarea.input { resize: vertical; min-height: 64px; line-height: 1.5; }
+
+/* ════════ BUTTONS ════════ */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 9px 14px;
+  font-size: 13px; font-weight: 600; font-family: inherit; border: 1.5px solid var(--border2);
+  border-radius: var(--radius-sm); background: var(--surface2); color: var(--text); cursor: pointer;
+  transition: transform .12s, box-shadow .15s, background .15s, border-color .15s, color .15s; }
+.btn:hover:not(:disabled) { border-color: var(--accent); color: #fff; transform: translateY(-1px); box-shadow: 0 3px 14px var(--accent-glow); }
+.btn:active:not(:disabled) { transform: translateY(0); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn.sm { padding: 6px 10px; font-size: 12px; }
+.btn.ghost { background: transparent; border-color: var(--border); }
+.btn.green:hover:not(:disabled) { border-color: var(--green); box-shadow: 0 3px 14px var(--green-glow); }
+/* blue outline button — pairs with the blue primary on green surfaces */
+.btn.blue { border-color: var(--blue-border); color: var(--blue-text); }
+.btn.blue:hover:not(:disabled) { border-color: var(--blue); color: #fff; background: var(--blue-light); box-shadow: 0 3px 14px var(--blue-glow); }
+/* red/danger outline button — destructive actions (delete/revoke); pages stop re-deriving it */
+.btn.red { border-color: var(--red-border); color: var(--red-text); }
+.btn.red:hover:not(:disabled) { border-color: var(--red); color: #fff; background: var(--red-light); box-shadow: 0 3px 14px rgba(240,114,106,0.3); }
+
+/* primary CTA — now ACTION BLUE (aqua stays the accent for borders/focus/icons) */
+.btn-primary { position: relative; overflow: hidden; color: #fff; border: none; padding: 12px;
+  background: linear-gradient(135deg, var(--blue-cta-1) 0%, var(--blue-cta-2) 100%);
+  box-shadow: 0 4px 20px var(--blue-glow); border-radius: var(--radius-sm); cursor: pointer; font-weight: 700;
+  letter-spacing: 0.2px; }
+.btn-primary::before { content: ''; position: absolute; inset: 0; opacity: 0;
+  background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.4) 50%, transparent 70%);
+  background-size: 200% 100%; transition: opacity .2s; }
+.btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 30px var(--blue-glow); }
+.btn-primary:hover:not(:disabled)::before { opacity: 1; animation: ripple 1.1s ease forwards; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-primary.loading { animation: pulse-ring 1.4s ease infinite; }
+
+/* ════════ CHIPS / PILLS ════════ */
+.chip { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: 99px;
+  font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px;
+  border: 1px solid var(--border2); color: var(--text-mid); background: var(--surface2); white-space: nowrap; }
+.chip.accent { color: var(--accent); border-color: rgba(45,212,191,0.4); background: var(--accent-light); }
+.chip.ok { color: var(--green-text); border-color: rgba(52,224,161,0.4); background: var(--green-light); }
+.chip.warn { color: var(--amber); border-color: rgba(246,197,96,0.4); background: var(--amber-light); }
+.pill-live .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse-dot 1.9s ease infinite; }
+
+/* ════════ TOGGLE SWITCH (replaces native checkbox) ════════ */
+.toggle { position: relative; display: inline-block; width: 34px; height: 18px; flex-shrink: 0; }
+.toggle input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; z-index: 1; }
+.toggle .track { position: absolute; inset: 0; background: rgba(140,230,200,0.1); border: 1px solid rgba(140,230,200,0.2);
+  border-radius: 99px; transition: background .2s, border-color .2s; }
+.toggle .track::after { content: ''; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px;
+  background: rgba(230,244,238,0.55); border-radius: 50%; transition: transform .2s, background .2s; }
+.toggle input:checked + .track { background: var(--accent); border-color: var(--accent); }
+.toggle input:checked + .track::after { transform: translateX(16px); background: #04211b; }
+
+/* ════════ MODAL ════════ */
+.overlay { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center;
+  background: rgba(3,12,9,0.7); backdrop-filter: blur(3px); animation: fade .18s ease; }
+.modal { width: 460px; max-width: 92vw; background: var(--surface); border: 1px solid var(--border2);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); overflow: hidden; animation: pop .22s cubic-bezier(.2,.9,.3,1.2); }
+.modal-head { padding: 18px 20px 6px; }
+.modal-title { font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 9px; }
+.modal-title .icon { color: var(--accent); }
+.modal-body { padding: 14px 20px; display: flex; flex-direction: column; gap: 13px; }
+.modal-foot { padding: 12px 20px 18px; display: flex; gap: 10px; justify-content: flex-end; }
+
+/* ════════ TOASTS ════════ */
+.toasts { position: fixed; bottom: 22px; right: 22px; z-index: 120; display: flex; flex-direction: column; gap: 10px; }
+.toast { padding: 12px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 500; background: var(--surface);
+  border: 1px solid var(--border2); box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 10px;
+  animation: slide-in .25s ease; max-width: 360px; }
+.toast.ok { border-color: rgba(52,224,161,0.5); } .toast.ok .icon { color: var(--green-text); }
+.toast.err { border-color: var(--red-border); } .toast.err .icon { color: var(--red-text); }
+
+/* ════════ SKIN SWITCHER (theme <select>) — part of the modular theme system; lives in
+   the base stylesheet so it's styled on every page that hosts it (shell + launcher). ════════ */
+.theme-switch {
+  display: inline-flex; align-items: center; gap: 7px; padding: 6px 10px;
+  border-radius: 99px; background: var(--card); border: 1px solid var(--card-edge); color: var(--text-mid);
+}
+.theme-switch .icon { width: 16px; height: 16px; color: var(--accent); }
+.theme-select {
+  appearance: none; border: none; background: transparent; color: var(--text); font-family: inherit;
+  font-size: 12.5px; font-weight: 600; cursor: pointer; outline: none;
+}
+.theme-select option { color: #10221c; background: #fff; }
+
+/* ════════ SCROLLBARS ════════ */
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-thumb { background: rgba(140,230,200,0.14); border-radius: 99px; border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background: rgba(140,230,200,0.24); background-clip: padding-box; }

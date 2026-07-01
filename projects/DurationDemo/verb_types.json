@@ -1,0 +1,10 @@
+{
+  "Intake": {
+    "description": "Log a specimen into the lab.",
+    "data_entry_schema": {
+      "set_up_inputs": {
+        "noun_type_ref": "Specimen"
+      }
+    }
+  }
+}

@@ -12,11 +12,9 @@ import boto3  # kept for compatibility; real client comes from resolver module
 # -------------------------
 # Debug block
 # -------------------------
-DEBUG_ENABLED = False  # Flip to True to see debug logs
-
-def debug(*args, **kwargs):
-    if DEBUG_ENABLED:
-        print("[json_proxy]", *args, **kwargs)
+from utils.logger import get_logger
+log = get_logger(__name__)
+DEBUG_ENABLED = log.is_debug()
 
 # ──────────────────────────────────────────────────────────────
 # Import RDS + S3 context from resolver
@@ -28,12 +26,12 @@ from api.manifest.resolver import (
     log_warn,
 )
 
-debug("Initializing json_proxy. RDS_ENABLED:", RDS_ENABLED)
+log.debug("Initializing json_proxy. RDS_ENABLED:", RDS_ENABLED)
 
 # Dynamically find the project root (repo root, i.e. .../GIMS-Project)
 _project_root_path = _manifest_dir.parent.parent.resolve()
 _project_root_str = str(_project_root_path)
-debug("Resolved project root to:", _project_root_str)
+log.debug("Resolved project root to:", _project_root_str)
 
 # ──────────────────────────────────────────────────────────────
 # Load S3 manifest + resolver (EXACTLY like s3_viewer.py)
@@ -51,16 +49,16 @@ if _s3_manifest_path.exists():
         if resolver_module_name:
             s3_resolver_module = import_module(resolver_module_name)
             log_info("S3 resolver imported", {"module": resolver_module_name})
-            debug("S3 resolver imported:", resolver_module_name)
+            log.debug("S3 resolver imported:", resolver_module_name)
         else:
             log_warn("s3_manifest.json missing 'resolver_module'")
-            debug("S3 resolver_module missing in manifest")
+            log.debug("S3 resolver_module missing in manifest")
     except Exception as e:
         log_warn("Failed to load s3_manifest.json", {"error": repr(e)})
-        debug("Failed to load S3 resolver:", repr(e))
+        log.debug("Failed to load S3 resolver:", repr(e))
 else:
     log_warn("s3_manifest.json not found", {"path": str(_s3_manifest_path)})
-    debug("s3_manifest.json not found:", _s3_manifest_path)
+    log.debug("s3_manifest.json not found:", _s3_manifest_path)
 
 S3_ENABLED: bool = bool(RDS_ENABLED and s3_resolver_module and s3_manifest)
 
@@ -72,14 +70,14 @@ if S3_ENABLED:
             "region": s3_manifest.get("region_name"),
         },
     )
-    debug(
+    log.debug(
         "S3 proxy activated:",
         s3_manifest.get("bucket_name"),
         s3_manifest.get("region_name"),
     )
 else:
     log_info("S3 proxy inactive (RDS mode off or manifest missing)")
-    debug("S3 proxy inactive")
+    log.debug("S3 proxy inactive")
 
 # ──────────────────────────────────────────────────────────────
 # Helpers
@@ -97,11 +95,11 @@ def _is_s3_path(path) -> bool:
 
     # Explicit s3:// path
     if path_str.startswith("s3://"):
-        debug("_is_s3_path:", path_str, "→ True (explicit s3://)")
+        log.debug("_is_s3_path:", path_str, "→ True (explicit s3://)")
         return True
 
     if not S3_ENABLED:
-        debug("_is_s3_path:", path_str, "→ False (S3 disabled)")
+        log.debug("_is_s3_path:", path_str, "→ False (S3 disabled)")
         return False
 
     # Normal project-local path
@@ -111,10 +109,10 @@ def _is_s3_path(path) -> bool:
         abs_path = path_str
 
     if abs_path.startswith(_project_root_str):
-        debug("_is_s3_path:", path_str, "→ True (project path in S3 mode)")
+        log.debug("_is_s3_path:", path_str, "→ True (project path in S3 mode)")
         return True
 
-    debug("_is_s3_path:", path_str, "→ False (local path in S3 mode)")
+    log.debug("_is_s3_path:", path_str, "→ False (local path in S3 mode)")
     return False
 
 
@@ -144,7 +142,7 @@ def _key_from_path(path: str | Path) -> str:
             tmp = path_str.split("s3://", 1)[-1]
             key = tmp.split("/", 1)[1] if "/" in tmp else tmp
         key = key.replace("\\", "/")
-        debug("_key_from_path (s3):", path, "→", key)
+        log.debug("_key_from_path (s3):", path, "→", key)
         return key
 
     # Normal local path under project root's parent
@@ -154,10 +152,10 @@ def _key_from_path(path: str | Path) -> str:
         key = str(abs_path.relative_to(_project_root_path.parent)).replace(
             os.path.sep, "/"
         )
-        debug("_key_from_path (local):", path, "→", key)
+        log.debug("_key_from_path (local):", path, "→", key)
         return key
     except Exception as e:
-        debug(
+        log.debug(
             f"_key_from_path FAILED for {path_str} (Error: {e}). Falling back to raw normalized path."
         )
         return path_str.replace(os.path.sep, "/")
@@ -235,10 +233,10 @@ def read_text(path: Path, encoding: str = "utf-8", errors: str | None = "ignore"
         cli = _client()
         key = _key_from_path(path)
         bucket = s3_manifest["bucket_name"]
-        debug("read_text() S3", {"bucket": bucket, "key": key})
+        log.debug("read_text() S3", {"bucket": bucket, "key": key})
         obj = cli.get_object(Bucket=bucket, Key=key)
         return obj["Body"].read().decode(encoding, errors=errors or "ignore")
-    debug("read_text() local", path)
+    log.debug("read_text() local", path)
     return Path(path).read_text(encoding=encoding, errors=errors or "ignore")
 
 
@@ -247,7 +245,7 @@ def write_text(path: Path, data: str, encoding: str = "utf-8"):
         cli = _client()
         key = _key_from_path(path)
         bucket = s3_manifest["bucket_name"]
-        debug("write_text() S3", {"bucket": bucket, "key": key})
+        log.debug("write_text() S3", {"bucket": bucket, "key": key})
         resp = cli.put_object(
             Bucket=bucket,
             Key=key,
@@ -255,7 +253,7 @@ def write_text(path: Path, data: str, encoding: str = "utf-8"):
             ContentType="application/json",
         )
         return resp
-    debug("write_text() local", path)
+    log.debug("write_text() local", path)
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     Path(path).write_text(data, encoding=encoding)
 
@@ -263,7 +261,7 @@ def write_text(path: Path, data: str, encoding: str = "utf-8"):
 # S3-aware replacements for json.load / dump
 # ──────────────────────────────────────────────────────────────
 def load(fp, *args, **kwargs):
-    debug("json.load called with:", type(fp))
+    log.debug("json.load called with:", type(fp))
 
     # Path-like argument
     if isinstance(fp, (str, Path)):
@@ -295,12 +293,12 @@ def load(fp, *args, **kwargs):
 
 
 def loads(s, *args, **kwargs):
-    debug("json.loads called", type(s))
+    log.debug("json.loads called", type(s))
     return _json.loads(s, *args, **kwargs)
 
 
 def dump(obj, fp, *args, **kwargs):
-    debug("json.dump called with:", type(fp))
+    log.debug("json.dump called with:", type(fp))
 
     # Path-like argument
     if isinstance(fp, (str, Path)):
@@ -342,7 +340,7 @@ def dump(obj, fp, *args, **kwargs):
 
 
 def dumps(obj, *args, **kwargs):
-    debug("json.dumps called", type(obj))
+    log.debug("json.dumps called", type(obj))
     return _json.dumps(obj, *args, **kwargs)
 
 # ------------------------------------------------------------------------------
@@ -354,7 +352,7 @@ def write_bytes(path: str | Path, data: bytes):
         cli = _client()
         key = _key_from_path(p)
         bucket = s3_manifest["bucket_name"]
-        debug("write_bytes() S3", {"bucket": bucket, "key": key, "bytes": len(data)})
+        log.debug("write_bytes() S3", {"bucket": bucket, "key": key, "bytes": len(data)})
         cli.put_object(Bucket=bucket, Key=key, Body=data)
         return {"ok": True, "bytes": len(data)}
     p.parent.mkdir(parents=True, exist_ok=True)
@@ -369,7 +367,7 @@ def read_bytes(path: str | Path) -> bytes:
         cli = _client()
         key = _key_from_path(p)
         bucket = s3_manifest["bucket_name"]
-        debug("read_bytes() S3", {"bucket": bucket, "key": key})
+        log.debug("read_bytes() S3", {"bucket": bucket, "key": key})
         obj = cli.get_object(Bucket=bucket, Key=key)
         return obj["Body"].read()
     with open(p, "rb") as f:
@@ -467,7 +465,7 @@ def makedirs(path: str | Path):
     cli = _client()
     bucket = s3_manifest["bucket_name"]
     key = _ensure_trailing_slash(_key_from_path(p))
-    debug("makedirs() S3", {"bucket": bucket, "prefix": key})
+    log.debug("makedirs() S3", {"bucket": bucket, "prefix": key})
     cli.put_object(Bucket=bucket, Key=key, Body=b"")
     return True
 
@@ -482,7 +480,7 @@ def remove(path: str | Path):
         return True
     bucket = s3_manifest["bucket_name"]
     key = _key_from_path(p)
-    debug("remove() S3", {"bucket": bucket, "key": key})
+    log.debug("remove() S3", {"bucket": bucket, "key": key})
     cli = _client()
     cli.delete_object(Bucket=bucket, Key=key)
     return True

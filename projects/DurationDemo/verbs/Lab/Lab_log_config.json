@@ -1,0 +1,16 @@
+{
+  "primary_id": "run_ID",
+  "fields": {
+    "run_ID": {
+      "type": "string",
+      "required": true
+    },
+    "logged_at": {
+      "type": "datetime"
+    },
+    "test_type": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

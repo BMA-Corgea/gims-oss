@@ -15,6 +15,12 @@ class ModuleRegistry:
 
     # --- CRUD ---
     def register(self, module: Module) -> None:
+        # Fail-fast on a duplicate module NAME (owner decision): the old bare assignment silently
+        # OVERWROTE — a copy-paste name collision dropped an entire module with zero signal.
+        # Re-registering the identical object is tolerated (idempotent import).
+        existing = self._modules.get(module.name)
+        if existing is not None and existing is not module:
+            raise ValueError(f"Duplicate module name registered: {module.name!r}")
         self._modules[module.name] = module
 
     def unregister(self, name: str) -> None:
@@ -44,11 +50,26 @@ class ModuleRegistry:
         *,
         prefix_map: dict[str, str] | None = None,
     ) -> None:
+        # Dedup shared-singleton routers: the 4 infra nodes (login / orchestrated_fetch /
+        # state_dock / login_rules) are the SAME object placed in all ~19 standard modules, so the
+        # old "mount every node of every module" registered their routers ~19x each — 947 route
+        # entries for only 337 unique paths (the login router alone up to 60x). FastAPI keeps the
+        # first match, so the rest were dead bloat + ordering fragility. Mount each (router, prefix)
+        # exactly once. Unique-path set is unchanged (baselines hold); we just drop the redundancy.
+        seen: set[tuple[int, str]] = set()
         for mod in self._modules.values():
             prefix = ""
             if prefix_map and mod.name in prefix_map:
                 prefix = prefix_map[mod.name]
-            mod.mount(app, prefix=prefix)
+            for node in mod.nodes.values():
+                # CHAIN nodes may carry no router (auto-generated) — key on the node itself so each
+                # distinct chain still mounts; shared routers key on the router object identity.
+                rid = id(node.router) if node.router is not None else id(node)
+                key = (rid, prefix)
+                if key in seen:
+                    continue
+                seen.add(key)
+                node.mount(app, prefix=prefix)
 
     # Gather injections for a target path across modules,
     # but ONLY from modules that explicitly inject for that target.
