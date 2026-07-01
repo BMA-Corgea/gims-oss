@@ -3,6 +3,10 @@ import json
 from botocore.exceptions import ClientError
 from functools import lru_cache
 
+from utils.logger import get_logger
+
+log = get_logger(__name__)
+
 # ------------------------------------------------------------
 # AWS Secrets Manager & RDS URI Construction
 # ------------------------------------------------------------
@@ -19,7 +23,7 @@ def _get_secret(secret_name: str, region_name: str) -> dict:
     try:
         get_secret_value_response = client.get_secret_value(SecretId=secret_name)
     except ClientError as e:
-        print(f"ERROR: Could not retrieve secret '{secret_name}' from AWS Secrets Manager: {e}")
+        log.error(f"Could not retrieve secret '{secret_name}' from AWS Secrets Manager: {e}")
         raise e
 
     secret_string = get_secret_value_response.get('SecretString')
@@ -71,7 +75,7 @@ def get_rds_connection_uri(key: str, manifest: dict, **kwargs) -> str:
             f"postgresql+{driver}://{username}:{password}@{host}:{port}/{dbname}"
             f"?ssl={ssl_mode}"
         )
-        print(f"[rds_resolver] Constructed PostgreSQL URI for '{key}'")
+        log.info(f"Constructed PostgreSQL URI for '{key}'")
         return connection_uri
     else:
         raise NotImplementedError(f"Database engine '{engine_type}' is not supported yet.")

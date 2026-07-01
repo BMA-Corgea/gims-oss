@@ -15,18 +15,14 @@ from fastapi.testclient import TestClient
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Helper: dynamically import the target module (repo-root run_customs_gui.py)
+# Helper: import the target router module (api/routers/run_customs.py, was
+# gui/run_customs_gui.py). Imported normally so the monkeypatch seams below patch
+# the live module the route handlers use.
 # ──────────────────────────────────────────────────────────────────────────────
 @pytest.fixture()
 def gb_module() -> Any:
-    repo_root = Path(__file__).resolve().parents[2]
-    mod_path = repo_root / "gui" / "run_customs_gui.py"
-    spec = importlib.util.spec_from_file_location("run_customs_gui", mod_path)
-    assert spec and spec.loader, f"Could not load module at {mod_path}"
-    mod = importlib.util.module_from_spec(spec)
-    sys.modules["run_customs_gui"] = mod
-    spec.loader.exec_module(mod)
-    return mod
+    import importlib
+    return importlib.import_module("api.routers.run_customs")
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -267,14 +263,17 @@ def test_check_parser_exists_and_tool_spec(client: TestClient, temp_project: Dic
 
 
 def test_run_custom_parser_native_success(client: TestClient, temp_project: Dict[str, Any]):
+    # R15: exec_mode is now container|wasm|native, container being the default. The orchestrator
+    # (run_custom_tool) is mocked here, so this exercises GUI wiring + exec_mode reporting, not real
+    # execution. We explicitly request the in-process ("native") backend; its real-world gating
+    # behind GIMS_ALLOW_INPROCESS_TOOLS is covered by the unit tests in tests/test_r15_execution.py.
     proj = temp_project["project"]
     parser_name = temp_project["parser_name"]
 
-    # Supply run context via query, and some params (including nested _runID extraction path)
     payload = {"params": {"target": {"_runID": "R1"}, "note": "hello"}}
     r = client.post(
         f"/api/parser_test/test_parser/{proj}/{parser_name}"
-        "?parser_type=custom_parser&verb_group=Tests&run_id=R1",
+        "?parser_type=custom_parser&verb_group=Tests&run_id=R1&exec_mode=native",
         json=payload,
     )
     assert r.status_code == 200
@@ -282,6 +281,21 @@ def test_run_custom_parser_native_success(client: TestClient, temp_project: Dict
     assert body["ok"] is True
     assert body["exec_mode"] == "native"
     assert "Results.csv" in body.get("produced", [])
+
+
+def test_run_custom_parser_defaults_to_container(client: TestClient, temp_project: Dict[str, Any]):
+    """R15: with no exec_mode, the GUI selects the hardened CONTAINER backend (not in-process)."""
+    proj = temp_project["project"]
+    parser_name = temp_project["parser_name"]
+    r = client.post(
+        f"/api/parser_test/test_parser/{proj}/{parser_name}"
+        "?parser_type=custom_parser&verb_group=Tests&run_id=R1",
+        json={"params": {}},
+    )
+    assert r.status_code == 200
+    body = r.json()
+    assert body["ok"] is True
+    assert body["exec_mode"] == "container"
 
 
 def test_list_available_pphrases(client: TestClient, temp_project: Dict[str, Any]):

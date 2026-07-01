@@ -2,8 +2,16 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any, Awaitable, Callable, List, Tuple, Optional, Set, Union
-from fastapi import FastAPI, Request
+import uuid
+from dataclasses import dataclass
+from typing import Any, Awaitable, Callable, List, Optional, Union
+
+from fastapi import Request
+
+from utils.logger import get_logger
+from utils import config
+
+log = get_logger(__name__)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Types
@@ -12,42 +20,53 @@ ChainHandlerAsync = Callable[[dict, Request], Awaitable[None]]
 ChainHandlerSync  = Callable[[dict, Request], None]
 ChainHandler = Union[ChainHandlerAsync, ChainHandlerSync]
 
-IntervalHandlerAsync = Callable[[], Awaitable[None]]
-IntervalHandlerSync  = Callable[[], None]
-IntervalHandler = Union[IntervalHandlerAsync, IntervalHandlerSync]
-
-FsHandlerAsync = Callable[[Set[str]], Awaitable[None]]
-FsHandlerSync  = Callable[[Set[str]], None]
-FsHandler = Union[FsHandlerAsync, FsHandlerSync]
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Config & utils
-# ──────────────────────────────────────────────────────────────────────────────
-DEBUG = False
 
 def _dbg(*a: Any) -> None:
-    if DEBUG:
-        print("[triggers]", *a, flush=True)
+    # One logger (GIMS_LOG_LEVEL); never a module-level print/DEBUG flag.
+    log.debug("[triggers]", *a)
 
-async def _maybe_await(fn: Callable[..., Any], *args: Any, **kwargs: Any) -> None:
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Request-scoped context (R7)
+# ──────────────────────────────────────────────────────────────────────────────
+@dataclass(frozen=True)
+class ChainContext:
+    """Per-publish, request-scoped context threaded into every handler's structured logs.
+
+    Gives each chain publish a short correlation id so a slow/broken handler's WARNING can be
+    tied back to the exact request + phase that triggered it (the dormant global lists logged
+    no such context)."""
+    cid: str
+    phase: str
+    path: str
+
+    @classmethod
+    def new(cls, phase: str, env: Optional[dict]) -> "ChainContext":
+        return cls(cid=uuid.uuid4().hex[:8], phase=phase, path=str((env or {}).get("path") or ""))
+
+    def tag(self) -> str:
+        return f"[chain {self.phase} {self.cid} {self.path}]"
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Per-handler runner
+# ──────────────────────────────────────────────────────────────────────────────
+async def _maybe_await(fn: Callable[..., Any], *args: Any, _ctx: Optional[ChainContext] = None, **kwargs: Any) -> None:
+    """Run one event handler, bounded by a per-handler timeout. Side-effect chain/trigger handlers
+    fail OPEN — but LOUD (owner decision): a broken audit/cache handler is logged at WARNING (with
+    the request-scoped context when present) and abandoned, never blocking or crashing the publish
+    loop. Hooks that must BLOCK an action live in the fetch-node PRE path (fail-closed), not here."""
+    name = getattr(fn, "__name__", str(fn))
+    tag = _ctx.tag() if _ctx is not None else "[triggers]"
     try:
         result = fn(*args, **kwargs)
         if asyncio.iscoroutine(result):
-            await result  # type: ignore[func-returns-value]
+            await asyncio.wait_for(result, timeout=config.chain_handler_timeout())
+    except asyncio.TimeoutError:
+        log.warning(tag, "handler timed out:", name, f"(>{config.chain_handler_timeout()}s)")
     except Exception as e:
-        _dbg("handler error:", getattr(fn, "__name__", str(fn)), repr(e))
+        log.warning(tag, "handler error:", name, repr(e))
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Registries
-# ──────────────────────────────────────────────────────────────────────────────
-_chain_pre:  List[ChainHandler] = []
-_chain_post: List[ChainHandler] = []
-
-_interval_jobs:  List[Tuple[float, IntervalHandler]] = []
-_interval_tasks: List[asyncio.Task] = []
-
-_watch_specs:  List[Tuple[str, Optional[str], FsHandler]] = []  # (path, glob, handler)
-_watch_tasks:  List[asyncio.Task] = []
 
 def _add_unique(lst: List, item: Any) -> None:
     # Avoid duplicate registrations (same object identity)
@@ -55,107 +74,82 @@ def _add_unique(lst: List, item: Any) -> None:
         return
     lst.append(item)
 
+
 # ──────────────────────────────────────────────────────────────────────────────
-# Public subscription API (both decorator-style and subscribe_* style)
+# The one EventDispatcher (R7): owns the chain-pre / chain-post subscriber lists and
+# the publish loop. ONE registration model (subscribe(phase, fn), identity-deduped);
+# each publish builds a request-scoped ChainContext; handlers run with a per-handler
+# timeout and fail open-but-loud.
+# ──────────────────────────────────────────────────────────────────────────────
+class EventDispatcher:
+    def __init__(self) -> None:
+        self.pre: List[ChainHandler] = []
+        self.post: List[ChainHandler] = []
+
+    def _list(self, phase: str) -> List[ChainHandler]:
+        return self.pre if phase == "pre" else self.post
+
+    def subscribe(self, phase: str, fn: ChainHandler) -> ChainHandler:
+        _add_unique(self._list(phase), fn)
+        _dbg(f"subscribe[{phase}]:", getattr(fn, "__name__", str(fn)))
+        return fn
+
+    def unsubscribe(self, phase: str, fn: ChainHandler) -> None:
+        lst = self._list(phase)
+        for i, f in enumerate(list(lst)):
+            if id(f) == id(fn):
+                lst.pop(i)
+                break
+
+    async def publish(self, phase: str, env: dict, request: Optional[Request]) -> None:
+        ctx = ChainContext.new(phase, env)
+        handlers = tuple(self._list(phase))  # snapshot in case a handler mutates the list
+        if handlers:
+            _dbg(ctx.tag(), f"-> {len(handlers)} handler(s)")
+        for fn in handlers:
+            await _maybe_await(fn, env, request, _ctx=ctx)
+
+
+# The single dispatcher instance. The module-level functions + lists below are a thin,
+# fully back-compatible facade over it (callers and tests keep using triggers.*).
+_dispatcher = EventDispatcher()
+
+# Back-compat aliases: the SAME list objects the dispatcher mutates in place, so existing
+# readers of `triggers._chain_pre` / `triggers._chain_post` keep seeing the live subscribers.
+_chain_pre: List[ChainHandler] = _dispatcher.pre
+_chain_post: List[ChainHandler] = _dispatcher.post
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Public subscription API (decorator-style and subscribe_* style both delegate here)
 # ──────────────────────────────────────────────────────────────────────────────
 def on_chain_pre(fn: ChainHandler) -> ChainHandler:
     """Decorator: @on_chain_pre"""
-    _add_unique(_chain_pre, fn)
-    _dbg("on_chain_pre registered:", getattr(fn, "__name__", str(fn)))
-    return fn
+    return _dispatcher.subscribe("pre", fn)
 
 def on_chain_post(fn: ChainHandler) -> ChainHandler:
     """Decorator: @on_chain_post"""
-    _add_unique(_chain_post, fn)
-    _dbg("on_chain_post registered:", getattr(fn, "__name__", str(fn)))
-    return fn
+    return _dispatcher.subscribe("post", fn)
 
 # Back-compat for modules that call subscribe_* explicitly
 def subscribe_chain_pre(fn: ChainHandler) -> ChainHandler:
-    return on_chain_pre(fn)
+    return _dispatcher.subscribe("pre", fn)
 
 def subscribe_chain_post(fn: ChainHandler) -> ChainHandler:
-    return on_chain_post(fn)
-
-def every(seconds: float):
-    """Decorator: @every(5.0)"""
-    def deco(fn: IntervalHandler) -> IntervalHandler:
-        _interval_jobs.append((seconds, fn))
-        _dbg("every registered:", seconds, getattr(fn, "__name__", str(fn)))
-        return fn
-    return deco
-
-def on_fs_change(path: str, glob: Optional[str] = None):
-    """
-    Decorator: @on_fs_change('/some/path', '*.py')
-    Requires `watchfiles` installed for async watching.
-    """
-    def deco(fn: FsHandler) -> FsHandler:
-        _watch_specs.append((path, glob, fn))
-        _dbg("on_fs_change registered:", path, glob, getattr(fn, "__name__", str(fn)))
-        return fn
-    return deco
+    return _dispatcher.subscribe("post", fn)
 
 # Optional unsub APIs (handy in tests)
 def unsubscribe_chain_pre(fn: ChainHandler) -> None:
-    for i, f in enumerate(list(_chain_pre)):
-        if id(f) == id(fn):
-            _chain_pre.pop(i); break
+    _dispatcher.unsubscribe("pre", fn)
 
 def unsubscribe_chain_post(fn: ChainHandler) -> None:
-    for i, f in enumerate(list(_chain_post)):
-        if id(f) == id(fn):
-            _chain_post.pop(i); break
+    _dispatcher.unsubscribe("post", fn)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Publishers (to be called by orchestrated_fetch_node, etc.)
 # ──────────────────────────────────────────────────────────────────────────────
-async def publish_chain_pre(env: dict, request: Request) -> None:
-    # Iterate over a snapshot in case handlers mutate the list
-    for fn in tuple(_chain_pre):
-        await _maybe_await(fn, env, request)
+async def publish_chain_pre(env: dict, request: Optional[Request]) -> None:
+    await _dispatcher.publish("pre", env, request)
 
-async def publish_chain_post(env: dict, request: Request) -> None:
-    for fn in tuple(_chain_post):
-        await _maybe_await(fn, env, request)
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Runtime (intervals & file watchers)
-# ──────────────────────────────────────────────────────────────────────────────
-async def _run_every(seconds: float, fn: IntervalHandler):
-    while True:
-        await _maybe_await(fn)
-        await asyncio.sleep(seconds)
-
-async def _run_fs_watch(path: str, glob: Optional[str], fn: FsHandler):
-    try:
-        from watchfiles import awatch, DefaultFilter
-    except Exception:
-        _dbg("watchfiles not installed; FS watchers disabled.")
-        return
-
-    import fnmatch as _fn
-    async for changes in awatch(path, watch_filter=DefaultFilter()):
-        files = {p for _, p in changes}
-        if glob:
-            files = {f for f in files if _fn.fnmatch(f, glob)}
-        await _maybe_await(fn, files)
-
-def mount_triggers(app: FastAPI) -> None:
-    @app.on_event("startup")
-    async def _start_triggers():
-        loop = asyncio.get_event_loop()
-        # intervals
-        for seconds, fn in _interval_jobs:
-            _interval_tasks.append(loop.create_task(_run_every(seconds, fn)))
-        # file watchers
-        for path, glob, fn in _watch_specs:
-            _watch_tasks.append(loop.create_task(_run_fs_watch(path, glob, fn)))
-        _dbg("startup: intervals:", len(_interval_jobs), "watchers:", len(_watch_specs))
-
-    @app.on_event("shutdown")
-    async def _stop_triggers():
-        for t in _interval_tasks + _watch_tasks:
-            t.cancel()
-        _dbg("shutdown: cancelled interval/watch tasks")
-        
+async def publish_chain_post(env: dict, request: Optional[Request]) -> None:
+    await _dispatcher.publish("post", env, request)

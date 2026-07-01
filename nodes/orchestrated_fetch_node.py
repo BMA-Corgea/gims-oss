@@ -21,18 +21,18 @@ from __future__ import annotations
 from typing import Any, Dict, Optional, Tuple
 import json
 import re
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Request
 from starlette.responses import Response, JSONResponse
 import httpx
 
+from core.errors import AppError
 from core.orchestration.node import Node, NodeKind
 from core.orchestration import triggers
 
-DEBUG_ENABLED = False
-
-def debug(*args, **kwargs):
-    if DEBUG_ENABLED:
-        print("[orchestrated_fetch_node]", *args, **kwargs, flush=True)
+from utils import config
+from utils.logger import get_logger
+log = get_logger(__name__)
+DEBUG_ENABLED = log.is_debug()
 
 router = APIRouter()
 
@@ -95,25 +95,53 @@ INJECT_JS = r"""
 
   function overlayAccessDenied(pathname, msg) {
     const message = msg || ("You don’t have permission to view " + pathname);
+    // This wipes the document (so watery.css is gone) — inline the Watery palette.
+    // Escape interpolated values (server deny-reason + location path) defensively.
+    const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+    // Match the active skin (data-theme survives the innerHTML wipe). Classic = light bevels.
+    const _classic = document.documentElement.getAttribute("data-theme") === "classic";
+    const _raise = "inset -1px -1px #0a0a0a,inset 1px 1px #fff,inset -2px -2px #808080,inset 2px 2px #dfdfdf";
+    const C = _classic ? {
+      font:"Tahoma,'Segoe UI',Verdana,sans-serif", text:"#000",
+      bg:"#d6d3ce",
+      card:"background:#d6d3ce;border:none;border-radius:0;box-shadow:"+_raise,
+      mark:"color:#a40000;background:#f6dcdc;border:1px solid #a40000;border-radius:0",
+      p:"#1a1a1a", code:"background:#fff;color:#a40000;border:1px solid #808080;border-radius:0", hint:"#404040",
+      btn:"color:#000;background:#d6d3ce;border:1px solid #000;border-radius:0;box-shadow:"+_raise
+    } : {
+      font:"'Inter',system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif", text:"#e8f4ee",
+      bg:"radial-gradient(ellipse 55% 45% at 18% -5%,rgba(244,201,135,.16),transparent 60%),radial-gradient(ellipse 50% 50% at 85% 8%,rgba(45,212,191,.10),transparent 58%),radial-gradient(ellipse 80% 70% at 60% 108%,rgba(20,90,72,.22),transparent 60%),#06140f",
+      card:"background:linear-gradient(180deg,#11362a,#0e2a23);border:2px solid rgba(216,189,138,.55);border-radius:18px;box-shadow:0 14px 44px rgba(2,14,11,.6)",
+      mark:"color:#f89a93;background:rgba(240,114,106,.10);border:1px solid rgba(240,114,106,.32);border-radius:9px",
+      p:"#a6cabd", code:"background:#0a1f1a;color:#6ee7c7;border-radius:6px", hint:"#6f988b",
+      btn:"color:#fff;background:linear-gradient(135deg,#1d56c9,#2970d8);box-shadow:0 4px 20px rgba(79,157,255,.36);border-radius:9px"
+    };
     document.documentElement.innerHTML = `
       <head>
         <meta charset="utf-8">
-        <title>Access denied</title>
+        <title>Access denied · GIMS</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
-          body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#0b1020;color:#e6e8ee}
-          .card{max-width:620px;background:#121833;border:1px solid #253059;border-radius:16px;padding:28px;box-shadow:0 6px 30px rgba(2,8,23,.45)}
-          h1{font-size:20px;margin:0 0 10px}
-          p{line-height:1.55;margin:0 0 14px}
-          code{background:#0b1020;padding:2px 6px;border-radius:6px;color:#a9b6ff}
-          .hint{opacity:.8;font-size:14px}
+          *{box-sizing:border-box;margin:0;padding:0}
+          body{font-family:${C.font};display:flex;align-items:center;justify-content:center;min-height:100vh;color:${C.text};background:${C.bg}}
+          .card{max-width:560px;margin:20px;padding:30px 32px;${C.card}}
+          .mark{width:48px;height:48px;display:grid;place-items:center;margin-bottom:16px;${C.mark}}
+          .mark svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+          h1{font-size:21px;font-weight:700;margin-bottom:10px}
+          p{line-height:1.55;margin-bottom:12px;color:${C.p};font-size:14px}
+          code{font-family:ui-monospace,Menlo,Consolas,monospace;padding:2px 7px;font-size:13px;${C.code}}
+          .hint{font-size:13px;color:${C.hint}}
+          .actions{display:flex;gap:10px;margin-top:20px}
+          a.btn{display:inline-flex;align-items:center;gap:7px;text-decoration:none;padding:10px 16px;font-size:13px;font-weight:700;${C.btn}}
         </style>
       </head>
       <body>
         <div class="card">
+          <div class="mark"><svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg></div>
           <h1>Access denied</h1>
-          <p>You don’t have permission to view <code>${pathname}</code> with your current role.</p>
-          <p class="hint">${message}</p>
+          <p>You don’t have permission to view <code>${esc(pathname)}</code> with your current role.</p>
+          <p class="hint">${esc(message)}</p>
+          <div class="actions"><a class="btn" href="/launcher">Back to launcher</a></div>
         </div>
       </body>`;
   }
@@ -366,9 +394,9 @@ INJECT_JS = r"""
 
 @router.get(INJECT_PATH)
 def serve_inject_js() -> Response:
-    debug("serve_inject_js: begin")
+    log.debug("serve_inject_js: begin")
     resp = Response(content=INJECT_JS, media_type="application/javascript")
-    debug("serve_inject_js: returning script", {"bytes": len(INJECT_JS)})
+    log.debug("serve_inject_js: returning script", {"bytes": len(INJECT_JS)})
     return resp
 
 # Only call rules hooks; no chain hooks (avoids 404 spam)
@@ -385,19 +413,34 @@ async def _call_hook_json(
     headers: Dict[str, str],
     payload: Dict[str, Any],
 ) -> Tuple[Optional[Dict[str, Any]], Optional[int]]:
+    # Dedicated SHORT timeout for guard hooks (separate from the 120s archive-proxy timeout): a
+    # hung policy hook must not stall the request — it times out and (below) fails closed.
     try:
-        r = await client.post(url, headers=headers, json=payload)
+        r = await client.post(url, headers=headers, json=payload,
+                              timeout=config.hook_call_timeout())
     except Exception as e:
-        debug("hook call error", url, repr(e)); return None, None
+        log.warning("hook call error", url, repr(e)); return None, None
     if r.status_code in (404, 405):
-        debug("hook not present", url, r.status_code); return None, r.status_code
+        log.debug("hook not present", url, r.status_code); return None, r.status_code
     ctype = (r.headers.get("content-type") or "")
     if "application/json" not in ctype.lower():
-        debug("hook non-json response", url, ctype); return None, r.status_code
+        log.warning("hook non-json response", url, ctype); return None, r.status_code
     try:
         return r.json(), r.status_code
     except Exception:
-        debug("hook invalid json", url); return None, r.status_code
+        log.warning("hook invalid json", url); return None, r.status_code
+
+
+def _pre_hook_fails_closed(status: Optional[int]) -> bool:
+    """When a deny-capable PRE guard hook returns no usable JSON, should the request be DENIED?
+
+    404/405 = the hook is genuinely not configured -> ALLOW (continue). Any other case (network
+    error/timeout -> status None; or a 5xx/garbage/non-JSON response -> some other status) means a
+    guard that SHOULD have run did not — fail CLOSED when ``config.fail_closed_hooks()`` is on
+    (owner decision; secure default). The legacy behaviour silently allowed all of these."""
+    if status in (404, 405):
+        return False
+    return config.fail_closed_hooks()
 
 def _maybe_parse_json_body(content: bytes, content_type: str) -> Tuple[Optional[Any], bool]:
     is_json = "application/json" in (content_type or "").lower()
@@ -405,6 +448,8 @@ def _maybe_parse_json_body(content: bytes, content_type: str) -> Tuple[Optional[
     try:
         return json.loads(content.decode("utf-8")), True
     except Exception:
+        log.debug("orchestrate: upstream claimed JSON but body failed to parse",
+                  {"content_type": content_type, "bytes": len(content or b"")}, exc_info=True)
         return None, True
 
 def _extract_trigger(obj: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
@@ -418,21 +463,21 @@ def _extract_trigger(obj: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
 
 @router.post("/orchestrate")
 async def orchestrate(request: Request) -> Response:
-    debug("orchestrate: begin")
+    log.debug("orchestrate: begin")
     try:
         data = await request.json()
         path_dbg = (data.get("path") or "")
         if _GATE_COMPLETE_RE.search(path_dbg):
-            debug("orchestrate: envelope (gate)", data)
-            debug("orchestrate: headers (gate)", {
+            log.debug("orchestrate: envelope (gate)", data)
+            log.debug("orchestrate: headers (gate)", {
                 "X-Feature-Tags": request.headers.get("X-Feature-Tags", ""),
                 "X-Account-Roles": request.headers.get("X-Account-Roles", "")
             })
         else:
-            debug("orchestrate: envelope parsed", "{hidden}")
+            log.debug("orchestrate: envelope parsed", "{hidden}")
     except Exception as e:
-        debug("orchestrate: invalid JSON envelope", repr(e))
-        raise HTTPException(status_code=400, detail="Invalid JSON envelope")
+        log.debug("orchestrate: invalid JSON envelope", repr(e))
+        raise AppError("INVALID_JSON_ENVELOPE", "Invalid JSON envelope", status=400)
 
     method: str = (data.get("method") or "GET").upper()
     path: str = data.get("path") or "/"
@@ -442,20 +487,21 @@ async def orchestrate(request: Request) -> Response:
     page_path: Optional[str] = data.get("__page_path")
 
     if not path.startswith("/"):
-        raise HTTPException(status_code=400, detail="Envelope 'path' must be absolute")
+        raise AppError("ENVELOPE_PATH_NOT_ABSOLUTE", "Envelope 'path' must be absolute",
+                       status=400, details={"path": path})
     if method not in ("GET", "HEAD", "POST", "PUT", "PATCH", "DELETE"):
-        raise HTTPException(status_code=405, detail=f"Method {method} not allowed")
+        raise AppError("METHOD_NOT_ALLOWED", f"Method {method} not allowed",
+                       status=405, details={"method": method})
 
     base = f"{request.url.scheme}://{request.url.netloc}"
     target = f"{base}{path}"
 
+    # R6: do NOT forward client-supplied role/feature-tag claims. login_rules/auth_guard derive
+    # roles from the VERIFIED user (auth cookie/JWT), not these headers, so forwarding them was
+    # inert at best and a forge-your-own-roles footgun at worst. Identity travels via cookie/auth.
     fwd_headers = {
         "X-Orch-Client": request.headers.get("X-Orch-Client", "1"),
-        "X-Feature-Tags": request.headers.get("X-Feature-Tags", ""),
     }
-    roles_hdr = request.headers.get("X-Account-Roles")
-    if roles_hdr:
-        fwd_headers["X-Account-Roles"] = roles_hdr
 
     cookie = request.headers.get("cookie")
     if cookie: fwd_headers["cookie"] = cookie
@@ -473,6 +519,10 @@ async def orchestrate(request: Request) -> Response:
                     hook_url = f"{base}{hook}"
                     hook_json, status = await _call_hook_json(client, hook_url, fwd_headers, pre_guard_env)
                     if hook_json is None:
+                        if _pre_hook_fails_closed(status):
+                            denied = True
+                            deny_reason = "Page-preflight guard unavailable; denied (fail-closed)."
+                            break
                         continue
                     effect = (hook_json.get("effect") or "allow").lower()
                     if effect == "deny" or (status and status == 403):
@@ -494,6 +544,10 @@ async def orchestrate(request: Request) -> Response:
                 hook_url = f"{base}{hook}"
                 hook_json, status = await _call_hook_json(client, hook_url, fwd_headers, pre_env)
                 if hook_json is None:
+                    if _pre_hook_fails_closed(status):
+                        denied = True
+                        deny_reason = "Policy guard unavailable; request denied (fail-closed)."
+                        break
                     continue
 
                 hook_trigger = _extract_trigger(hook_json)
@@ -511,9 +565,10 @@ async def orchestrate(request: Request) -> Response:
                     payload = hook_json.get("payload", payload)
                     pre_env["payload"] = payload
                     if _GATE_COMPLETE_RE.search(path):
-                        debug("orchestrate: PRE hook mutated payload for gate call", {"hook": hook})
+                        log.debug("orchestrate: PRE hook mutated payload for gate call", {"hook": hook})
 
-            # 🔑 Extra call: explicitly hit login_rules_node on gate POSTs
+            # 🔑 Extra call: explicitly hit login_rules_node on gate POSTs (signature gate — the
+            # most security-critical hook, so it fails CLOSED if the rules node is unreachable).
             if method == "POST" and _GATE_COMPLETE_RE.search(path):
                 login_hook_url = f"{base}/login-rules/orchestrate/rules/pre"
                 hook_json, status = await _call_hook_json(client, login_hook_url, fwd_headers, pre_env)
@@ -525,11 +580,14 @@ async def orchestrate(request: Request) -> Response:
                     elif effect == "mutate":
                         payload = hook_json.get("payload", payload)
                         pre_env["payload"] = payload
-                        debug("orchestrate: login-rules PRE hook mutated payload for gate call")
+                        log.debug("orchestrate: login-rules PRE hook mutated payload for gate call")
+                elif _pre_hook_fails_closed(status):
+                    denied = True
+                    deny_reason = "Signature-gate guard unavailable; denied (fail-closed)."
 
             # 🔔 Handle compliance-triggered signature requests (from pre_env)
             if collected_trigger:
-                debug("orchestrate: collected trigger detected", collected_trigger)
+                log.debug("orchestrate: collected trigger detected", collected_trigger)
                 return JSONResponse(
                     {"trigger": collected_trigger},
                     status_code=202,
@@ -590,7 +648,7 @@ async def orchestrate(request: Request) -> Response:
                     filtered_body = hook_json["body"]
                     post_env["body"] = filtered_body
                     if _GATE_COMPLETE_RE.search(path):
-                        debug("orchestrate: POST hook filtered body for gate call", {"hook": hook})
+                        log.debug("orchestrate: POST hook filtered body for gate call", {"hook": hook})
 
             headers_out = {}
             for k in ("content-type", "etag", "cache-control"):
@@ -601,15 +659,16 @@ async def orchestrate(request: Request) -> Response:
                 body_bytes = json.dumps(filtered_body).encode("utf-8")
                 headers_out["content-type"] = "application/json; charset=utf-8"
                 if _GATE_COMPLETE_RE.search(path):
-                    debug("orchestrate: returning JSON for gate call", {"status": ds.status_code})
+                    log.debug("orchestrate: returning JSON for gate call", {"status": ds.status_code})
                 return Response(content=body_bytes, status_code=ds.status_code, headers=headers_out)
 
             if _GATE_COMPLETE_RE.search(path):
-                debug("orchestrate: returning raw body for gate call", {"status": ds.status_code})
+                log.debug("orchestrate: returning raw body for gate call", {"status": ds.status_code})
             return Response(content=ds.content, status_code=ds.status_code, headers=headers_out)
 
     except httpx.HTTPError as e:
-        raise HTTPException(status_code=502, detail=f"Orchestrate forward error: {e!s}")
+        raise AppError("ORCHESTRATE_FORWARD_ERROR", f"Orchestrate forward error: {e!s}",
+                       status=502, details={"path": path, "method": method})
 
 orchestrated_fetch_node = Node(
     name="Orchestrated Fetch",

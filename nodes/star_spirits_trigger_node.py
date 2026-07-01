@@ -7,7 +7,7 @@ import time
 import random
 import string
 from datetime import datetime
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Tuple
 
 import httpx
 from fastapi import APIRouter, Request
@@ -19,11 +19,9 @@ from core.orchestration.module import Module
 # ──────────────────────────────────────────────────────────────────────────────
 # Debug
 # ──────────────────────────────────────────────────────────────────────────────
-DEBUG_ENABLED = False  # flip to False to quiet logs
-
-def debug(*args, **kwargs):
-    if DEBUG_ENABLED:
-        print("[star-trigger]", *args, **kwargs)
+from utils.logger import get_logger
+log = get_logger(__name__)
+DEBUG_ENABLED = log.is_debug()
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Router
@@ -65,7 +63,7 @@ def _gc_cache() -> None:
     now = time.time()
     stale = [k for k, v in _pre_cache.items() if now - v.get("ts", 0.0) > CACHE_TTL_SEC]
     for k in stale:
-        debug("cache:gc:drop", {"key": k})
+        log.debug("cache:gc:drop", {"key": k})
         _pre_cache.pop(k, None)
 
 def _extract_star_name(spirit: str, payload: Dict[str, Any]) -> str:
@@ -91,25 +89,25 @@ async def chain_pre(request: Request):
       { method, path, payload }
     We only watch: POST /star-spirits/{project}/collect
     """
-    debug("pre:begin")
+    log.debug("pre:begin")
     try:
         env = await request.json()
     except Exception as e:
-        debug("pre:json-error", repr(e))
+        log.debug("pre:json-error", repr(e))
         return JSONResponse({"effect": "allow"})
 
-    debug("pre:envelope", env)
+    log.debug("pre:envelope", env)
 
     method = (env.get("method") or "GET").upper()
     path: str = env.get("path") or ""
     payload: Dict[str, Any] = env.get("payload") or {}
 
     if method != "POST":
-        debug("pre:skip:method", {"method": method})
+        log.debug("pre:skip:method", {"method": method})
         return JSONResponse({"effect": "allow"})
 
     if not re.match(r"^/star-spirits/[^/]+/collect$", path):
-        debug("pre:skip:path", {"path": path})
+        log.debug("pre:skip:path", {"path": path})
         return JSONResponse({"effect": "allow"})
 
     user_id = str(payload.get("user_id") or "").strip()
@@ -118,9 +116,9 @@ async def chain_pre(request: Request):
         _gc_cache()
         star_name = _extract_star_name(spirit, payload)
         _pre_cache[(path, user_id)] = {"spirit": spirit, "name": star_name, "ts": time.time()}
-        debug("pre:cached", {"key": (path, user_id), "spirit": spirit, "name": star_name})
+        log.debug("pre:cached", {"key": (path, user_id), "spirit": spirit, "name": star_name})
     else:
-        debug("pre:missing-fields", {"user_id": user_id, "spirit": spirit})
+        log.debug("pre:missing-fields", {"user_id": user_id, "spirit": spirit})
 
     return JSONResponse({"effect": "allow"})
 
@@ -136,14 +134,14 @@ async def chain_post(request: Request):
     If /star-spirits/{project}/collect returns 2xx, trigger dual chain.
     Silent no-op if dual chain is not mounted (404/405/etc).
     """
-    debug("post:begin")
+    log.debug("post:begin")
     try:
         env = await request.json()
     except Exception as e:
-        debug("post:json-error", repr(e))
+        log.debug("post:json-error", repr(e))
         return JSONResponse({})
 
-    debug("post:envelope", env)
+    log.debug("post:envelope", env)
 
     path: str = env.get("path") or ""
     status: int = int(env.get("status") or 0)
@@ -151,10 +149,10 @@ async def chain_post(request: Request):
 
     m = re.match(r"^/star-spirits/([^/]+)/collect$", path)
     if not m:
-        debug("post:skip:path", {"path": path})
+        log.debug("post:skip:path", {"path": path})
         return JSONResponse({})
     if not (200 <= status < 300):
-        debug("post:skip:status", {"status": status})
+        log.debug("post:skip:status", {"status": status})
         return JSONResponse({})
 
     project = m.group(1)
@@ -167,11 +165,11 @@ async def chain_post(request: Request):
         if cached:
             spirit = cached.get("spirit")
             star_name = cached.get("name")
-            debug("post:cache-hit", {"user_id": user_id, "spirit": spirit, "name": star_name})
+            log.debug("post:cache-hit", {"user_id": user_id, "spirit": spirit, "name": star_name})
         else:
-            debug("post:cache-miss", {"user_id": user_id})
+            log.debug("post:cache-miss", {"user_id": user_id})
     else:
-        debug("post:no-user-in-body")
+        log.debug("post:no-user-in-body")
 
     # Last-chance fallback for name
     if not star_name:
@@ -194,14 +192,14 @@ async def chain_post(request: Request):
         "user_id": user_id or "",
     }
 
-    debug("post:trigger:attempt", {"url": chain_url, "params": params})
+    log.debug("post:trigger:attempt", {"url": chain_url, "params": params})
 
     try:
         async with httpx.AsyncClient(timeout=HTTP_TIMEOUT_SEC) as client:
             r = await client.get(chain_url, params=params)
-            debug("post:trigger:resp", {"status": r.status_code})
+            log.debug("post:trigger:resp", {"status": r.status_code})
     except Exception as e:
-        debug("post:trigger:error", repr(e))
+        log.debug("post:trigger:error", repr(e))
 
     return JSONResponse({})
 
@@ -228,8 +226,3 @@ trigger_module = Module(
     description="Fires dual-dataentry chain after successful star-spirit capture via orchestrated fetch hooks",
     roles=set(),
 )
-
-def mount_into(app, prefix: str = "") -> None:
-    debug("module:mount", {"prefix": prefix})
-    trigger_module.mount(app, prefix=prefix)
-    debug("module:mounted")

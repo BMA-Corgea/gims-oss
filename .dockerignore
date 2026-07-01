@@ -1,0 +1,21 @@
+# 1. Ignore everything by default
+**
+
+# 2. Whitelist the two top-level trees you need
+!utils/
+!utils/**
+!docker/
+!docker/**
+
+# 3. Now re-ignore the exact bits under utils you don’t want
+utils/spreadsheet_ui/
+utils/status_ui/
+utils/file_ops/
+utils/data_dump/
+utils/handlers/verb/
+tools/view/
+
+# 5. Bonus: black-hole any __pycache__ or stray __init__.py you don’t need
+utils/**/__pycache__/
+utils/**/__pycache__/**
+utils/**/__init__.py

@@ -1,15 +1,14 @@
 # nodes/star_spirits_state_node.py
 from __future__ import annotations
 
-import os
-import json
 from datetime import datetime
 from pathlib import Path
-from typing import Any, AsyncIterator, Optional
+from typing import Any, AsyncIterator
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Query
 from pydantic import BaseModel, Field
+
+from core.errors import AppError
 
 # Orchestration glue (matches your core classes)
 from core.orchestration.node import Node, NodeKind
@@ -28,38 +27,37 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 # Debug (toggle here)
 # ──────────────────────────────────────────────────────────────────────────────
 
-DEBUG_ENABLED = False  # set False to silence logs
-
-def debug(*args, **kwargs):
-    if DEBUG_ENABLED:
-        print("[star-state]", *args, **kwargs)
+from utils.logger import get_logger
+log = get_logger(__name__)
+DEBUG_ENABLED = log.is_debug()
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Setup
 # ──────────────────────────────────────────────────────────────────────────────
 
 router = APIRouter(prefix="/star-spirits", tags=["Star Spirits – State"])
-debug("router:init", {"prefix": "/star-spirits"})
+log.debug("router:init", {"prefix": "/star-spirits"})
 
 def _api_dir() -> Path:
     p = Path(__file__).resolve().parents[1] / "api"
-    debug("paths:api_dir", {"path": p.as_posix()})
+    log.debug("paths:api_dir", {"path": p.as_posix()})
     return p
 
 def _repo_root() -> Path:
-    p = _api_dir().parent
-    debug("paths:repo_root", {"path": p.as_posix()})
+    from utils.paths import repo_root
+    p = repo_root()
+    log.debug("paths:repo_root", {"path": p.as_posix()})
     return p
 
 def _projects_root() -> Path:
     layout = load_local_layout_map(_api_dir())
     root = _repo_root() / layout.get("project_root", "projects")
-    debug("paths:projects_root", {"path": root.as_posix(), "layout_key": layout.get("project_root")})
+    log.debug("paths:projects_root", {"path": root.as_posix(), "layout_key": layout.get("project_root")})
     return root
 
 def _project_path(project: str) -> Path:
     p = _projects_root() / project
-    debug("paths:project_path", {"project": project, "path": p.as_posix()})
+    log.debug("paths:project_path", {"project": project, "path": p.as_posix()})
     return p
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -71,13 +69,13 @@ _session_cache: dict[str, async_sessionmaker[AsyncSession]] = {}
 
 def _engine_for(project: str):
     if project in _engine_cache:
-        debug("db:engine:cache-hit", {"project": project})
+        log.debug("db:engine:cache-hit", {"project": project})
         return _engine_cache[project]
     proj = _project_path(project)
     db_path = resolve_path(proj, "nodes_db")  # from local_layout_map.json
     db_path.parent.mkdir(parents=True, exist_ok=True)
     engine = create_async_engine(f"sqlite+aiosqlite:///{db_path.as_posix()}", future=True)
-    debug("db:engine:new", {"project": project, "db": db_path.as_posix()})
+    log.debug("db:engine:new", {"project": project, "db": db_path.as_posix()})
 
     @event.listens_for(engine.sync_engine, "connect")
     def _on_connect(dbapi_conn, _conn_rec):
@@ -93,11 +91,11 @@ def _engine_for(project: str):
 
 def _sessionmaker_for(project: str) -> async_sessionmaker[AsyncSession]:
     if project in _session_cache:
-        debug("db:sessionmaker:cache-hit", {"project": project})
+        log.debug("db:sessionmaker:cache-hit", {"project": project})
         return _session_cache[project]
     sm = async_sessionmaker(bind=_engine_for(project), expire_on_commit=False)
     _session_cache[project] = sm
-    debug("db:sessionmaker:new", {"project": project})
+    log.debug("db:sessionmaker:new", {"project": project})
     return sm
 
 class Base(DeclarativeBase):
@@ -121,20 +119,20 @@ class StarSpiritsProgress(Base):
     updated_at: Mapped[str] = mapped_column(String, default=lambda: datetime.utcnow().isoformat() + "Z")
 
 async def _ensure_schema(project: str) -> None:
-    debug("db:schema:ensure:start", {"project": project})
+    log.debug("db:schema:ensure:start", {"project": project})
     async with _engine_for(project).begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    debug("db:schema:ensure:done", {"project": project})
+    log.debug("db:schema:ensure:done", {"project": project})
 
 async def _get_session(project: str) -> AsyncIterator[AsyncSession]:
     await _ensure_schema(project)
     sm = _sessionmaker_for(project)
     async with sm() as session:
-        debug("db:session:open", {"project": project})
+        log.debug("db:session:open", {"project": project})
         try:
             yield session
         finally:
-            debug("db:session:close", {"project": project})
+            log.debug("db:session:close", {"project": project})
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Schemas
@@ -161,28 +159,33 @@ class CollectIn(BaseModel):
 
 def _norm_spirit(spirit: str) -> str:
     s = str(spirit).strip().lower()
-    debug("helpers:norm-spirit:in", {"raw": spirit, "norm": s})
+    log.debug("helpers:norm-spirit:in", {"raw": spirit, "norm": s})
     if s in {"1","2","3","4","5","6","7"}:
         out = f"s{s}"
-        debug("helpers:norm-spirit:ok:numeric", {"out": out})
+        log.debug("helpers:norm-spirit:ok:numeric", {"out": out})
         return out
     if s in {"s1","s2","s3","s4","s5","s6","s7"}:
-        debug("helpers:norm-spirit:ok:prefixed", {"out": s})
+        log.debug("helpers:norm-spirit:ok:prefixed", {"out": s})
         return s
-    debug("helpers:norm-spirit:error", {"raw": spirit})
-    raise HTTPException(400, "spirit must be one of s1..s7 or 1..7")
+    log.debug("helpers:norm-spirit:error", {"raw": spirit})
+    raise AppError(
+        "INVALID_SPIRIT",
+        "spirit must be one of s1..s7 or 1..7",
+        status=400,
+        details={"spirit": spirit},
+    )
 
 async def _get_or_create(session: AsyncSession, user_id: str) -> StarSpiritsProgress:
-    debug("db:get-or-create:start", {"user_id": user_id})
+    log.debug("db:get-or-create:start", {"user_id": user_id})
     rec = await session.get(StarSpiritsProgress, user_id)
     if rec:
-        debug("db:get-or-create:hit", {"user_id": user_id})
+        log.debug("db:get-or-create:hit", {"user_id": user_id})
         return rec
     rec = StarSpiritsProgress(user_id=user_id)
     session.add(rec)
     await session.commit()
     await session.refresh(rec)
-    debug("db:get-or-create:new", {"user_id": user_id})
+    log.debug("db:get-or-create:new", {"user_id": user_id})
     return rec
 
 def _to_out(rec: StarSpiritsProgress) -> ProgressOut:
@@ -191,7 +194,7 @@ def _to_out(rec: StarSpiritsProgress) -> ProgressOut:
         "s1": rec.s1, "s2": rec.s2, "s3": rec.s3, "s4": rec.s4, "s5": rec.s5, "s6": rec.s6, "s7": rec.s7,
         "updated_at": rec.updated_at
     })
-    debug("helpers:to-out", {"user_id": out.user_id, "flags": [out.s1,out.s2,out.s3,out.s4,out.s5,out.s6,out.s7]})
+    log.debug("helpers:to-out", {"user_id": out.user_id, "flags": [out.s1,out.s2,out.s3,out.s4,out.s5,out.s6,out.s7]})
     return out
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -199,20 +202,20 @@ def _to_out(rec: StarSpiritsProgress) -> ProgressOut:
 # ──────────────────────────────────────────────────────────────────────────────
 
 project_router = APIRouter(prefix="/{project}")
-debug("router:project:init", {"prefix": "/{project}"})
+log.debug("router:project:init", {"prefix": "/{project}"})
 
 @project_router.get("/progress", response_model=ProgressOut)
 async def get_progress(project: str, user_id: str = Query(..., description="Dashed UUID from /auth/me")):
-    debug("route:GET /progress:begin", {"project": project, "user_id": user_id})
+    log.debug("route:GET /progress:begin", {"project": project, "user_id": user_id})
     async for session in _get_session(project):
         rec = await _get_or_create(session, user_id)
         out = _to_out(rec)
-        debug("route:GET /progress:end", {"project": project, "user_id": user_id})
+        log.debug("route:GET /progress:end", {"project": project, "user_id": user_id})
         return out
 
 @project_router.post("/collect", response_model=ProgressOut)
 async def collect_spirit(project: str, payload: CollectIn):
-    debug("route:POST /collect:begin", {"project": project, "payload": payload.model_dump()})
+    log.debug("route:POST /collect:begin", {"project": project, "payload": payload.model_dump()})
     spirit = _norm_spirit(payload.spirit)
     async for session in _get_session(project):
         rec = await _get_or_create(session, payload.user_id)
@@ -221,12 +224,12 @@ async def collect_spirit(project: str, payload: CollectIn):
         await session.commit()
         await session.refresh(rec)
         out = _to_out(rec)
-        debug("route:POST /collect:commit", {"project": project, "user_id": payload.user_id, "spirit": spirit})
+        log.debug("route:POST /collect:commit", {"project": project, "user_id": payload.user_id, "spirit": spirit})
         return out
 
 @project_router.post("/reset", response_model=ProgressOut)
 async def reset_progress(project: str, user_id: str = Query(...)):
-    debug("route:POST /reset:begin", {"project": project, "user_id": user_id})
+    log.debug("route:POST /reset:begin", {"project": project, "user_id": user_id})
     async for session in _get_session(project):
         rec = await _get_or_create(session, user_id)
         for i in range(1,8):
@@ -235,11 +238,11 @@ async def reset_progress(project: str, user_id: str = Query(...)):
         await session.commit()
         await session.refresh(rec)
         out = _to_out(rec)
-        debug("route:POST /reset:commit", {"project": project, "user_id": user_id})
+        log.debug("route:POST /reset:commit", {"project": project, "user_id": user_id})
         return out
 
 router.include_router(project_router)
-debug("router:include", {"mounted": "/star-spirits/{project}/..."})
+log.debug("router:include", {"mounted": "/star-spirits/{project}/..."})
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Node + Module
@@ -254,7 +257,7 @@ star_state_node = Node(
         "label": "Star Spirits State",
     },
 )
-debug("node:created", {"name": star_state_node.name, "kind": str(star_state_node.kind)})
+log.debug("node:created", {"name": star_state_node.name, "kind": str(star_state_node.kind)})
 
 state_module = Module(
     name="Star Spirits State",
@@ -263,9 +266,4 @@ state_module = Module(
     description="Tracks collection of 7 star spirits per user in nodes.db",
     roles=set(),
 )
-debug("module:created", {"name": state_module.name, "version": state_module.version})
-
-def mount_into(app, prefix: str = "") -> None:
-    debug("module:mount:start", {"prefix": prefix})
-    state_module.mount(app, prefix=prefix)
-    debug("module:mount:done", {"prefix": prefix})
+log.debug("module:created", {"name": state_module.name, "version": state_module.version})

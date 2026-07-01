@@ -1,0 +1,40 @@
+# Tooling configuration for the GIMS backend (Phase 0 — hygiene).
+#
+# This file deliberately contains NO [project] / [build-system] table: the project
+# installs from requirements.txt, and adding packaging metadata here would change
+# how pip treats the directory. It exists only to configure ruff + pyright so dead
+# code / undefined names cannot quietly regrow (see .github/workflows/ci.yml).
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+extend-exclude = [".venv", "dist", "build", "gims-electron", "projects", "backups", "gui/components"]
+
+[tool.ruff.lint]
+# Start with pyflakes (F): real correctness errors — unused imports, undefined
+# names, redefinitions, f-strings without placeholders. Style families (E/W/I/UP…)
+# are intentionally deferred so CI can gate on F *today* without a tree-wide
+# reformat; tighten incrementally later.
+select = ["F"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]                  # package barrels intentionally re-export
+"api/i_o.py" = ["F401", "F403", "F405"]   # star-import facade over api.iostore
+"tests/**" = ["F401", "F811", "F841"]     # pytest fixture / parametrize patterns
+# Reorg-era shared modules that re-export names for their sibling modules to import
+# (non-__init__ barrels — ruff can't infer the re-export, so don't strip them):
+"api/routers/runlog_workbench/_shared.py" = ["F401"]
+"api/routers/archive_workbench/db_meta.py" = ["F401"]
+"api/routers/archive_workbench/_seams.py" = ["F401"]
+"core/run_custom/_common.py" = ["F401"]
+"api/json_proxy.py" = ["F401"]            # proxy module: keeps compat imports (boto3, …)
+
+[tool.pyright]
+include = ["api", "core", "nodes", "utils", "modules"]
+exclude = ["**/.venv", "dist", "build", "gims-electron", "projects", "backups", "**/node_modules"]
+pythonVersion = "3.12"
+# Optional runtime deps (psycopg, boto3, watchdog, pandas…) aren't always installed
+# in every dev/CI environment, so don't fail type-checking on their absence.
+reportMissingImports = false
+reportMissingModuleSource = false
+typeCheckingMode = "basic"

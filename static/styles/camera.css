@@ -1,391 +1,78 @@
-:root {
-  --primary-color: #006699;
-  --primary-light: #e1f5fe;
-  --primary-dark: #004c8c;
-  --secondary-color: #8a4f7d;
-  --accent-color: #f9a826;
-  --text-color: #333;
-  --background-color: #f8f9fa;
-  --border-color: #e0e0e0;
-  --error-color: #d32f2f;
-  --success-color: #2e7d32;
-  --warning-color: #f57c00;
-  --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
+/* ══════════════════════════════════════════════════════════════
+   Image Capture — Watery v2 (page-specific layout only).
+   Colours/surfaces come from watery.css + shell.css tokens; the bespoke
+   light-blue :root palette was dropped. Class/id names (.control-panel,
+   .capture-section, .file-drop-area, .active, .drag-over, #project-info,
+   #projectDropdown, #video, #preview, #status-bar, #progress-bar …) are the
+   camera.js DOM contract and are preserved — this file restyles them onto Watery.
+═══════════════════════════════════════════════════════════════ */
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+/* ── Toolbar (project picker + context chips) ── */
+.cam-project { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px; color: var(--text-mid); font-size: 13px; }
+.cam-project-field { min-width: 220px; }
+.project-dropdown { min-width: 200px; }
+.cam-context { margin-bottom: 7px; }
 
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.6;
-  color: var(--text-color);
-  background-color: var(--background-color);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  padding-bottom: 40px; /* Space for status bar */
-}
-
-header {
-  background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
-  color: white;
-  padding: 1.2rem 1rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  border-bottom: 2px solid var(--accent-color);
-  position: relative;
-  overflow: hidden;
-}
-
-header::after {
-  content: "";
-  position: absolute;
-  top: 0; right: -40px;
-  width: 160px; height: 160px;
-  background: radial-gradient(circle at center, rgba(255,255,255,0.15), transparent 70%);
-  transform: rotate(25deg);
-}
-
-header h1 {
-  font-size: 1.8rem;
-  font-weight: 700;
-  display: flex; align-items: center; gap: 10px;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-#context-info {
-  font-size: 0.9rem;
-  opacity: 0.95;
-  padding: 4px 10px;
-  border-radius: 8px;
-  background: rgba(255,255,255,0.1);
-  box-shadow: inset 0 0 4px rgba(255,255,255,0.2);
-}
-
-.header-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-h1 {
-  font-size: 1.8rem;
-  margin-bottom: 0.5rem;
-}
-
-#context-info {
-  font-size: 0.9rem;
-  opacity: 0.9;
-}
-
-main {
-  flex: 1;
-  max-width: 1200px;
-  margin: 1.5rem auto;
-  padding: 0 1rem;
-}
-
-.control-panel {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: var(--shadow);
-  overflow: hidden;
-}
-
+/* ── Control panel (the .panel wrapper holds the three stacked sections) ── */
 .selection-controls {
-  padding: 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
+  padding: 18px; border-bottom: 1px solid var(--card-edge);
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; align-items: end;
 }
+.control-group { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.button-group .btn { width: 100%; }
 
-.control-group {
-  display: flex;
-  flex-direction: column;
-}
+/* ── Capture area + mode sections ── */
+.capture-area { padding: 20px; background: var(--bg2); display: flex; justify-content: center; min-height: 350px; }
+.capture-section { display: none; width: 100%; max-width: 620px; }
+.capture-section.active { display: block; }
 
-label {
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-  color: #555;
-}
-
-.input-field {
-  padding: 0.7rem;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  font-size: 1rem;
-  transition: border-color 0.3s;
-}
-
-.input-field:focus {
-  border-color: var(--primary-color);
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(0, 102, 153, 0.2);
-}
-
-.button-group {
-  display: flex;
-  gap: 0.8rem;
-  margin-top: 1.7rem;
-}
-
-.capture-area {
-  padding: 1.5rem;
-  background-color: #f9f9f9;
-  display: flex;
-  justify-content: center;
-  min-height: 350px;
-}
-
-.capture-section {
-  display: none;
-  width: 100%;
-  max-width: 600px;
-}
-
-.capture-section.active {
-  display: block;
-}
-
+/* file drop */
 .file-drop-area {
-  border: 2px dashed var(--border-color);
-  border-radius: 8px;
-  padding: 3rem 2rem;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s;
-  background-color: white;
-  position: relative;
-  height: 300px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative; height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+  text-align: center; cursor: pointer; padding: 2.5rem 2rem; border-radius: var(--radius);
+  border: 2px dashed var(--border2); background: var(--surface2);
+  transition: border-color .2s, background .2s;
 }
+.file-drop-area:hover, .file-drop-area.drag-over { border-color: var(--accent); background: var(--accent-light); }
+.file-drop-icon { width: 40px; height: 40px; color: var(--text-soft); transition: color .2s; }
+.file-drop-area:hover .file-drop-icon, .file-drop-area.drag-over .file-drop-icon { color: var(--accent); }
+.file-msg { font-size: 14px; color: var(--text-soft); }
+.file-input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
 
-.file-drop-area:hover, .file-drop-area.drag-over {
-  border-color: var(--primary-color);
-  background-color: var(--primary-light);
-}
+/* webcam (id beats .capture-section so the snap button stacks under the video) */
+#webcamSection { display: none; flex-direction: column; gap: 14px; }
+#webcamSection.active { display: flex; }
+#video { width: 100%; height: 300px; object-fit: cover; background: var(--bg); border-radius: var(--radius); border: 1px solid var(--border); }
+#snapBtn { align-self: center; min-width: 200px; }
 
-.file-msg {
-  font-size: 1.1rem;
-  color: #777;
-}
+/* preview */
+.preview-container { position: relative; text-align: center; }
+#preview { max-width: 100%; max-height: 300px; border-radius: var(--radius); box-shadow: var(--shadow-md); border: 1px solid var(--border); }
+#retakeBtn { position: absolute; top: 10px; right: 10px; width: 40px; height: 40px; padding: 0; border-radius: 50%; }
 
-.file-input {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  cursor: pointer;
-}
+/* ── Action row ── */
+.action-buttons { padding: 18px; border-top: 1px solid var(--card-edge); display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.action-buttons .btn-primary { min-width: 200px; }
 
-video {
-  width: 100%;
-  height: 300px;
-  object-fit: cover;
-  background-color: #000;
-  border-radius: 8px;
-}
+/* progress (toggled to display:block by camera.js during an upload) */
+#progress-bar { height: 6px; width: 100%; max-width: 360px; background: var(--surface2); border-radius: 99px; overflow: hidden; display: none; }
+#progress-inner { height: 100%; width: 0; border-radius: 99px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width .3s; }
 
-.preview-container {
-  position: relative;
-  text-align: center;
-}
-
-#preview {
-  max-width: 100%;
-  max-height: 300px;
-  border-radius: 8px;
-  box-shadow: var(--shadow);
-}
-
-#retakeBtn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  padding: 0.5rem;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.action-buttons {
-  padding: 1.5rem;
-  text-align: center;
-  border-top: 1px solid var(--border-color);
-}
-
-.primary-button, .secondary-button {
-  padding: 0.8rem 1.5rem;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.primary-button {
-  background-color: var(--primary-color);
-  color: white;
-}
-
-.primary-button:hover {
-  background-color: var(--primary-dark);
-}
-
-.primary-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-.secondary-button {
-  background-color: white;
-  color: var(--primary-color);
-  border: 1px solid var(--primary-color);
-}
-
-.secondary-button:hover {
-  background-color: var(--primary-light);
-}
-
-.icon {
-  font-size: 1.1rem;
-}
-
+/* ── Status bar (fallback only; the shell's toasts are the primary channel) ── */
 #status-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background-color: #fff;
-  border-top: 1px solid var(--border-color);
-  padding: 0.8rem 1rem;
-  font-size: 0.9rem;
-  z-index: 100;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  position: fixed; bottom: 0; left: 0; width: 100%; z-index: 100; display: none; flex-direction: column; gap: 6px;
+  padding: 12px 16px; font-size: 13px; background: var(--surface); border-top: 1px solid var(--card-edge); color: var(--text);
 }
+#status-bar.show { display: flex; }
+#status-message { min-height: 20px; }
+#status-bar.error   #status-message { color: var(--red-text); }
+#status-bar.success #status-message { color: var(--green-text); }
+#status-bar.warning #status-message { color: var(--amber); }
+#status-bar.info    #status-message { color: var(--blue-2); }
 
-#status-message {
-  min-height: 20px;
-}
-
-#progress-bar {
-  height: 4px;
-  width: 100%;
-  background-color: #e0e0e0;
-  border-radius: 2px;
-  overflow: hidden;
-  display: none;
-}
-
-#progress-inner {
-  height: 100%;
-  width: 0;
-  background-color: var(--primary-color);
-  transition: width 0.3s;
-}
-
-#status-bar.error #status-message {
-  color: var(--error-color);
-}
-
-#status-bar.success #status-message {
-  color: var(--success-color);
-}
-
-#status-bar.warning #status-message {
-  color: var(--warning-color);
-}
-
-.project-selector-header {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.project-dropdown {
-  background-color: rgba(255, 255, 255, 0.15);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 4px;
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.7rem center;
-  background-size: 0.65em auto;
-  padding-right: 2rem;
-  min-width: 180px;
-  transition: all 0.2s ease;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
-}
-
-.project-dropdown:hover, .project-dropdown:focus {
-  background-color: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
-  outline: none;
-}
-
-.project-dropdown option {
-  background-color: var(--primary-color);
-  color: white;
-  padding: 8px;
-  font-size: 1rem;
-}
-
-.project-dropdown.no-project {
-  animation: pulse 2s infinite;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
-}
-
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
-  70% { box-shadow: 0 0 0 6px rgba(255, 255, 255, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
-}
+.hidden { display: none !important; }
 
 @media (max-width: 768px) {
-  .header-container {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  #context-info {
-    margin-top: 0.5rem;
-  }
-  
-  .selection-controls {
-    grid-template-columns: 1fr;
-  }
-  
-  .button-group {
-    margin-top: 1rem;
-  }
+  .selection-controls { grid-template-columns: 1fr; }
+  .cam-project-field { width: 100%; }
 }

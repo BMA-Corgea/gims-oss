@@ -37,6 +37,20 @@ class Module:
 
     def __post_init__(self) -> None:
         if isinstance(self.nodes, list):
+            # Fail-fast on duplicate node names (owner decision): the old `{n.name: n}` silently
+            # DROPPED a node on a copy-paste name collision, with no signal until its routes 404.
+            seen: set[str] = set()
+            dups: list[str] = []
+            for n in self.nodes:
+                if not isinstance(n, Node):
+                    raise TypeError(
+                        f"Module {self.name!r}: expected Node, got {type(n).__name__}")
+                if n.name in seen:
+                    dups.append(n.name)
+                seen.add(n.name)
+            if dups:
+                raise ValueError(
+                    f"Module {self.name!r} has duplicate node names: {sorted(set(dups))}")
             self.nodes = {n.name: n for n in self.nodes}
         if not self.nodes:
             raise ValueError("Module must contain at least one Node.")

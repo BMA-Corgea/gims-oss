@@ -5,9 +5,11 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Optional, Callable, Union
 
-from fastapi import APIRouter, FastAPI, HTTPException, Query, Request
+from fastapi import APIRouter, FastAPI, Query, Request
 import httpx
 from pathlib import Path
+
+from core.errors import AppError
 
 
 class NodeKind(str, Enum):
@@ -98,6 +100,19 @@ class Node:
     chain: Optional[Chain] = None
     base_resolver: Optional[BaseResolver] = None  # pure function supplied by caller
 
+    def __post_init__(self) -> None:
+        # Fail-fast at CONSTRUCTION (owner decision) instead of at mount / first request, so a
+        # malformed node surfaces immediately with a clear message rather than a late RuntimeError.
+        if not self.name or not isinstance(self.name, str):
+            raise ValueError(f"Node.name must be a non-empty string (got {self.name!r})")
+        if not isinstance(self.kind, NodeKind):
+            raise ValueError(f"Node {self.name!r}: kind must be a NodeKind (got {self.kind!r})")
+        if self.kind == NodeKind.CHAIN:
+            if self.router is None and self.chain is None:
+                raise ValueError(f"CHAIN node {self.name!r} requires a `chain` or a `router`")
+        elif self.router is None:
+            raise ValueError(f"{self.kind.value} node {self.name!r} requires a `router`")
+
     def _make_chain_router(self) -> APIRouter:
         if not self.chain:
             raise RuntimeError("CHAIN node requires `chain` to be provided.")
@@ -121,14 +136,18 @@ class Node:
                     return formatted
                 if not formatted.startswith("/"):
                     # Enforce explicitness for non-absolute, non-rooted URLs
-                    raise HTTPException(
-                        status_code=400,
-                        detail={"error": "Relative URL must start with '/' or be absolute", "url": raw},
+                    raise AppError(
+                        "CHAIN_URL_INVALID",
+                        "Relative URL must start with '/' or be absolute",
+                        status=400,
+                        details={"url": raw},
                     )
                 if not self.base_resolver:
-                    raise HTTPException(
-                        status_code=500,
-                        detail={"error": "Relative URL requires base_resolver but none provided", "url": raw},
+                    raise AppError(
+                        "CHAIN_BASE_RESOLVER_MISSING",
+                        "Relative URL requires base_resolver but none provided",
+                        status=500,
+                        details={"url": raw},
                     )
                 base = self.base_resolver(project)
                 return base.rstrip("/") + formatted
@@ -160,20 +179,23 @@ class Node:
                             data = None
 
                     except Exception as e:
-                        raise HTTPException(
-                            status_code=502,
-                            detail={
+                        raise AppError(
+                            "CHAIN_STEP_FAILED",
+                            str(e),
+                            status=502,
+                            details={
                                 "step": step.name,
                                 "method": step.method,
                                 "url": url,
-                                "error": str(e),
                             },
                         )
 
                     if step.expect and not step.expect(data):
-                        raise HTTPException(
-                            status_code=422,
-                            detail={"step": step.name, "method": step.method, "url": url, "error": "Expectation failed"},
+                        raise AppError(
+                            "CHAIN_STEP_EXPECTATION_FAILED",
+                            "Expectation failed",
+                            status=422,
+                            details={"step": step.name, "method": step.method, "url": url},
                         )
 
                     ctx["last"] = data

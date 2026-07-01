@@ -1,78 +1,84 @@
-[
-  {
+{
+  "Checkem Dubs": {
     "adverb": "Checkem Dubs",
-    "verb": "Test",
     "adverb_class": "Reference",
-    "reference_noun": "asdfasf"
+    "reference_noun": "asdfasf",
+    "attaches_to": [
+      "Test"
+    ],
+    "class": "Reference"
   },
-  {
+  "What the Helly?": {
     "adverb": "What the Helly?",
-    "verb": "Test",
     "adverb_class": "Reference",
-    "reference_noun": "Mario"
+    "reference_noun": "Mario",
+    "attaches_to": [
+      "Test"
+    ],
+    "class": "Reference"
   },
-  {
+  "What the shelly?": {
     "adverb": "What the shelly?",
-    "verb": "Test",
     "adverb_class": "ReferenceList",
-    "reference_noun": "Sample"
+    "reference_noun": "Sample",
+    "attaches_to": [
+      "Test"
+    ],
+    "class": "ReferenceList"
   },
-  {
+  "Pleeen": {
     "adverb": "Pleeen",
-    "verb": "Test",
     "adverb_class": "ReferenceList",
     "reference_nouns": [
       "Vial",
       "Elbows"
-    ]
+    ],
+    "attaches_to": [
+      "Test"
+    ],
+    "class": "ReferenceList"
   },
-  {
+  "tomato": {
     "adverb": "tomato",
-    "verb": "Test",
     "adverb_class": "Attribute",
     "description": "",
     "required": false,
-    "field_type": "string"
+    "field_type": "string",
+    "attaches_to": [
+      "Test"
+    ],
+    "class": "Attribute"
   },
-  {
+  "sajd;lfkas;dlfkjasd;fklj": {
     "adverb": "sajd;lfkas;dlfkjasd;fklj",
-    "verb": "Test",
     "adverb_class": "ReferenceList",
     "reference_nouns": [
       "Sample"
     ],
     "filters": {
       "Sample": {}
-    }
+    },
+    "attaches_to": [
+      "Test"
+    ],
+    "class": "ReferenceList"
   },
-  {
+  "Instrument": {
     "adverb": "Instrument",
-    "verb": "Micro_Test",
     "adverb_class": "Reference",
     "description": "",
     "required": false,
     "reference_noun": "Instrument",
-    "filters": {}
-  },
-  {
-    "adverb": "Instrument",
-    "verb": "Potency_Test",
-    "adverb_class": "Reference",
-    "reference_noun": "Instrument",
     "filters": {},
-    "required": false
+    "attaches_to": [
+      "Micro_Test",
+      "Potency_Test",
+      "Terpene_Test"
+    ],
+    "class": "Reference"
   },
-  {
-    "adverb": "Instrument",
-    "verb": "Terpene_Test",
-    "adverb_class": "Reference",
-    "reference_noun": "Instrument",
-    "filters": {},
-    "required": false
-  },
-  {
+  "woawioejasea": {
     "adverb": "woawioejasea",
-    "verb": "Test",
     "adverb_class": "Tag",
     "description": "sdlakfjdf",
     "valid_options": [
@@ -82,27 +88,36 @@
         "display_in_label": true
       }
     ],
-    "required": true
+    "required": true,
+    "attaches_to": [
+      "Test"
+    ],
+    "class": "Tag"
   },
-  {
+  "alsdkfjasdfa": {
     "adverb": "alsdkfjasdfa",
-    "verb": "Test",
     "adverb_class": "Reference",
     "reference_noun": "Elbows",
     "required": true,
-    "filters": {}
+    "filters": {},
+    "attaches_to": [
+      "Test"
+    ],
+    "class": "Reference"
   },
-  {
+  "asdfasdfsafasdfasdfasdf": {
     "adverb": "asdfasdfsafasdfasdfasdf",
-    "verb": "Test",
     "adverb_class": "Reference",
     "reference_noun": "Instrument",
     "required": true,
-    "filters": {}
+    "filters": {},
+    "attaches_to": [
+      "Test"
+    ],
+    "class": "Reference"
   },
-  {
+  "lskadjfa;sldkfjas;lfkj": {
     "adverb": "lskadjfa;sldkfjas;lfkj",
-    "verb": "Test",
     "adverb_class": "ReferenceList",
     "required": false,
     "reference_nouns": [
@@ -116,33 +131,45 @@
       "LL Cool J": {
         "Drip": "fdsa"
       }
-    }
+    },
+    "attaches_to": [
+      "Test"
+    ],
+    "class": "ReferenceList"
   },
-  {
+  "dasfasewrrewrqwrq": {
     "adverb": "dasfasewrrewrqwrq",
-    "verb": "Test",
     "adverb_class": "Attribute",
     "field_type": "string",
-    "required": true
+    "required": true,
+    "attaches_to": [
+      "Test"
+    ],
+    "class": "Attribute"
   },
-  {
+  "saldfkjpipoiippoiopi": {
     "adverb": "saldfkjpipoiippoiopi",
-    "verb": "Test",
     "adverb_class": "StateContext",
     "field_type": "number",
-    "required": false
+    "required": false,
+    "attaches_to": [
+      "Test"
+    ],
+    "class": "StateContext"
   },
-  {
+  "sdalkfjaslkfjsaldkfj": {
     "adverb": "sdalkfjaslkfjsaldkfj",
-    "verb": "Test",
     "adverb_class": "Reference",
     "reference_noun": "Elbows",
     "filters": {},
-    "required": true
+    "required": true,
+    "attaches_to": [
+      "Test"
+    ],
+    "class": "Reference"
   },
-  {
+  "asdflkasdfjklasjdfasdfe2342342": {
     "adverb": "asdflkasdfjklasjdfasdfe2342342",
-    "verb": "Test",
     "adverb_class": "ReferenceList",
     "required": false,
     "reference_nouns": [
@@ -150,19 +177,25 @@
     ],
     "filters": {
       "Epic Loot": {}
-    }
+    },
+    "attaches_to": [
+      "Test"
+    ],
+    "class": "ReferenceList"
   },
-  {
+  "3249081093481290348": {
     "adverb": "3249081093481290348",
-    "verb": "Test",
     "adverb_class": "Attribute",
     "field_type": "date",
     "required": true,
-    "format": "mmddyy"
+    "format": "mmddyy",
+    "attaches_to": [
+      "Test"
+    ],
+    "class": "Attribute"
   },
-  {
+  "ga343eg3333ga23t331egegeeggaga55t4566": {
     "adverb": "ga343eg3333ga23t331egegeeggaga55t4566",
-    "verb": "hg34444444g43g",
     "adverb_class": "Tag",
     "description": "g43g3g33g4g3",
     "required": true,
@@ -177,11 +210,14 @@
         "explanation": "gggggg3",
         "display_in_label": true
       }
-    ]
+    ],
+    "attaches_to": [
+      "hg34444444g43g"
+    ],
+    "class": "Tag"
   },
-  {
+  "I'm a tag": {
     "adverb": "I'm a tag",
-    "verb": "Micro_Test",
     "adverb_class": "Tag",
     "description": "tttttttttttt",
     "required": false,
@@ -196,11 +232,14 @@
         "explanation": "1111111111",
         "display_in_label": true
       }
-    ]
+    ],
+    "attaches_to": [
+      "Micro_Test"
+    ],
+    "class": "Tag"
   },
-  {
+  "I'm a reference list": {
     "adverb": "I'm a reference list",
-    "verb": "Micro_Test",
     "adverb_class": "ReferenceList",
     "description": "ffffffffffddddddddddd",
     "required": false,
@@ -208,48 +247,56 @@
       "Submission",
       "Sample"
     ],
-    "filters": {}
+    "filters": {},
+    "attaches_to": [
+      "Micro_Test"
+    ],
+    "class": "ReferenceList"
   },
-  {
+  "I'm just an attribute": {
     "adverb": "I'm just an attribute",
-    "verb": "Micro_Test",
     "adverb_class": "Attribute",
     "description": "hhhhhhhhhhhh,,,,,,,,",
     "required": false,
-    "field_type": "number"
+    "field_type": "number",
+    "attaches_to": [
+      "Micro_Test"
+    ],
+    "class": "Attribute"
   },
-  {
+  "I'm a picture": {
     "adverb": "I'm a picture",
-    "verb": "Micro_Test",
     "adverb_class": "Picture",
     "description": "ppppppppppp",
-    "required": false
+    "required": false,
+    "attaches_to": [
+      "Micro_Test"
+    ],
+    "class": "Picture"
   },
-  {
+  "Star Spirit": {
     "adverb": "Star Spirit",
-    "verb": "55555555ttttttttttaaaaaaaaaaa",
     "adverb_class": "Reference",
     "description": "",
     "required": true,
     "reference_noun": "Star Spirit Lore",
-    "filters": {}
+    "filters": {},
+    "attaches_to": [
+      "55555555ttttttttttaaaaaaaaaaa",
+      "General_Group_Folders_Verb"
+    ],
+    "class": "Reference"
   },
-  {
-    "adverb": "Star Spirit",
-    "verb": "General_Group_Folders_Verb",
-    "adverb_class": "Reference",
-    "description": "",
-    "required": true,
-    "reference_noun": "Star Spirit Lore",
-    "filters": {}
-  },
-  {
+  "trick232332ga545454454hjhjhggg5t2221fafabb11": {
     "adverb": "trick232332ga545454454hjhjhggg5t2221fafabb11",
-    "verb": "hg34444444g43g",
     "adverb_class": "Reference",
     "description": "ffffffasdfsadfasdfsdfsdff",
     "required": false,
     "reference_noun": "t55t5t5t5t5",
-    "filters": {}
+    "filters": {},
+    "attaches_to": [
+      "hg34444444g43g"
+    ],
+    "class": "Reference"
   }
-]
+}

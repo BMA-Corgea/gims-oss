@@ -3,7 +3,6 @@ from pathlib import Path
 import json
 import os
 import sys
-import time
 from typing import Any, Dict, Optional, Tuple
 from importlib import import_module
 from functools import lru_cache
@@ -12,8 +11,14 @@ from functools import lru_cache
 # CONTROLS
 # ------------------------------------------------------------
 # Backward-compat flags (kept but superseded by env-driven levels)
-DEBUG_ENABLED = False
-RDS_ENABLED = False
+from utils.logger import get_logger
+from utils.config import rds_enabled as _rds_enabled
+log = get_logger(__name__)
+DEBUG_ENABLED = log.is_debug()
+# Env-driven (GIMS_RDS_ENABLED) via the config kernel instead of a hard-coded flag.
+# Default is still False (env unset), so existing behavior is unchanged; enabling cloud
+# is now configuration, not a code edit. (Phase 5 — env-drive RDS_ENABLED/STORAGE_PROVIDER.)
+RDS_ENABLED = _rds_enabled()
 
 # Log levels
 _LOG_LEVELS = {"OFF": 0, "ERROR": 1, "WARN": 2, "INFO": 3, "TRACE": 4}
@@ -85,28 +90,6 @@ def log_trace(tag: str, payload: Any = None, sample_key: str | None = None):
     _log("TRACE", tag, payload, sample_key=sample_key)
 
 # Back-compat for existing imports/calls
-def debug(*args, **kwargs):
-    if not _should_log(_LOG_LEVELS["INFO"]):
-        return
-    # Preserve original "debug" feel at INFO level
-    msg_parts = []
-    for arg in args:
-        try:
-            msg_parts.append(json.dumps(arg, ensure_ascii=False, default=str))
-        except Exception:
-            msg_parts.append(str(arg))
-    if kwargs:
-        try:
-            msg_parts.append(json.dumps(kwargs, ensure_ascii=False, default=str))
-        except Exception:
-            msg_parts.append(str(kwargs))
-    try:
-        sys.stdout.write("[resolver] " + " ".join(msg_parts) + "\n")
-        if FORCE_FLUSH:
-            sys.stdout.flush()
-    except Exception:
-        pass
-
 # ------------------------------------------------------------
 # PATHS & MANIFESTS
 # ------------------------------------------------------------
@@ -117,12 +100,14 @@ def _resource_path(relative_path: str | Path) -> Path:
         base_path = Path(os.path.abspath("."))
     return base_path / Path(relative_path)
 
+from utils.paths import repo_root as _kernel_repo_root
+
 def _compute_repo_root() -> Path:
-    rp = _resource_path("").resolve()
-    # Avoid repeated upward walking
-    while 'gims-oss' not in rp.name and rp.parent != rp:
-        rp = rp.parent
-    return rp
+    # One kernel implementation: sentinel-anchored, CWD-independent, PyInstaller-aware.
+    # Previously this walked up for a directory literally named 'GIMS-Project', so renaming
+    # or relocating the repo (or running from a different CWD, or a frozen build whose temp
+    # extraction dir is not named that) silently broke every storage path. (Phase 1 paths.)
+    return _kernel_repo_root()
 
 _REPO_ROOT = _compute_repo_root()
 

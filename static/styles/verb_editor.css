@@ -1,148 +1,126 @@
-:root{
-  --bg: #0b0f14;
-  --panel: #0f1621;
-  --muted: #9db0c7;
-  --text: #e6eef8;
-  --accent: #5aa9ff;
-  --accent-2: #22c55e;
-  --warn: #f59e0b;
-  --error: #ef4444;
-  --border: #1f2a3a;
-  --chip: #111827;
-  --radius: 14px;
-  --shadow: 0 20px 50px rgba(0,0,0,0.35);
-}
+/* ══════════════════════════════════════════════════════════════
+   Verb Editor — Watery v2 (page-specific layout only).
+   Colours/surfaces/components come from watery.css + shell.css tokens; the bespoke
+   Nocturne dark-navy :root palette was dropped entirely. Class names (.kv / .form-grid
+   / .form-field / .list-editor / .actions / .badge / .small / .child-line / .row /
+   .step-row / .drag-handle / .drag-over) are the verb_editor.js DOM contract and are
+   preserved — this file restyles them onto Watery (recolor a token, not 40 hex codes).
+═══════════════════════════════════════════════════════════════ */
 
-* { box-sizing: border-box; }
+/* ── Toolbar ── */
+.ve-toolbar-row { flex-direction: row; flex-wrap: wrap; align-items: flex-end; gap: 16px; }
+.ve-field { min-width: 220px; }
+.ve-toolbar-actions { display: flex; gap: 10px; margin-left: auto; align-self: flex-end; }
 
-html, body {
-  height: 100%;
-  background:
-    radial-gradient(1200px 900px at 10% -10%, rgba(34,197,94,0.08), transparent),
-    radial-gradient(1200px 900px at 110% 10%, rgba(59,130,246,0.08), transparent),
-    var(--bg);
-  color: var(--text);
-  font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-  margin: 0;
-}
+/* ── Edit-mode stack (children panels get their own gap; mirrors shell-content) ── */
+.ve-stack { display: flex; flex-direction: column; gap: 18px; }
 
-.container { max-width: 1200px; margin: 24px auto; padding: 0 16px; }
+/* ── Key/value rows (viewer + inline selects in the editor) ── */
+.kv { display: flex; align-items: center; gap: 10px; margin: 2px 0; flex-wrap: wrap; }
+.kv > label { color: var(--text-soft); font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; min-width: 110px; }
+.kv > div, .kv > span:not(.badge) { color: var(--text); font-size: 13.5px; }
+.kv .select, .kv .input { width: auto; min-width: 220px; }
 
-/* Topbar */
-.topbar {
-  position: sticky; top: 0; z-index: 5;
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 16px; padding: 16px 20px;
-  backdrop-filter: blur(10px);
-  background: rgba(11,15,20,0.6);
-  border-bottom: 1px solid var(--border);
-}
-.brand { display:flex; align-items:center; gap:10px; }
-.brand svg { width:20px; height:20px; color:var(--accent); }
-.brand h1 { margin: 0; font-size: 20px; font-weight: 800; letter-spacing:.3px; }
+/* ── Viewer sub-sections (Status Workflow / Data Entry Schema) ── */
+.ve-view-name { color: var(--accent-2); text-transform: none; letter-spacing: 0; }
+.ve-sub { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.ve-sub-title { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text-soft); }
+.ve-sub-note { margin-top: 8px; }
+.ve-view-steps { list-style: none; padding: 0; display: grid; gap: 6px; }
+.ve-view-steps li { font-size: 13px; color: var(--text-mid); padding: 6px 10px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius-sm); }
 
-.top-controls { display: flex; align-items: center; gap: 12px; }
-.inline { display: inline-flex; align-items: center; gap: 8px; }
-.inline label { color: var(--muted); font-size: 12px; }
-.inline select { min-width: 220px; }
-
-.input, select, textarea, button {
-  background: #0b1220; border: 1px solid var(--border); color: var(--text);
-  border-radius: 10px; padding: 10px 12px; width: 100%;
-}
-select, button { width: auto; }
-button { cursor: pointer; }
-button:hover { filter: brightness(1.06); }
-
-.btn, .ghost, .primary {
-  border: 1px solid var(--border);
-  color: var(--text);
-  background: #0b1220;
-  padding: 10px 14px;
-  border-radius: 999px;
-  cursor: pointer;
-}
-.primary { background: linear-gradient(180deg, rgba(90,169,255,0.15), rgba(90,169,255,0.05)); border-color: #274567; }
-.ghost   { background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); }
-
-.card {
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent), var(--panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  margin-bottom: 20px; overflow: hidden;
-}
-.card-header {
-  padding: 14px 16px; border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-}
-.card-header h2, .card-header h3 { margin: 0; font-size: 16px; color: var(--accent); }
-.card-body { padding: 16px; }
-.card p.muted { color: var(--muted); margin: 6px 0 0 0; }
-
+/* ── Edit form grid ── */
 .form-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; }
 .form-field { grid-column: span 6; display: flex; flex-direction: column; gap: 6px; }
 .form-field.full { grid-column: span 12; }
-.form-field label { font-size: 12px; color: var(--muted); }
 
-.list-editor ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+/* ── List editors (instructions / raw / tabs / parsers) ── */
+.list-editor ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
 .list-editor li { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; }
-.list-editor li .row { display:flex; align-items:center; gap:8px; }
-.list-editor li .row input[type="text"]{ width: 280px; }
+.list-editor li .row { display: flex; align-items: center; gap: 8px; }
+.list-editor li .row input[type="text"] { width: 100%; }
+.ve-add { display: flex; gap: 8px; }
 
-.kv { display:flex; align-items:center; gap:8px; margin:4px 0; }
-.kv label { color: var(--muted); font-size:12px; min-width:110px; }
+/* JS-created bare controls (list inputs, schema rows, step selects) inherit the Watery
+   input look — they're created without the .input class, so style them by element. */
+.list-editor li input[type="text"],
+.kv > select,
+#log-schema-body input[type="text"],
+#log-schema-body select,
+.step-row select {
+  width: 100%; padding: 9px 12px; font-size: 13px; font-family: inherit;
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--surface2);
+  color: var(--text); outline: none; appearance: none; transition: border-color .18s, box-shadow .18s, background .18s;
+}
+.list-editor li input[type="text"]:focus,
+#log-schema-body input[type="text"]:focus,
+#log-schema-body select:focus,
+.step-row select:focus {
+  border-color: var(--accent); background: rgba(45,212,191,0.06); box-shadow: 0 0 0 3px var(--accent-glow);
+}
+input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; }
 
-.actions { padding: 8px 16px 16px 16px; display:flex; gap:8px; justify-content:flex-end; }
+/* icon-only delete buttons created by the JS (list rows, schema rows, step rows) */
+.list-editor li > button,
+#log-schema-body button,
+.step-row > button {
+  display: inline-flex; align-items: center; justify-content: center; padding: 7px;
+  background: transparent; border: 1px solid var(--border2); border-radius: var(--radius-sm);
+  color: var(--text-soft); cursor: pointer; transition: color .15s, border-color .15s, background .15s;
+}
+.list-editor li > button:hover,
+#log-schema-body button:hover,
+.step-row > button:hover { color: var(--red-text); border-color: var(--red-border); background: var(--red-light); }
+.list-editor li > button .icon,
+#log-schema-body button .icon,
+.step-row > button .icon { width: 15px; height: 15px; }
+
+/* ── Action rows ── */
+.actions { display: flex; gap: 10px; justify-content: flex-end; padding-top: 4px; }
+
+/* ── Viewer instruction lines ── */
+#view-instructions { display: flex; flex-direction: column; gap: 4px; }
+#view-instructions .child-line { margin-left: 1.2rem; display: block; color: var(--text-mid); font-size: 13px; }
+
+/* ── Log schema table ── */
+.ve-table-wrap { overflow-x: auto; }
+#log-schema-table { border-collapse: collapse; width: 100%; font-size: 13px; }
+#log-schema-table th, #log-schema-table td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; }
+#log-schema-table th { color: var(--text-soft); font-weight: 700; font-size: 10.5px; text-transform: uppercase;
+  letter-spacing: 0.7px; background: var(--surface); }
+#log-schema-table td { vertical-align: middle; }
+
+/* ── Badge (static spans + the JS-built "Instructions" badge) → Watery chip ── */
+.badge {
+  display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: 99px;
+  font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px;
+  border: 1px solid rgba(45,212,191,0.4); color: var(--accent); background: var(--accent-light); white-space: nowrap;
+}
+
+/* ── Linear workflow step rows (built by renderLinearSteps) ── */
+.ve-steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.step-row {
+  display: flex; align-items: center; gap: 10px; padding: 8px 10px;
+  background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+}
+.step-row select { flex: 1; }
+.step-row > label.small { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.drag-handle { cursor: grab; user-select: none; color: var(--text-soft); font-size: 1.1rem; line-height: 1; }
+.drag-handle .icon { width: 16px; height: 16px; }
+.step-row.dragging { opacity: 0.55; }
+.step-row.drag-over { border: 2px dashed var(--accent); }
+
+/* ── Small muted text ── */
+.small { font-size: 12px; color: var(--text-soft); }
 
 .hidden { display: none !important; }
 
-/* Viewer lists */
-#view-instructions { margin: 0; padding: 0; }
-#view-instructions .child-line { margin-left: 1.2rem; display:block; opacity:.9; }
-
-/* Log schema table */
-#log-schema-table { border-collapse: collapse; width: 100%; margin-top: 8px; }
-#log-schema-table th, #log-schema-table td { border: 1px solid var(--border); padding: 8px; }
-#log-schema-table th { color: var(--muted); font-weight: 600; }
-
-.badge {
-  display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid var(--border);
-  background: var(--chip); color: var(--muted); font-size:11px;
-}
-
-.step-row {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem; /* space between elements */
-  margin-bottom: 0.5rem;
-}
-.step-row select {
-  flex: 1; /* stretch to fill row */
-}
-.drag-handle {
-  cursor: grab;
-  user-select: none;
-  font-size: 1.2rem;
-}
-.step-row button {
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-.step-row.drag-over {
-  border: 2px dashed var(--accent);
-  border-radius: var(--radius);
-}
-
-.small { font-size: 12px; color: var(--muted); }
-
-.footer {
-  padding: 20px; opacity: 0.7; text-align: center; font-size: 12px;
-  border-top: 1px solid var(--border); margin-top: 40px;
-}
-
 @media (max-width: 820px) {
   .form-field { grid-column: span 12; }
-  .inline select { min-width: 0; }
+  .ve-field { min-width: 0; flex: 1 1 100%; }
+  .ve-toolbar-actions { margin-left: 0; width: 100%; }
 }

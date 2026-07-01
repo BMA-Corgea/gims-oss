@@ -1,351 +1,207 @@
-:root {
-  --bg: #0f1115;
-  --panel: #171a21;
-  --muted: #98a2b3;
-  --text: #e6edf3;
-  --green: #20c997;
-  --blue: #3b82f6;
-  --red: #ef4444;
-  --yellow: #eab308;
-  --border: #222733;
-  --chip: #252b38;
-  --accent: #94a3b8;
-  --panel-2: #0f131a;
-  --panel-3: #10141c;
-}
+/* ══════════════════════════════════════════════════════════════
+   Archive Workbench — Watery v2 (page-specific layout only).
+   Colours/surfaces/components come from watery.css + shell.css tokens; the bespoke
+   dark-navy :root palette (and the prefers-color-scheme light theme) was dropped.
+   Class names (.accordion, .acc-*, .override-*, .seg*, .chip*, .grid, .field, .toggle,
+   .status, .console, .log, #__tooltip …) are the archive_workbench.js DOM contract and
+   are preserved — this file restyles them onto Watery, it does not rename them.
+═══════════════════════════════════════════════════════════════ */
 
-/* ---------- Base ---------- */
-* { box-sizing: border-box; }
-html, body { height: 100%; }
-body {
-  margin: 0; padding: 0; background: var(--bg); color: var(--text);
-  font: 14px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-}
-a { color: inherit; text-decoration: none; }
+/* ── Toolbar (project picker + refresh) ── */
+.aw-toolbar-row { flex-direction: row; flex-wrap: wrap; align-items: flex-end; gap: 14px; }
+.aw-field { min-width: 240px; }
+.aw-toolbar-row .btn { align-self: flex-end; }
 
-.topbar {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding: 14px 16px; border-bottom: 1px solid var(--border);
-  background: linear-gradient(180deg, #12151d, #0f1115);
-}
-.topbar .title { display: flex; align-items: baseline; gap: 10px; }
-.topbar .title h1 { margin: 0; font-size: 18px; font-weight: 700; }
-.topbar .emoji { font-size: 20px; transform: translateY(1px); }
-.topbar .subtle { color: var(--muted); font-size: 12px; }
-.topbar .right { display: flex; align-items: center; gap: 8px; }
-.label { color: var(--muted); font-size: 12px; margin-right: 6px; }
+/* ── Panel head with right-aligned action buttons ── */
+.panel-head .actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+/* ── Inline label / hint / muted helpers ── */
+.label { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-soft); }
+.hint { color: var(--text-soft); font-size: 12px; }
+.muted { color: var(--text-soft); }
 .inline { display: inline-flex; align-items: center; gap: 6px; }
+.row { display: flex; align-items: center; gap: 8px; }
+.row.space { justify-content: space-between; }
 
-.container { max-width: 1200px; margin: 0 auto; padding: 18px 16px 48px; display: grid; gap: 16px; }
+/* ── Status messages (className-toggled by setStatus) ── */
+.status { margin-top: 4px; color: var(--text-soft); font-size: 12.5px; }
+.status.ok   { color: var(--green-text); }
+.status.err  { color: var(--red-text); }
+.status.info { color: var(--amber); }
 
-.card {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 12px;
+/* ── Buttons: page keeps .btn.primary / .btn.danger / .btn.subtle (JS-built);
+      restyle onto Watery (.btn comes from watery.css). ── */
+.btn.sm { padding: 6px 10px; font-size: 12px; }
+.btn.subtle { opacity: 0.92; }
+.btn.primary {
+  color: #fff; border-color: transparent;
+  background: linear-gradient(135deg, var(--blue-cta-1) 0%, var(--blue-cta-2) 100%);
+  box-shadow: 0 3px 16px var(--blue-glow);
 }
-.card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-.card-head h2 { margin: 0; font-size: 16px; }
-.card .actions { display: flex; align-items: center; gap: 8px; }
-
-.help { margin: 6px 0 10px; color: var(--muted); }
-
-/* ---------- Buttons ---------- */
-.btn {
-  border: 1px solid var(--border); background: #1b2130; color: var(--text);
-  padding: 6px 10px; border-radius: 8px; cursor: pointer; transition: filter .12s ease, transform .04s ease;
+.btn.primary:hover:not(:disabled) { color: #fff; border-color: transparent; box-shadow: 0 6px 22px var(--blue-glow); }
+.btn.danger {
+  color: var(--red-text); border-color: var(--red-border); background: var(--red-light);
 }
-.btn:hover { filter: brightness(1.1); }
-.btn:active { transform: translateY(1px); }
-.btn.primary { background: var(--blue); border-color: #2c67c7; color: #071022; }
-.btn.danger  { background: var(--red);  border-color: #c03535; color: #2a0606; }
-.btn.subtle  { opacity: .9; }
+.btn.danger:hover:not(:disabled) { color: #fff; border-color: var(--red); background: var(--red); box-shadow: 0 3px 14px rgba(240,114,106,0.4); }
 
-/* ---------- Status ---------- */
-.status { margin-top: 8px; color: var(--muted); }
-.status.ok { color: var(--green); }
-.status.err { color: var(--red); }
-.status.info { color: var(--yellow); }
-
-/* ---------- Inputs / Textareas ---------- */
-textarea, input.text, select {
-  background: var(--panel-2); color: var(--text);
-  border: 1px solid var(--border); border-radius: 10px;
+/* ── Inputs / textareas / selects (page used raw tags + .text) ── */
+textarea, input.text, input[type="number"], select {
+  font-family: inherit; color: var(--text);
+  background: var(--surface2); border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  outline: none; transition: border-color .18s, box-shadow .18s, background .18s;
+}
+textarea:focus, input.text:focus, input[type="number"]:focus, select:focus {
+  border-color: var(--accent); background: rgba(45,212,191,0.06); box-shadow: 0 0 0 3px var(--accent-glow);
 }
 textarea {
-  width: 100%; min-height: 160px; resize: vertical;
-  padding: 10px 12px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  width: 100%; min-height: 160px; resize: vertical; padding: 10px 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 13px; line-height: 1.5;
 }
-input.text { padding: 8px 10px; }
-select { padding: 6px 8px; }
+input.text { padding: 8px 10px; font-size: 13px; }
+select { padding: 7px 10px; font-size: 13px; appearance: none; }
 
-/* ---------- Tables / Scroll ---------- */
-.wrap { border: 1px solid var(--border); border-radius: 10px; background: var(--panel-2); }
+/* ── Tables / scroll ── */
+.wrap { border: 1px solid var(--card-edge); border-radius: var(--radius); background: var(--bg2); }
 .scroll { max-height: 380px; overflow: auto; }
-
 .grid { width: 100%; border-collapse: collapse; font-size: 13px; }
-.grid th, .grid td { padding: 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
-.grid th { text-align: left; position: sticky; top: 0; background: #111520; z-index: 1; }
+.grid th, .grid td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--text-mid); }
+.grid th {
+  text-align: left; position: sticky; top: 0; z-index: 1; background: var(--surface);
+  color: var(--text-soft); font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px;
+  border-bottom: 1px solid var(--card-edge);
+}
+.grid tbody tr:hover { background: var(--accent-light); }
 
-/* ---------- Console ---------- */
+/* the empty-state block sits beside the preview table (toggled by JS) */
+#policyPreviewEmpty { margin-top: 14px; }
+
+/* ── Console ── */
 .console {
   min-height: 100px; max-height: 260px; overflow: auto;
-  background: #0b0e13; border: 1px solid var(--border); border-radius: 10px; padding: 10px;
+  background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: 12px;
 }
-.log { padding: 4px 0; }
-.log.ok { color: var(--green); }
-.log.err { color: var(--red); }
-.log.info { color: var(--accent); }
-.pre { margin: 0; padding: 12px; white-space: pre-wrap; word-break: break-word; }
+.log { padding: 4px 0; color: var(--text-mid); }
+.log.ok   { color: var(--green-text); }
+.log.err  { color: var(--red-text); }
+.log.info { color: var(--text-mid); }
+.pre { margin: 0; padding: 12px; white-space: pre-wrap; word-break: break-word; color: var(--text-mid); }
 
-/* ---------- Chips ---------- */
+/* ── Chips (JS builds .chip > span + .chip-x; also note watery.css has its own .chip —
+      page rules load after, so these win; reset uppercase so IDs read literally). ── */
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chips.disabled { opacity: .5; pointer-events: none; }
+.chips.disabled { opacity: 0.5; pointer-events: none; }
 .chip {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: var(--chip); border: 1px solid var(--border);
-  padding: 6px 8px; border-radius: 999px; user-select: none;
+  display: inline-flex; align-items: center; gap: 6px; text-transform: none; letter-spacing: 0;
+  background: var(--surface2); border: 1px solid var(--border2); color: var(--text-mid);
+  padding: 5px 9px; border-radius: 999px; user-select: none; font-size: 12px; font-weight: 500;
 }
-.chip input { transform: translateY(1px); }
-.chip span { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+.chip input { transform: translateY(1px); accent-color: var(--accent); }
+.chip span { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
 .chip-x {
-  background: transparent; border: 0; color: var(--muted); cursor: pointer;
-  padding: 0 2px; font-size: 16px; line-height: 1;
+  background: transparent; border: 0; color: var(--text-soft); cursor: pointer;
+  padding: 0 1px; line-height: 0; display: inline-flex; align-items: center;
 }
 .chip-x:hover { color: var(--text); }
+.chip-x .icon { width: 13px; height: 13px; }
 
-/* ---------- Tabs ---------- */
-.tabs { margin-top: 8px; }
-.tab-buttons { display: flex; gap: 6px; margin-bottom: 8px; }
-.tab-btn {
-  padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border);
-  background: #182031; color: var(--text); cursor: pointer;
-}
-.tab-btn.active { background: #222a3d; }
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
-
-/* ---------- Form grid & fields ---------- */
-.grid.two   { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.grid.three { display: grid; gap: 12px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+/* ── Form grid & fields ── */
+.grid.two   { display: grid; gap: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid.three { display: grid; gap: 14px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .field { display: flex; flex-direction: column; gap: 6px; }
-.field .hint { color: var(--muted); font-size: 12px; }
-.toggle { font-size: 13px; color: var(--muted); user-select: none; }
-.toggle input { vertical-align: middle; transform: translateY(1px); }
+.field .hint { color: var(--text-soft); font-size: 12px; }
+.span-two { grid-column: span 2; }
+
+/* ── Inline checkbox "toggle" (page label+checkbox; OVERRIDE watery's switch
+      component, which would otherwise shrink this to a 34px track). ── */
+.toggle {
+  position: static; display: inline-flex; align-items: center; gap: 6px;
+  width: auto; height: auto; font-size: 13px; color: var(--text-mid); user-select: none; cursor: pointer;
+}
+.toggle input {
+  position: static; inset: auto; opacity: 1; margin: 0; width: 15px; height: 15px;
+  accent-color: var(--accent); cursor: pointer;
+}
 
 .slider-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .slider-foot { display: flex; align-items: center; gap: 8px; }
 
-/* ---------- Range (slider) styling ---------- */
+/* ── Range slider ── */
 input[type="range"] {
   -webkit-appearance: none; appearance: none;
   width: 100%; height: 6px; border-radius: 6px;
-  background: #0e131b; border: 1px solid var(--border);
+  background: var(--bg2); border: 1px solid var(--border);
 }
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none; appearance: none;
   width: 16px; height: 16px; border-radius: 50%;
-  background: var(--blue); border: 1px solid #294a99; cursor: pointer;
+  background: var(--blue); border: 1px solid var(--blue-deep); cursor: pointer;
 }
 input[type="range"]::-moz-range-thumb {
   width: 16px; height: 16px; border-radius: 50%;
-  background: var(--blue); border: 1px solid #294a99; cursor: pointer;
+  background: var(--blue); border: 1px solid var(--blue-deep); cursor: pointer;
 }
-input[type="number"] {
-  width: 120px; padding: 6px 8px; border-radius: 8px;
-  border: 1px solid var(--border); background: var(--panel-2); color: var(--text);
-}
+input[type="number"] { width: 120px; padding: 6px 8px; font-size: 13px; }
 
-/* ---------- Override cards (noun/verb) ---------- */
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 12px;
-}
+/* ── Override cards (noun/verb policy overrides + dynamic restore/run cards) ── */
+#nounOverrideList, #verbOverrideList { display: grid; gap: 12px; margin-top: 10px; }
 .override-card {
-  background: var(--panel-3);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 10px;
+  background: linear-gradient(180deg, var(--card), var(--surface));
+  border: 1px solid var(--card-edge); border-radius: var(--radius); box-shadow: var(--shadow-sm);
+  padding: 14px;
 }
-.override-head {
-  display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;
+.override-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.override-head h3 { margin: 0; font-size: 14px; font-weight: 700; color: var(--text); }
+.override-body { display: grid; gap: 12px; }
+
+/* ── Searchable checkbox picker (built in JS; geometry set inline, colours here) ── */
+.picker { background: var(--surface2); }
+
+/* ── Card-style segmented controls (enhanceSegmented converts a <select>) ── */
+.seg {
+  display: flex; gap: 4px; min-height: 38px; padding: 4px;
+  background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm);
 }
-.override-head h3 { margin: 0; font-size: 14px; }
-.override-body { display: grid; gap: 10px; }
-.override-body.grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.override-body .ctrl-row { grid-column: 1 / -1; margin-bottom: 2px; }
-.span-two { grid-column: span 2; }
+.seg-btn {
+  flex: 1; border: none; background: transparent; color: var(--text-soft);
+  padding: 7px 14px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; font-family: inherit;
+  cursor: pointer; transition: background .15s, color .15s, box-shadow .15s; text-align: center; white-space: nowrap;
+}
+.seg-btn:hover { background: var(--accent-light); color: var(--text); }
+.seg-btn.active { background: var(--blue); color: #fff; box-shadow: 0 1px 6px var(--blue-glow); }
+.seg-btn.active:hover { background: var(--blue-deep); color: #fff; }
+.seg-btn:focus { outline: none; box-shadow: 0 0 0 2px var(--accent-glow); }
+.seg-btn.active:focus { box-shadow: 0 1px 6px var(--blue-glow), 0 0 0 2px var(--accent-glow); }
+.field .seg { margin-top: 4px; }
 
-.row { display: flex; align-items: center; gap: 8px; }
-.row.space { justify-content: space-between; }
-
-.muted { color: var(--muted); }
-
-.footer {
-  display: flex; align-items: center; justify-content: center;
-  color: var(--muted); font-size: 12px; border-top: 1px solid var(--border);
-  padding: 10px 16px; margin-top: 16px;
+@media (max-width: 768px) {
+  .seg-btn { padding: 6px 12px; font-size: 13px; }
+  .grid.two, .grid.three { grid-template-columns: 1fr; }
+  .span-two { grid-column: auto; }
 }
 
-/* Accordion */
+/* ── Accordion ── */
 .accordion { display: grid; gap: 10px; }
-.acc-item { border: 1px solid var(--border); border-radius: 10px; background: var(--panel-2); }
+.acc-item { border: 1px solid var(--card-edge); border-radius: var(--radius-sm); background: var(--surface); overflow: hidden; }
 .acc-head {
-  width: 100%; text-align: left; background: var(--panel-3); color: var(--text);
-  padding: 10px 12px; border: 0; border-top-left-radius: 10px; border-top-right-radius: 10px;
-  display: flex; align-items: center; justify-content: space-between; cursor: pointer;
+  width: 100%; text-align: left; cursor: pointer; border: 0;
+  background: var(--surface2); color: var(--text); padding: 11px 14px; font-family: inherit; font-size: 14px; font-weight: 600;
+  display: flex; align-items: center; justify-content: space-between;
 }
-.acc-head .chev { color: var(--muted); }
+.acc-head:hover { color: var(--text); background: var(--card-2); }
+.acc-head .chev { color: var(--text-soft); transition: transform .2s ease; }
 .acc-item.open .acc-head .chev { transform: rotate(180deg); }
-.acc-body { display: none; padding: 12px; }
+.acc-body { display: none; padding: 14px; }
 .acc-item.open .acc-body { display: block; }
 
-/* Card-style segmented controls */
-.seg {
-  display: flex;
-  background: var(--bg-secondary, #2a2a2a);
-  border: 1px solid var(--border-color, #404040);
-  border-radius: 8px;
-  padding: 4px;
-  gap: 4px;
-  min-height: 40px;
-}
-
-.seg-btn {
-  flex: 1;
-  border: none;
-  background: transparent;
-  color: var(--text-secondary, #a0a0a0);
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-  text-align: center;
-  white-space: nowrap;
-}
-
-.seg-btn:hover {
-  background: var(--bg-hover, rgba(255, 255, 255, 0.05));
-  color: var(--text-primary, #ffffff);
-}
-
-.seg-btn.active {
-  background: var(--bg-primary, #3b82f6);
-  color: var(--text-on-primary, #ffffff);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  transform: translateY(-1px);
-}
-
-.seg-btn.active:hover {
-  background: var(--bg-primary-hover, #2563eb);
-}
-
-/* Focus states for accessibility */
-.seg-btn:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--focus-ring, rgba(59, 130, 246, 0.5));
-}
-
-.seg-btn.active:focus {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 0 0 2px var(--focus-ring, rgba(59, 130, 246, 0.5));
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .seg-btn {
-    padding: 6px 12px;
-    font-size: 13px;
-  }
-}
-
-/* Integration with existing Archive Workbench styles */
-.field .seg {
-  margin-top: 4px;
-}
-
-/* Dark theme variables (adjust based on your existing color scheme) */
-:root {
-  --bg-secondary: #1f2937;
-  --bg-primary: #3b82f6;
-  --bg-primary-hover: #2563eb;
-  --bg-hover: rgba(255, 255, 255, 0.05);
-  --text-primary: #ffffff;
-  --text-secondary: #9ca3af;
-  --text-on-primary: #ffffff;
-  --border-color: #374151;
-  --focus-ring: rgba(59, 130, 246, 0.5);
-}
-
-/* Light theme override (if needed) */
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg-secondary: #f3f4f6;
-    --bg-primary: #3b82f6;
-    --bg-primary-hover: #2563eb;
-    --bg-hover: rgba(0, 0, 0, 0.05);
-    --text-primary: #111827;
-    --text-secondary: #6b7280;
-    --text-on-primary: #ffffff;
-    --border-color: #d1d5db;
-    --focus-ring: rgba(59, 130, 246, 0.5);
-  }
-}
-
-/* --- Tooltips ----------------------------------------------------------- */
-/* Sets the help cursor on elements that have a tooltip */
-[data-tip] {
-  cursor: help;
-}
-
-/* This styles the actual tooltip div that the JavaScript controls */
+/* ── Bespoke tooltip node (Tip manager toggles [hidden]; restyle onto Watery) ── */
+[data-tip] { cursor: help; }
 #__tooltip {
-  position: fixed; /* Position relative to the window */
-  min-width: 240px;
-  max-width: 420px;
-  background: #11161f;
-  color: #e6edf3;
-  border: 1px solid #232a36;
-  border-radius: 8px;
-  padding: 10px 12px;
-  font-size: 12px;
-  line-height: 1.35;
-  box-shadow: 0 6px 24px rgba(0,0,0,.35);
-  z-index: 50;
-  white-space: normal;
-  pointer-events: none; /* Lets you move the mouse over it */
-
-  /* Transition for smooth appearance */
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity .12s ease, transform .12s ease;
+  position: fixed; min-width: 220px; max-width: 420px; z-index: 1000;
+  background: var(--surface); color: var(--text); border: 1px solid var(--accent);
+  border-radius: var(--radius-sm); box-shadow: var(--shadow-lg);
+  padding: 10px 12px; font-size: 12px; line-height: 1.4; white-space: normal; pointer-events: none;
+  opacity: 1; transform: translateY(0); transition: opacity .12s ease, transform .12s ease;
 }
-
-/* The JS uses the 'hidden' attribute to hide the tooltip */
-#__tooltip[hidden] {
-  opacity: 0;
-  transform: translateY(-4px);
-}
-
-#__tooltip[hidden] {
-  display: none !important;
-}
-
-/* Space out the top-right controls so they don't sit under the auth badge */
-:root { --auth-badge-gap: 250px; } /* tweak to taste (120–160px works well) */
-
-/* Always nudge right-side controls left a bit on this page */
-.topbar .right { margin-right: var(--auth-badge-gap); }
-
-/* Responsive trims */
-@media (max-width: 900px) { :root { --auth-badge-gap: 90px; } }
-@media (max-width: 640px) { :root { --auth-badge-gap: 60px; } }
-
-/* (Optional) only apply when the injected badge exists */
-body:has(.gims-auth-badge.gims-auth-topright) .topbar .right {
-  margin-right: var(--auth-badge-gap);
-}
+#__tooltip[hidden] { opacity: 0; transform: translateY(-4px); display: none !important; }

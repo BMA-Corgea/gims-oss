@@ -18,11 +18,9 @@ from importlib import import_module
 # -------------------------------------------------------------------------
 # Debug helper
 # -------------------------------------------------------------------------
-DEBUG_ENABLED = True
-def debug(*args, **kwargs):
-    if DEBUG_ENABLED:
-        print("[s3_viewer]", *args, **kwargs)
-
+from utils.logger import get_logger
+log = get_logger(__name__)
+DEBUG_ENABLED = log.is_debug()
 # -------------------------------------------------------------------------
 # Router setup
 # -------------------------------------------------------------------------
@@ -66,7 +64,7 @@ def view_s3_object(
     Example:
         /s3_viewer/view?key=LIMS-System/test/photo1.jpg
     """
-    debug("Requested key:", key)
+    log.debug("Requested key:", key)
 
     if not S3_ENABLED:
         raise HTTPException(400, "S3 not enabled or manifest missing")
@@ -83,13 +81,13 @@ def view_s3_object(
             Params={"Bucket": bucket, "Key": key},
             ExpiresIn=expires,
         )
-        debug("Generated presigned URL:", url)
+        log.debug("Generated presigned URL:", url)
         return RedirectResponse(url)
 
     except ClientError as e:
-        debug("AWS error:", e)
+        log.debug("AWS error:", e)
         raise HTTPException(500, f"S3 error: {e}")
 
     except Exception as e:
-        debug("General failure:", e)
+        log.debug("General failure:", e)
         raise HTTPException(500, f"S3 resolver failed: {e}")

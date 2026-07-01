@@ -1,54 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GIMS Deep Search</title>
-    <link rel="stylesheet" href="/static/styles/deep_search.css">
-    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
-</head>
-<body>
-    <header>
-        <div class="logo">
-            <h1>GIMS Search</h1>
-        </div>
-        <div class="search-container">
-            <select id="project-select">
-                <option value="">Select a project</option>
-            </select>
-            <div class="search-box">
-                <input type="text" id="search-input" placeholder="Search across schemas, nouns, and verbs...">
-                <button id="search-button">Search</button>
-            </div>
-        </div>
-    </header>
-
-    <div class="loading-indicator hidden" id="loading-indicator">
-        <div class="spinner"></div>
-        <p>Searching...</p>
-    </div>
-
-    <main>
-        <div class="search-stats" id="search-stats"></div>
-        
-        <div class="results-container">
-            <div class="results-tabs">
-                <button class="tab-button active" data-tab="all">All</button>
-                <button class="tab-button" data-tab="schema">Schema</button>
-                <button class="tab-button" data-tab="noun">Nouns</button>
-                <button class="tab-button" data-tab="verb">Verbs</button>
-            </div>
-            
-            <div class="results-list" id="results-list">
-                <div class="no-results" id="no-results">
-                    Enter a search term to begin
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <div id="status-bar"></div>
-    
-    <script src="/static/scripts/deep_search.js?v=20250806193822"></script>
-</body>
-</html>
+<!-- Deep Search — content fragment (rendered inside the Watery app-shell; see
+     core/orchestration/page_node.py shell=True). Phase 6 (tool pages T4): a React page.
+     deep_search.jsx (built to static/lib/deep_search.js, loaded via the node's head_extra after
+     vendor.js) fills #deep-search-root — the project picker + search box, the All/Schema/Nouns/Verbs
+     result tabs, and the highlighted result cards. The page reuses deep_search.css. The tour targets
+     (#project-select, #search-input) are preserved. DOM contract: #deep-search-root. -->
+<div id="deep-search-root"></div>

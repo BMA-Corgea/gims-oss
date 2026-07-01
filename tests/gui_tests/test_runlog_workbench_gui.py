@@ -10,7 +10,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from api.manifest.resolver import resolve_path
-from gui import runlog_workbench_gui as runlog_module
+from api.routers import runlog_workbench as runlog_module
 
 # --- Add S3-aware I/O for test setup ---
 from api import i_o
@@ -93,8 +93,9 @@ def setup_basic_schemas(project_path: Path, mock_s3_mode):
     }
     (project_path / "verb_types.json").write_text(json.dumps(verb_data))
     
-    # FIX: Add missing adverb_types.json
-    (project_path / "adverb_types.json").write_text(json.dumps([]))
+    # FIX: Add missing adverb_types.json (canonical name-keyed dict, matching the
+    # noun/verb fixtures above; load_schema normalizes either shape to the same view).
+    (project_path / "adverb_types.json").write_text(json.dumps({}))
 
 
 # --------------------------------------------------------------------------------------

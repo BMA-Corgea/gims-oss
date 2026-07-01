@@ -5,7 +5,6 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 import re
-import json
 
 # Project helpers
 from api.manifest.resolver import resolve_path
@@ -25,18 +24,10 @@ from api.i_o import (
 )
 
 # Debug control
-DEBUG_ENABLED = True   # Toggle on to see everything
+from utils.logger import get_logger
+log = get_logger(__name__)
+DEBUG_ENABLED = log.is_debug()
 DEBUG_VERBS: set[str] = set()  # e.g., {"LCMSMS"} to filter logs to one verb
-
-def debug(*args, verb_key: str | None = None, **kwargs):
-    """
-    Debug print that respects DEBUG_ENABLED flag and optional verb filter.
-    """
-    if not DEBUG_ENABLED:
-        return
-    if verb_key and DEBUG_VERBS and verb_key not in DEBUG_VERBS:
-        return
-    print("[status]", *args, **kwargs)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Helpers
@@ -65,36 +56,36 @@ def _first_existing_with_stem(dirpath: Path, stem: str) -> Optional[Path]:
     Return the first file under dirpath whose stem matches exactly.
     S3-aware via fs_iterdir/fs_is_file.
     """
-    debug(f"[_first_existing_with_stem] dir={dirpath} stem={stem!r}")
+    log.debug(f"[_first_existing_with_stem] dir={dirpath} stem={stem!r}")
     if not stem:
         return None
     try:
         if not (fs_exists(dirpath) and fs_is_dir(dirpath)):
-            debug(f"[_first_existing_with_stem] dir missing or not dir: {dirpath}")
+            log.debug(f"[_first_existing_with_stem] dir missing or not dir: {dirpath}")
             return None
         
         children = fs_iterdir(dirpath)
-        debug(f"[_first_existing_with_stem] children={len(children)}")
+        log.debug(f"[_first_existing_with_stem] children={len(children)}")
         
         for p in children:
             p = Path(str(p))
             name = p.name
             if not fs_is_file(p):
-                debug(f"[_first_existing_with_stem] skip non-file: {name}")
+                log.debug(f"[_first_existing_with_stem] skip non-file: {name}")
                 continue
             if name in _NON_INTERP_FILENAMES:
-                debug(f"[_first_existing_with_stem] skip config: {name}")
+                log.debug(f"[_first_existing_with_stem] skip config: {name}")
                 continue
             file_stem = Path(name).stem
             if file_stem == stem:
-                debug(f"[_first_existing_with_stem] MATCH: {name}")
+                log.debug(f"[_first_existing_with_stem] MATCH: {name}")
                 return p
             else:
-                debug(f"[_first_existing_with_stem] no match: {name} (stem={file_stem} vs {stem})")
-        debug(f"[_first_existing_with_stem] no match for stem={stem!r}")
+                log.debug(f"[_first_existing_with_stem] no match: {name} (stem={file_stem} vs {stem})")
+        log.debug(f"[_first_existing_with_stem] no match for stem={stem!r}")
         return None
     except Exception as e:
-        debug(f"[_first_existing_with_stem] ERROR: {e}")
+        log.debug(f"[_first_existing_with_stem] ERROR: {e}")
         return None
 
 def _rows_from_data_entry(data_entry_obj: Any) -> List[dict]:
@@ -102,7 +93,7 @@ def _rows_from_data_entry(data_entry_obj: Any) -> List[dict]:
     Normalize DataEntry into a list[dict].
     Accepts list-of-dicts, or dict with 'rows', else empty.
     """
-    debug("[data_entry] normalize: type=", type(data_entry_obj).__name__)
+    log.debug("[data_entry] normalize: type=", type(data_entry_obj).__name__)
     rows: List[dict] = []
     if isinstance(data_entry_obj, list):
         rows = [x for x in data_entry_obj if isinstance(x, dict)]
@@ -110,7 +101,7 @@ def _rows_from_data_entry(data_entry_obj: Any) -> List[dict]:
         raw_rows = data_entry_obj.get("rows")
         if isinstance(raw_rows, list):
             rows = [x for x in raw_rows if isinstance(x, dict)]
-    debug("[data_entry] normalized rows:", len(rows))
+    log.debug("[data_entry] normalized rows:", len(rows))
     return rows
 
 def _resolve_paths_for_run(project_path: Path, verb_group: str, run_id: str) -> dict:
@@ -123,7 +114,7 @@ def _resolve_paths_for_run(project_path: Path, verb_group: str, run_id: str) -> 
         "data_entry_path": resolve_path(project_path, "data_entry", verb_group=verb_group, run_id=run_id),
         "adverbs_path": resolve_path(project_path, "adverb_file", verb_group=verb_group, run_id=run_id),
     }
-    debug("[paths]", {k: str(v) for k, v in paths.items()})
+    log.debug("[paths]", {k: str(v) for k, v in paths.items()})
     return paths
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -136,35 +127,35 @@ def _check_raw_folder_has_file(dump_dir: Path, folder_name: str) -> bool:
     S3-aware: uses fs_* shims.
     """
     nm = (folder_name or "").strip()
-    debug("[raw][check] folder:", nm, "dump_dir:", str(dump_dir))
+    log.debug("[raw][check] folder:", nm, "dump_dir:", str(dump_dir))
     if not nm:
         return False
     
     raw_folder = dump_dir / nm
-    debug(f"[raw][check] checking path: {raw_folder}")
+    log.debug(f"[raw][check] checking path: {raw_folder}")
     
     if not (fs_exists(raw_folder) and fs_is_dir(raw_folder)):
-        debug(f"[raw][check] folder missing or not a dir")
+        log.debug("[raw][check] folder missing or not a dir")
         return False
     
     try:
         children = fs_iterdir(raw_folder)
-        debug(f"[raw][check] children={len(children)}")
+        log.debug(f"[raw][check] children={len(children)}")
         for item in children:
             item = Path(str(item))
             is_file = fs_is_file(item)
-            debug(f"[raw][check]   - {item.name} (is_file={is_file})")
+            log.debug(f"[raw][check]   - {item.name} (is_file={is_file})")
             if is_file:
-                debug(f"[raw][check] FOUND file -> OK")
+                log.debug("[raw][check] FOUND file -> OK")
                 return True
     except FileNotFoundError:
-        debug(f"[raw][check] FileNotFoundError")
+        log.debug("[raw][check] FileNotFoundError")
         return False
     except Exception as e:
-        debug(f"[raw][check] ERROR: {e}")
+        log.debug(f"[raw][check] ERROR: {e}")
         return False
     
-    debug(f"[raw][check] NO files found")
+    log.debug("[raw][check] NO files found")
     return False
 
 def _check_interpretation_tab_present(dump_dir: Path, tab_label: str | List[str]) -> bool:
@@ -172,31 +163,31 @@ def _check_interpretation_tab_present(dump_dir: Path, tab_label: str | List[str]
     Return True if the interpretation tab(s) exist and are non-empty when required.
     """
     labels: List[str] = [tab_label] if isinstance(tab_label, str) else (tab_label or [])
-    debug("[interp][check] labels:", labels, "dump_dir:", str(dump_dir))
+    log.debug("[interp][check] labels:", labels, "dump_dir:", str(dump_dir))
     if not labels:
         return False
 
     for lbl in labels:
         safe = _safe_tab(lbl)
-        debug(f"[interp][check] label={lbl!r} safe={safe!r}")
+        log.debug(f"[interp][check] label={lbl!r} safe={safe!r}")
         if not safe:
-            debug(f"[interp][check] invalid safe label")
+            log.debug("[interp][check] invalid safe label")
             return False
         
         try:
             if not (fs_exists(dump_dir) and fs_is_dir(dump_dir)):
-                debug(f"[interp][check] dump_dir missing/not dir")
+                log.debug("[interp][check] dump_dir missing/not dir")
                 return False
             
             children = fs_iterdir(dump_dir)
-            debug(f"[interp][check] scanning children={len(children)} for stem={safe!r}")
+            log.debug(f"[interp][check] scanning children={len(children)} for stem={safe!r}")
             
             found = False
             for p in children:
                 p = Path(str(p))
                 name = p.name
                 is_file = fs_is_file(p)
-                debug(f"[interp][check]   - {name} (is_file={is_file})")
+                log.debug(f"[interp][check]   - {name} (is_file={is_file})")
                 if not is_file:
                     continue
                 if name in _NON_INTERP_FILENAMES:
@@ -205,18 +196,18 @@ def _check_interpretation_tab_present(dump_dir: Path, tab_label: str | List[str]
                 if file_stem == safe:
                     # If CSV, verify not empty
                     if name.lower().endswith(".csv") and is_file_empty(p):
-                        debug(f"[interp][check] {name} is EMPTY CSV -> fail")
+                        log.debug(f"[interp][check] {name} is EMPTY CSV -> fail")
                         return False
-                    debug(f"[interp][check] FOUND: {name}")
+                    log.debug(f"[interp][check] FOUND: {name}")
                     found = True
                     break
             
             if not found:
-                debug(f"[interp][check] NO MATCH for stem={safe!r}")
+                log.debug(f"[interp][check] NO MATCH for stem={safe!r}")
                 return False
                 
         except Exception as e:
-            debug(f"[interp][check] ERROR: {e}")
+            log.debug(f"[interp][check] ERROR: {e}")
             return False
     
     return True
@@ -235,7 +226,7 @@ def _check_adverb_value_present(adverbs_json: dict, adverb_name: str) -> bool:
         present = bool(val.strip())
     else:
         present = bool(val)
-    debug(f"[adverb][check] {adverb_name!r} present={present} value_type={type(val).__name__}")
+    log.debug(f"[adverb][check] {adverb_name!r} present={present} value_type={type(val).__name__}")
     return present
 
 def _check_data_entry_complete(rows: List[dict], noun_schema: Optional[dict]) -> Tuple[bool, dict]:
@@ -246,7 +237,7 @@ def _check_data_entry_complete(rows: List[dict], noun_schema: Optional[dict]) ->
     """
     details = {"rows": len(rows), "missing_required": [], "duplicates": False}
     if not rows:
-        debug("[data_entry][check] no rows -> incomplete")
+        log.debug("[data_entry][check] no rows -> incomplete")
         return (False, details)
 
     def _is_missing_val(v: Any) -> bool:
@@ -259,14 +250,14 @@ def _check_data_entry_complete(rows: List[dict], noun_schema: Optional[dict]) ->
         required_fields = [fname for fname, fprops in fields.items() if fprops.get("required")]
         pk_field = noun_schema.get("primary_id_field")
 
-    debug("[data_entry][check] required_fields:", required_fields, "pk_field:", pk_field)
+    log.debug("[data_entry][check] required_fields:", required_fields, "pk_field:", pk_field)
 
     missing_fields = False
     seen: set = set()
 
     for i, row in enumerate(rows):
         nonempty = any((v.strip() if isinstance(v, str) else bool(v)) for v in row.values())
-        debug(f"[data_entry][row {i}] nonempty={nonempty}")
+        log.debug(f"[data_entry][row {i}] nonempty={nonempty}")
         if not nonempty:
             continue
 
@@ -275,7 +266,7 @@ def _check_data_entry_complete(rows: List[dict], noun_schema: Optional[dict]) ->
             if _is_missing_val(val):
                 details["missing_required"].append(field)
                 missing_fields = True
-                debug(f"[data_entry][row {i}] missing required: {field!r}")
+                log.debug(f"[data_entry][row {i}] missing required: {field!r}")
 
         if pk_field:
             pid = row.get(pk_field)
@@ -285,11 +276,11 @@ def _check_data_entry_complete(rows: List[dict], noun_schema: Optional[dict]) ->
                 if key in seen:
                     details["duplicates"] = True
                     missing_fields = True
-                    debug(f"[data_entry][row {i}] DUPLICATE primary/run combo: {key}")
+                    log.debug(f"[data_entry][row {i}] DUPLICATE primary/run combo: {key}")
                 else:
                     seen.add(key)
 
-    debug("[data_entry][check] complete=", not missing_fields, "details=", details)
+    log.debug("[data_entry][check] complete=", not missing_fields, "details=", details)
     return (not missing_fields, details)
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -302,34 +293,34 @@ def get_linear_status_progress(project_path: Path, run_id: str) -> Optional[dict
     """
     from copy import deepcopy
 
-    debug("[linear] BEGIN run_id=", run_id)
+    log.debug("[linear] BEGIN run_id=", run_id)
     try:
         verb_name = resolve_run_id_to_test_type(project_path, run_id)
-        debug("[linear] resolved verb_name:", verb_name)
+        log.debug("[linear] resolved verb_name:", verb_name)
     except Exception as e:
-        debug("[linear] failed to resolve verb:", repr(e))
+        log.debug("[linear] failed to resolve verb:", repr(e))
         return None
 
     verb_schema = get_verb_schema(project_path, verb_name) or {}
     ls = (verb_schema or {}).get("linear_status") or {}
-    debug("[linear] ls.enabled=", bool(ls.get("enabled")), "steps_count=", len(ls.get("steps") or []))
+    log.debug("[linear] ls.enabled=", bool(ls.get("enabled")), "steps_count=", len(ls.get("steps") or []))
     if not (ls and ls.get("enabled") and isinstance(ls.get("steps"), list) and ls["steps"]):
         return None
 
     verb_group = resolve_verb_group_from_test_type(project_path, verb_name) or "Tests"
-    debug("[linear] verb_group:", verb_group)
+    log.debug("[linear] verb_group:", verb_group)
 
     dump_dir: Path = resolve_path(project_path, "data_dump_dir", verb_group=verb_group, run_id=run_id)
     status_path: Path = resolve_path(project_path, "status_file",   verb_group=verb_group, run_id=run_id)
     data_entry_path: Path = resolve_path(project_path, "data_entry", verb_group=verb_group, run_id=run_id)
     adverbs_path: Path = resolve_path(project_path, "adverb_file",  verb_group=verb_group, run_id=run_id)
-    debug("[linear] paths:", {"dump_dir": str(dump_dir), "status": str(status_path), "data_entry": str(data_entry_path), "adverbs": str(adverbs_path)}, verb_key=verb_name)
+    log.debug("[linear] paths:", {"dump_dir": str(dump_dir), "status": str(status_path), "data_entry": str(data_entry_path), "adverbs": str(adverbs_path)}, verb_key=verb_name)
 
     status_json = load_data(status_path) or {}
     data_entry_obj = load_data(data_entry_path)
     adverbs_json = load_data(adverbs_path) or {}
     rows = _rows_from_data_entry(data_entry_obj)
-    debug("[linear] loaded status/data/adverbs rows=", len(rows), verb_key=verb_name)
+    log.debug("[linear] loaded status/data/adverbs rows=", len(rows), verb_key=verb_name)
 
     noun_type = (
         verb_schema.get("data_entry_schema", {})
@@ -337,7 +328,7 @@ def get_linear_status_progress(project_path: Path, run_id: str) -> Optional[dict
                    .get("noun_type_ref")
     )
     noun_schema = get_noun_schema(project_path, noun_type) if noun_type else None
-    debug("[linear] noun_type:", noun_type, "noun_schema_exists=", bool(noun_schema), verb_key=verb_name)
+    log.debug("[linear] noun_type:", noun_type, "noun_schema_exists=", bool(noun_schema), verb_key=verb_name)
 
     ls_doc = status_json.get("linear_status") or {}
     if not isinstance(ls_doc.get("steps"), list):
@@ -347,7 +338,7 @@ def get_linear_status_progress(project_path: Path, run_id: str) -> Optional[dict
     prev_by_id: Dict[str, dict] = {
         str(s.get("internal_id", s.get("id"))): s for s in ls_doc["steps"] if s.get("id")
     }
-    debug("[linear] prev_by_id keys:", list(prev_by_id.keys()), verb_key=verb_name)
+    log.debug("[linear] prev_by_id keys:", list(prev_by_id.keys()), verb_key=verb_name)
 
     old_steps_from_status = ls_doc.get("steps", [])
 
@@ -368,7 +359,7 @@ def get_linear_status_progress(project_path: Path, run_id: str) -> Optional[dict
         raw_id = sdoc.get("id")
         required = bool(sdoc.get("required", True))
         source = sdoc.get("source")
-        debug(f"[linear][step {idx}] type={stype} id={raw_id} required={required} source={source}", verb_key=verb_name)
+        log.debug(f"[linear][step {idx}] type={stype} id={raw_id} required={required} source={source}", verb_key=verb_name)
 
         if schema_step.get("label"):
             human_id = str(schema_step["label"])
@@ -383,38 +374,38 @@ def get_linear_status_progress(project_path: Path, run_id: str) -> Optional[dict
 
         if rollback_mode:
             reason = "Earlier step missing"
-            debug(f"[linear][step {idx}] rollback_mode active", verb_key=verb_name)
+            log.debug(f"[linear][step {idx}] rollback_mode active", verb_key=verb_name)
         elif not required:
             done, reason = True, "Optional"
         elif stype == "data_entry":
             ok, det = _check_data_entry_complete(rows, noun_schema)
             done, reason = ok, "" if ok else "Missing required fields"
-            debug(f"[linear][step {idx}] data_entry ok={ok} details={det}", verb_key=verb_name)
+            log.debug(f"[linear][step {idx}] data_entry ok={ok} details={det}", verb_key=verb_name)
         elif stype == "raw_upload":
             pocket_to_check = (source or "").strip()
             has_file = _check_raw_folder_has_file(dump_dir, pocket_to_check)
             done, reason = has_file, "" if has_file else f"Missing raw files in '{pocket_to_check}'"
-            debug(f"[linear][step {idx}] raw_upload has_file={has_file}", verb_key=verb_name)
+            log.debug(f"[linear][step {idx}] raw_upload has_file={has_file}", verb_key=verb_name)
         elif stype == "interpretation":
             ok = _check_interpretation_tab_present(dump_dir, source or "")
             done, reason = ok, "" if ok else f"Missing interpretation for '{source}'"
-            debug(f"[linear][step {idx}] interpretation ok={ok}", verb_key=verb_name)
+            log.debug(f"[linear][step {idx}] interpretation ok={ok}", verb_key=verb_name)
         elif stype == "adverb":
             ok = _check_adverb_value_present(adverbs_json, source or "")
             done, reason = ok, "" if ok else f"Adverb '{source}' missing"
-            debug(f"[linear][step {idx}] adverb ok={ok}", verb_key=verb_name)
+            log.debug(f"[linear][step {idx}] adverb ok={ok}", verb_key=verb_name)
         elif stype == "gate":
             prev = prev_by_id.get(str(raw_id), {})
             done = bool(prev.get("completed", False))
             reason = "" if done else "Gate not completed"
-            debug(f"[linear][step {idx}] gate done={done}", verb_key=verb_name)
+            log.debug(f"[linear][step {idx}] gate done={done}", verb_key=verb_name)
         else:
             done, reason = True, "Unknown step type (non-blocking)"
-            debug(f"[linear][step {idx}] unknown type -> non-blocking", verb_key=verb_name)
+            log.debug(f"[linear][step {idx}] unknown type -> non-blocking", verb_key=verb_name)
 
         if not done and required:
             rollback_mode = True
-            debug(f"[linear][step {idx}] sets rollback_mode", verb_key=verb_name)
+            log.debug(f"[linear][step {idx}] sets rollback_mode", verb_key=verb_name)
 
         sdoc["internal_id"] = raw_id
         sdoc["id"] = human_id
@@ -433,7 +424,7 @@ def get_linear_status_progress(project_path: Path, run_id: str) -> Optional[dict
             prev_done = bool(prev_by_id.get(str(raw_id), {}).get("completed", False))
             if prev_done != sdoc["completed"]:
                 status_updated = True
-                debug(f"[linear][step {idx}] completion changed prev={prev_done} now={sdoc['completed']}", verb_key=verb_name)
+                log.debug(f"[linear][step {idx}] completion changed prev={prev_done} now={sdoc['completed']}", verb_key=verb_name)
 
         if sdoc["completed"] and first_incomplete is None:
             completed_in_a_row += 1
@@ -446,14 +437,14 @@ def get_linear_status_progress(project_path: Path, run_id: str) -> Optional[dict
     status_json["linear_status"] = ls_doc
 
     structural_change = (old_steps_from_status != normalized_steps)
-    debug("[linear] structural_change=", structural_change, "status_updated=", status_updated, verb_key=verb_name)
+    log.debug("[linear] structural_change=", structural_change, "status_updated=", status_updated, verb_key=verb_name)
 
     if status_updated or structural_change:
         try:
             save_json(status_path, status_json)
-            debug("[linear][persist] wrote Status.json", str(status_path), f"current_index={cur_idx}", verb_key=verb_name)
+            log.debug("[linear][persist] wrote Status.json", str(status_path), f"current_index={cur_idx}", verb_key=verb_name)
         except Exception as e:
-            debug("[linear][persist][error]", repr(e), str(status_path), verb_key=verb_name)
+            log.debug("[linear][persist][error]", repr(e), str(status_path), verb_key=verb_name)
 
     result = {
         "mode": "linear",
@@ -466,7 +457,7 @@ def get_linear_status_progress(project_path: Path, run_id: str) -> Optional[dict
         "breakdown": breakdown,
         "status_path": str(status_path),
     }
-    debug("[linear][result]", result, verb_key=verb_name)
+    log.debug("[linear][result]", result, verb_key=verb_name)
     return result
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -478,14 +469,14 @@ def get_status_breakdown_core(project_path: Path, run_id: str) -> dict:
     GUI-backend version. Auto-resolves verb/group and computes breakdown.
     If the verb is linear-enabled, returns a linear summary instead.
     """
-    debug("[classic] BEGIN run_id=", run_id)
+    log.debug("[classic] BEGIN run_id=", run_id)
 
     # Identify verb
     try:
         verb_name = resolve_run_id_to_test_type(project_path, run_id)
-        debug("[classic] resolved verb_name:", verb_name)
+        log.debug("[classic] resolved verb_name:", verb_name)
     except Exception as e:
-        debug("[classic] resolve_run_id_to_test_type failed:", repr(e))
+        log.debug("[classic] resolve_run_id_to_test_type failed:", repr(e))
         return {
             "raw_data": "Not Uploaded",
             "data_entry": "Pending",
@@ -496,7 +487,7 @@ def get_status_breakdown_core(project_path: Path, run_id: str) -> dict:
     # Linear?
     verb_schema = get_verb_schema(project_path, verb_name) or {}
     ls = (verb_schema or {}).get("linear_status") or {}
-    debug("[classic] linear_enabled=", bool(ls.get("enabled")), "steps_count=", len(ls.get("steps") or []), verb_key=verb_name)
+    log.debug("[classic] linear_enabled=", bool(ls.get("enabled")), "steps_count=", len(ls.get("steps") or []), verb_key=verb_name)
     if ls and ls.get("enabled") and (ls.get("steps") or []):
         linear = get_linear_status_progress(project_path, run_id) or {}
         override_rows = get_override_schema(project_path, run_id) or []
@@ -521,12 +512,12 @@ def get_status_breakdown_core(project_path: Path, run_id: str) -> dict:
         }
         if override_status:
             out["override_status"] = override_status
-        debug("[classic][linear] out:", out, verb_key=verb_name)
+        log.debug("[classic][linear] out:", out, verb_key=verb_name)
         return out
 
     # Resolve group
     verb_group = resolve_verb_group_from_test_type(project_path, verb_name)
-    debug("[classic] initial verb_group:", verb_group, verb_key=verb_name)
+    log.debug("[classic] initial verb_group:", verb_group, verb_key=verb_name)
     if not verb_group:
         for g in list_verb_groups(project_path) or []:
             dd = resolve_path(project_path, "data_dump_dir", verb_group=g, run_id=run_id)
@@ -535,7 +526,7 @@ def get_status_breakdown_core(project_path: Path, run_id: str) -> dict:
                 break
     if not verb_group:
         verb_group = "Tests"
-    debug("[classic] final verb_group:", verb_group, verb_key=verb_name)
+    log.debug("[classic] final verb_group:", verb_group, verb_key=verb_name)
 
     paths = _resolve_paths_for_run(project_path, verb_group, run_id)
     dump_dir: Path = paths["dump_dir"]
@@ -550,7 +541,7 @@ def get_status_breakdown_core(project_path: Path, run_id: str) -> dict:
         verb_schema.get("data_entry_schema", {})
                    .get("raw_data_inputs", [])
     ) or []
-    debug("[classic][raw] inputs:", raw_inputs, verb_key=verb_name)
+    log.debug("[classic][raw] inputs:", raw_inputs, verb_key=verb_name)
 
     missing_raw: List[str] = []
     if raw_inputs:
@@ -559,7 +550,7 @@ def get_status_breakdown_core(project_path: Path, run_id: str) -> dict:
             if not nm:
                 continue
             has_file = _check_raw_folder_has_file(dump_dir, nm)
-            debug(f"[classic][raw] '{nm}':", "OK" if has_file else "MISSING", verb_key=verb_name)
+            log.debug(f"[classic][raw] '{nm}':", "OK" if has_file else "MISSING", verb_key=verb_name)
             if not has_file:
                 missing_raw.append(nm)
         breakdown["raw_data"] = "Uploaded" if not missing_raw else ("Missing → " + ", ".join(missing_raw))
@@ -575,13 +566,13 @@ def get_status_breakdown_core(project_path: Path, run_id: str) -> dict:
     noun_schema = get_noun_schema(project_path, noun_type) if noun_type else None
     data_entry_obj = load_data(data_entry_path)
     rows = _rows_from_data_entry(data_entry_obj)
-    debug("[classic][data_entry] rows:", len(rows), "noun_type:", noun_type, "noun_schema_exists:", bool(noun_schema), verb_key=verb_name)
+    log.debug("[classic][data_entry] rows:", len(rows), "noun_type:", noun_type, "noun_schema_exists:", bool(noun_schema), verb_key=verb_name)
 
     if not rows:
         breakdown["data_entry"] = "Pending"
     else:
         ok, det = _check_data_entry_complete(rows, noun_schema)
-        debug("[classic][data_entry] ok=", ok, "details=", det, verb_key=verb_name)
+        log.debug("[classic][data_entry] ok=", ok, "details=", det, verb_key=verb_name)
         breakdown["data_entry"] = "Complete" if ok else "Missing Required Fields"
 
     # 3) INTERPRETATION
@@ -590,7 +581,7 @@ def get_status_breakdown_core(project_path: Path, run_id: str) -> dict:
     interp_method = interp_cfg.get("method", "parsed")
     status_json = load_data(status_path)
     manual_approved = bool(((status_json or {}).get("interpretation") or {}).get("manual_approval"))
-    debug("[classic][interp] tabs:", interp_tabs, "method:", interp_method, "manual_approved:", manual_approved, verb_key=verb_name)
+    log.debug("[classic][interp] tabs:", interp_tabs, "method:", interp_method, "manual_approved:", manual_approved, verb_key=verb_name)
 
     if not interp_tabs:
         breakdown["interpretation"] = "Complete" if not manual_approved else "Manually Completed"
@@ -598,7 +589,7 @@ def get_status_breakdown_core(project_path: Path, run_id: str) -> dict:
         all_good = True
         for tab in interp_tabs:
             present = _check_interpretation_tab_present(dump_dir, tab)
-            debug(f"[classic][interp] {tab!r}: {'OK' if present else 'MISSING'}", verb_key=verb_name)
+            log.debug(f"[classic][interp] {tab!r}: {'OK' if present else 'MISSING'}", verb_key=verb_name)
             if not present:
                 all_good = False
         if all_good:
@@ -627,11 +618,11 @@ def get_status_breakdown_core(project_path: Path, run_id: str) -> dict:
     required_names = sorted(set(required_names))
     missing_adv = [nm for nm in required_names if not _check_adverb_value_present(adverbs_json, nm)]
     breakdown["adverb_info"] = "Complete" if not missing_adv else "Pending"
-    debug("[classic][adverb] required:", required_names, "missing:", missing_adv, verb_key=verb_name)
+    log.debug("[classic][adverb] required:", required_names, "missing:", missing_adv, verb_key=verb_name)
 
     # 5) OVERRIDES
     override_rows = get_override_schema(project_path, run_id) or []
-    debug("[classic][override] entries:", len(override_rows), verb_key=verb_name)
+    log.debug("[classic][override] entries:", len(override_rows), verb_key=verb_name)
 
     lines: List[str] = []
     for row in override_rows:
@@ -646,7 +637,7 @@ def get_status_breakdown_core(project_path: Path, run_id: str) -> dict:
     if lines:
         breakdown["override_status"] = "\n".join(lines)
 
-    debug("[classic] final breakdown:", breakdown, verb_key=verb_name)
+    log.debug("[classic] final breakdown:", breakdown, verb_key=verb_name)
     return breakdown
 
 # ─────────────────────────────────────────────────────────────────────────────

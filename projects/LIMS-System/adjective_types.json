@@ -1,36 +1,36 @@
-[
-  {
+{
+  "Kapp": {
     "adjective": "Kapp",
     "adjective_class": "StateControl",
-    "applies_to": [
+    "allowed_values": "Kappin, Aight",
+    "attaches_to": [
       "LL Cool J"
     ],
-    "allowed_values": "Kappin, Aight"
+    "class": "StateControl"
   },
-  {
+  "Weight": {
     "adjective": "Weight",
     "adjective_class": "Reference",
-    "applies_to": [
+    "reference_noun": "Sample",
+    "filters": "",
+    "attaches_to": [
       "Sand"
     ],
-    "reference_noun": "Sample",
-    "filters": ""
+    "class": "Reference"
   },
-  {
+  "type_of_material": {
     "adjective": "type_of_material",
     "adjective_class": "Reference",
-    "applies_to": [
+    "reference_noun": "Epic Loot",
+    "filters": {},
+    "attaches_to": [
       "Sample"
     ],
-    "reference_noun": "Epic Loot",
-    "filters": {}
+    "class": "Reference"
   },
-  {
+  "Capacity": {
     "adjective": "Capacity",
     "adjective_class": "ActionRequirement",
-    "applies_to": [
-      "Sample_Micro"
-    ],
     "request_options": {
       "Potency Only": [
         "Potency_Test"
@@ -39,14 +39,15 @@
         "Potency_Test",
         "Micro_Test"
       ]
-    }
+    },
+    "attaches_to": [
+      "Sample_Micro"
+    ],
+    "class": "ActionRequirement"
   },
-  {
+  "request": {
     "adjective": "request",
     "adjective_class": "ActionRequirement",
-    "applies_to": [
-      "Submission"
-    ],
     "request_options": {
       "Micro": [
         "Micro_Test"
@@ -64,34 +65,38 @@
         "Residual_Solvents_Test",
         "Micro_Test"
       ]
-    }
+    },
+    "attaches_to": [
+      "Submission"
+    ],
+    "class": "ActionRequirement"
   },
-  {
+  "submission": {
     "adjective": "submission",
     "adjective_class": "Reference",
-    "applies_to": [
-      "Sample"
-    ],
     "reference_noun": "Submission",
     "filters": {},
     "unique_per_run": true,
-    "unique_globally": false
+    "unique_globally": false,
+    "attaches_to": [
+      "Sample"
+    ],
+    "class": "Reference"
   },
-  {
+  "Submission": {
     "adjective": "Submission",
     "adjective_class": "Reference",
-    "applies_to": [
-      "Potency Sample"
-    ],
     "reference_noun": "Submission",
-    "filters": {}
+    "filters": {},
+    "attaches_to": [
+      "Potency Sample",
+      "Terpene Sample"
+    ],
+    "class": "Reference"
   },
-  {
+  "request 2": {
     "adjective": "request 2",
     "adjective_class": "ActionRequirement",
-    "applies_to": [
-      "Submission"
-    ],
     "request_options": {
       "Potency2": [
         "Potency_Test"
@@ -103,14 +108,15 @@
         "Potency_Test",
         "Micro_Test"
       ]
-    }
-  },
-  {
-    "adjective": "status",
-    "adjective_class": "Tag",
-    "applies_to": [
+    },
+    "attaches_to": [
       "Submission"
     ],
+    "class": "ActionRequirement"
+  },
+  "status": {
+    "adjective": "status",
+    "adjective_class": "Tag",
     "definition": "good to go?",
     "valid_options": [
       {
@@ -128,121 +134,94 @@
         "explanation": "never good to go",
         "display_in_id": true
       }
-    ]
+    ],
+    "attaches_to": [
+      "Submission"
+    ],
+    "class": "Tag"
   },
-  {
+  "Instrument Type": {
     "adjective": "Instrument Type",
     "adjective_class": "Reference",
-    "applies_to": [
-      "Instrument"
-    ],
     "reference_noun": "Instrument Type List",
     "filters": {},
     "unique_per_run": false,
-    "unique_globally": false
+    "unique_globally": false,
+    "attaches_to": [
+      "Instrument"
+    ],
+    "class": "Reference"
   },
-  {
+  "Sample Type": {
     "adjective": "Sample Type",
     "adjective_class": "Reference",
-    "applies_to": [
-      "Potency Sample"
-    ],
     "reference_noun": "Sample Type",
     "filters": {},
     "unique_per_run": false,
-    "unique_globally": false
-  },
-  {
-    "adjective": "Sample Type",
-    "adjective_class": "Reference",
-    "applies_to": [
+    "unique_globally": false,
+    "attaches_to": [
+      "Potency Sample",
       "Terpene Sample"
     ],
-    "reference_noun": "Sample Type",
-    "filters": {},
-    "unique_per_run": false,
-    "unique_globally": false
+    "class": "Reference"
   },
-  {
-    "adjective": "Submission",
-    "adjective_class": "Reference",
-    "applies_to": [
-      "Terpene Sample"
-    ],
-    "reference_noun": "Submission",
-    "filters": {}
-  },
-  {
+  "Client": {
     "adjective": "Client",
     "adjective_class": "Reference",
-    "applies_to": [
-      "Terpene Sample"
-    ],
     "reference_noun": "Client",
     "filters": {},
     "unique_per_run": false,
-    "unique_globally": false
-  },
-  {
-    "adjective": "Client",
-    "adjective_class": "Reference",
-    "applies_to": [
-      "Potency Sample"
+    "unique_globally": false,
+    "attaches_to": [
+      "Potency Sample",
+      "Terpene Sample"
     ],
-    "reference_noun": "Client",
-    "filters": {},
-    "unique_per_run": false,
-    "unique_globally": false
+    "class": "Reference"
   },
-  {
+  "Primary Aroma": {
     "adjective": "Primary Aroma",
     "adjective_class": "Reference",
-    "applies_to": [
-      "COA Name Map"
-    ],
     "reference_noun": "Primary Aromas",
     "filters": {},
     "unique_per_run": false,
-    "unique_globally": false
-  },
-  {
-    "adjective": "Analyte Type",
-    "adjective_class": "Reference",
-    "applies_to": [
+    "unique_globally": false,
+    "attaches_to": [
       "COA Name Map"
     ],
+    "class": "Reference"
+  },
+  "Analyte Type": {
+    "adjective": "Analyte Type",
+    "adjective_class": "Reference",
     "reference_noun": "Analyte Types",
     "filters": {},
     "unique_per_run": false,
-    "unique_globally": false
+    "unique_globally": false,
+    "attaches_to": [
+      "COA Name Map"
+    ],
+    "class": "Reference"
   },
-  {
+  "image": {
     "adjective": "image",
     "adjective_class": "Picture",
-    "applies_to": [
+    "attaches_to": [
+      "Sample",
       "Submission"
-    ]
+    ],
+    "class": "Picture"
   },
-  {
+  "Picture ID": {
     "adjective": "Picture ID",
     "adjective_class": "Picture",
-    "applies_to": [
+    "attaches_to": [
       "Primary Aromas"
-    ]
+    ],
+    "class": "Picture"
   },
-  {
-    "adjective": "image",
-    "adjective_class": "Picture",
-    "applies_to": [
-      "Sample"
-    ]
-  },
-  {
+  "Action_Requirement": {
     "adjective": "Action_Requirement",
     "adjective_class": "ActionRequirement",
-    "applies_to": [
-      "874143124"
-    ],
     "request_options": {
       "soup lol": [
         "Potency_Test",
@@ -260,14 +239,15 @@
         "Residual_Solvents_Test",
         "Micro_Test"
       ]
-    }
-  },
-  {
-    "adjective": "Reference_List",
-    "adjective_class": "ReferenceList",
-    "applies_to": [
+    },
+    "attaches_to": [
       "874143124"
     ],
+    "class": "ActionRequirement"
+  },
+  "Reference_List": {
+    "adjective": "Reference_List",
+    "adjective_class": "ReferenceList",
     "reference_noun": [
       "Sample",
       "Submission",
@@ -285,30 +265,33 @@
       "COA Name Map": {
         "COA Display Name": "fffffff"
       }
-    }
+    },
+    "attaches_to": [
+      "874143124"
+    ],
+    "class": "ReferenceList"
   },
-  {
+  "Reference": {
     "adjective": "Reference",
     "adjective_class": "Reference",
-    "applies_to": [
+    "reference_noun": "Submission",
+    "filters": {},
+    "attaches_to": [
       "874143124"
     ],
-    "reference_noun": "Submission",
-    "filters": {}
+    "class": "Reference"
   },
-  {
+  "Picture": {
     "adjective": "Picture",
     "adjective_class": "Picture",
-    "applies_to": [
-      "874143124"
-    ]
-  },
-  {
-    "adjective": "Tag",
-    "adjective_class": "Tag",
-    "applies_to": [
+    "attaches_to": [
       "874143124"
     ],
+    "class": "Picture"
+  },
+  "Tag": {
+    "adjective": "Tag",
+    "adjective_class": "Tag",
     "definition": "it's so kind of you to work on the first try",
     "valid_options": [
       {
@@ -326,31 +309,38 @@
         "explanation": "just looks bad",
         "display_in_id": false
       }
-    ]
+    ],
+    "attaches_to": [
+      "874143124"
+    ],
+    "class": "Tag"
   },
-  {
+  "Star Spirit Ability": {
     "adjective": "Star Spirit Ability",
     "adjective_class": "Reference",
-    "applies_to": [
+    "reference_noun": "Analyte Types",
+    "filters": {},
+    "attaches_to": [
       "Star Spirit Lore"
     ],
-    "reference_noun": "Analyte Types",
-    "filters": {}
+    "class": "Reference"
   },
-  {
+  "Reference Star Spirit": {
     "adjective": "Reference Star Spirit",
     "adjective_class": "Reference",
-    "applies_to": [
+    "reference_noun": "Star Spirit Lore",
+    "filters": {},
+    "attaches_to": [
       "Easy Verb Noun"
     ],
-    "reference_noun": "Star Spirit Lore",
-    "filters": {}
+    "class": "Reference"
   },
-  {
+  "ybarahtrrdadadaga423423433333": {
     "adjective": "ybarahtrrdadadaga423423433333",
     "adjective_class": "Reference",
-    "applies_to": [
+    "attaches_to": [
       "444444333333332222222111111111"
-    ]
+    ],
+    "class": "Reference"
   }
-]
+}

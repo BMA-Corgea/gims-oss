@@ -1,0 +1,35 @@
+/* ══════════════════════════════════════════════════════════════
+   Tutorial / Onboarding — Watery v2. Tokens from watery.css + shell.css.
+═══════════════════════════════════════════════════════════════ */
+
+.tut-hero .panel-body { gap: 8px; }
+.tut-kicker { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); }
+.tut-h2 { font-size: clamp(1.4rem, 2.2vw, 1.9rem); font-weight: 700; line-height: 1.1;
+  background: linear-gradient(100deg, var(--text) 14%, var(--accent-2) 60%, var(--blue-2) 100%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.tut-lead { font-size: 14px; line-height: 1.6; color: var(--text-mid); max-width: 70ch; }
+
+.tut-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.tut-card { display: flex; align-items: flex-start; gap: 12px; padding: 14px; border-radius: var(--radius);
+  background: var(--card); border: 1px solid var(--card-edge); text-decoration: none; color: var(--text-mid);
+  transition: border-color .15s, box-shadow .15s, transform .12s; }
+.tut-card:hover { border-color: var(--card-edge-strong); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.tut-card-icon { width: 36px; height: 36px; flex-shrink: 0; }
+.tut-card-icon .icon { width: 19px; height: 19px; }
+.tut-card-text { font-size: 13px; line-height: 1.5; }
+.tut-card-text strong { color: var(--text); }
+.tut-card-text em { color: var(--accent-2); font-style: normal; }
+
+.tut-flow { gap: 14px; }
+.tut-step { display: flex; align-items: flex-start; gap: 14px; font-size: 13.5px; line-height: 1.55; color: var(--text-mid); }
+.tut-step strong { color: var(--text); }
+.tut-step a { color: var(--blue-text); text-decoration: none; font-weight: 600; }
+.tut-step a:hover { color: var(--blue-2); text-decoration: underline; }
+.tut-step-num { flex-shrink: 0; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%;
+  font-size: 13px; font-weight: 700; color: var(--accent); background: var(--accent-light); border: 1px solid var(--card-border); }
+
+.tut-tips { gap: 10px; font-size: 13.5px; line-height: 1.6; color: var(--text-mid); }
+.tut-tips strong { color: var(--text); }
+.tut-tips a { color: var(--blue-text); text-decoration: none; font-weight: 600; }
+.tut-tips a:hover { color: var(--blue-2); text-decoration: underline; }
+.tut-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }

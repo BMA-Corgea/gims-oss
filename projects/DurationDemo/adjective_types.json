@@ -1,0 +1,15 @@
+{
+  "hold_clock": {
+    "adjective": "hold_clock",
+    "adjective_class": "Duration",
+    "start_field": "received_at",
+    "end_field": "due_at",
+    "mode": "both",
+    "unit": "auto",
+    "overdue_style": "negative",
+    "attaches_to": [
+      "Specimen"
+    ],
+    "class": "Duration"
+  }
+}

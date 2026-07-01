@@ -1,153 +1,86 @@
-:root{
-  --bg: #0f1115;
-  --card: #171a21;
-  --text: #e6e9ef;
-  --muted: #a9b1bd;
-  --accent: #4f9cff;
-  --accent-2: #75d06b;
-  --border: #2a2f3a;
-  --danger: #ff5c80;
+/* ══════════════════════════════════════════════════════════════
+   Project Template Manager — Watery v2 (page-specific layout only).
+   Colours/surfaces/components come from watery.css + shell.css tokens; the bespoke
+   dark-navy :root palette was dropped. Class names (.form-grid / .inline / .actions /
+   .options / .switch / .kv-* / .del / .rule / .results / .table / .toast) are the
+   template.js DOM contract and are preserved — this file restyles them onto Watery.
+═══════════════════════════════════════════════════════════════ */
+
+/* ── Form layout (inside .panel-body, which already flex-columns its children) ── */
+.form-grid { display: grid; gap: 14px; }
+.inline { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+.tm-grow { flex: 1 1 240px; }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 2px; }
+.options { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 2px; }
+
+/* ── Import: file input + paste area ── */
+.tm-file { padding: 8px 10px; cursor: pointer; color: var(--text-mid); }
+.tm-file::file-selector-button {
+  margin-right: 12px; padding: 6px 12px; border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border2); background: var(--surface2); color: var(--text);
+  font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer;
+  transition: border-color .15s, color .15s, background .15s;
+}
+.tm-file::file-selector-button:hover { border-color: var(--accent); color: #fff; background: rgba(45,212,191,0.06); }
+
+.rule { border: none; border-top: 1px solid var(--card-edge); margin: 6px 0 4px; opacity: 0.55; }
+
+/* ── Copy-custom toggle (Watery .toggle widget + a text label) ── */
+.switch { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; font-size: 13px; color: var(--text-mid); }
+.switch code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px;
+  color: var(--accent-2); background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 4px; padding: 1px 5px;
 }
 
-*{ box-sizing: border-box; }
-html, body { height: 100%; }
-body{
-  margin:0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+/* ── Extra (key/value) fields ── */
+.kv-header {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 4px;
+  font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-soft);
 }
+.kv-list { display: grid; gap: 8px; }
+.kv-row { display: flex; gap: 8px; align-items: center; }
+.kv-row .kv-k, .kv-row .kv-v { flex: 1; }
+.del { flex-shrink: 0; color: var(--red-text); border-color: var(--red-border); background: var(--red-light); }
+.del:hover:not(:disabled) { border-color: var(--red); color: #fff; background: var(--red-light); box-shadow: 0 3px 14px rgba(240,114,106,0.3); }
+.del .icon { width: 14px; height: 14px; }
 
-.topbar{
-  padding: 20px clamp(16px, 3vw, 28px);
-  border-bottom: 1px solid var(--border);
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
-}
-.topbar .title{
-  display:flex; align-items:center; gap:10px;
-}
-.topbar .title .emoji{ font-size: 28px; }
-.topbar h1{ margin:0; font-size: 22px; font-weight: 700; }
-.subtitle{ margin:.25rem 0 0; color: var(--muted); }
+/* ── Results panel ── */
+.results.hidden { display: none; }
+.results-header { justify-content: space-between; }
+.results-head-title { display: inline-flex; align-items: center; gap: 9px; }
+.results-head-title .icon { color: var(--accent); }
+.results-summary { font-size: 13px; color: var(--text-mid); margin-bottom: 12px; line-height: 1.5; }
 
-.container{
-  max-width: 1100px;
-  margin: 20px auto 80px;
-  padding: 0 clamp(12px, 3vw, 24px);
-  display: grid;
-  gap: 16px;
+.table-wrap { overflow: auto; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.table-wrap.hidden { display: none; }
+.table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.table th {
+  text-align: left; padding: 10px 12px; background: var(--surface); border-bottom: 1px solid var(--card-edge);
+  font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; color: var(--text-soft);
 }
+.table td {
+  padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--text-mid);
+}
+.table td:last-child { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; word-break: break-all; }
+.table tbody tr:hover td { background: var(--accent-light); }
+.table tbody tr:last-child td { border-bottom: none; }
 
-.card{
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.25);
-}
-.card-header{
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--border);
-  background: rgba(255,255,255,0.02);
-}
-.card-header h2{ margin:0; font-size: 18px; }
-.card-body{ padding: 16px; }
-
-.form-grid{
-  display: grid;
-  gap: 12px;
-}
-.inline{ display:flex; gap: 10px; align-items: center; }
-
-.input, select, textarea{
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: #0b0d12;
-  color: var(--text);
-  outline: none;
-}
-.input:focus, select:focus, textarea:focus{
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(79,156,255,0.15);
-}
-
-.btn{
-  border: 1px solid var(--border);
-  background: #11141a;
-  color: var(--text);
-  border-radius: 10px;
-  padding: 10px 14px;
-  cursor: pointer;
-  font-weight: 600;
-}
-.btn:hover{ filter: brightness(1.1); }
-.btn.primary{ background: var(--accent); color:#051225; border-color: transparent; }
-.btn.secondary{ background: #19212b; }
-.btn.small{ padding: 6px 10px; font-size: 12px; }
-
-.switch{ display:flex; align-items:center; gap:8px; cursor:pointer; }
-.switch input{ transform: scale(1.2); }
-
-.kv-header{
-  display:flex; align-items:center; justify-content: space-between;
-  margin-top: 6px;
-}
-.kv-list{ display:grid; gap:8px; }
-.kv-row{ display:flex; gap:8px; }
-.kv-row input{ flex:1; }
-.kv-row .del{ background: #231b1b; border-color: #3b2a2a; color:#ffb3c4; }
-
-.options{
-  display:flex; flex-wrap: wrap; gap:12px;
-  margin-top: 8px;
-}
-.actions{ display:flex; gap:10px; margin-top: 6px; }
-
-.rule{
-  border: none;
-  border-top: 1px solid var(--border);
-  margin: 6px 0 8px;
-}
-
-.results{ margin-top: 14px; }
-.results.hidden{ display:none; }
-.results-header{
-  display:flex; align-items:center; justify-content: space-between;
-  margin-bottom: 8px;
-}
-.results-summary{ color: var(--muted); margin-bottom: 8px; }
-
-.table-wrap{ overflow:auto; border:1px solid var(--border); border-radius: 10px;}
-.table{
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-.table th, .table td{
-  border-bottom: 1px solid var(--border);
-  padding: 8px 10px;
-  vertical-align: top;
-}
-.table th{ text-align: left; color: var(--muted); background: rgba(255,255,255,0.02); }
-.table tr:hover td{ background: rgba(79,156,255,0.06); }
-
-.spacer{ height: 4px; }
-
-.toast{
-  position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 18px;
-  padding: 10px 14px;
-  background: #0d1520;
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  opacity: 0;
-  pointer-events: none;
+/* ── Fallback toast (window.GIMS.toast is primary; this only shows if the toolkit is absent) ── */
+.toast {
+  position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%);
+  padding: 12px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 500;
+  background: var(--surface); color: var(--text); border: 1px solid var(--border2);
+  box-shadow: var(--shadow-lg); opacity: 0; pointer-events: none; z-index: 120;
   transition: opacity .2s ease, transform .2s ease;
-  box-shadow: 0 8px 40px rgba(0,0,0,.35);
 }
-.toast.show{ opacity: 1; transform: translateX(-50%) translateY(-4px); }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+
+.hidden { display: none !important; }
+
+@media (max-width: 620px) {
+  .inline { flex-direction: column; align-items: stretch; }
+  .tm-grow { flex: 1 1 auto; }
+  .actions { flex-direction: column; }
+  .actions .btn, .actions .btn-primary { width: 100%; }
+}

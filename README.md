@@ -1,235 +1,108 @@
-# GIMS Project  
-## Generalized Information Management System
+# GIMS — Generalized Information Management System (Open Core)
 
-GIMS is a flexible, schema-driven information management system for tracking any workflow. It provides a common “grammar” of nouns and verbs to log anything humans do to anything.
+![Python](https://img.shields.io/badge/python-3.12-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-backend-009688)
+![React](https://img.shields.io/badge/UI-React%20%2B%20Glide-1f6feb)
+![License](https://img.shields.io/badge/license-see%20LICENSE-lightgrey)
 
-In plain language, GIMS lets you define the things you track and the actions you perform, then automatically keeps detailed logs, generates documents, and maintains an audit trail for every step.
+> **Try it live:** https://gims-demo.vercel.app  ·  **Case study:** the portfolio hub (links in the demo)
 
-Unlike traditional **Laboratory Information Management Systems (LIMS)** or **Enterprise Resource Planning (ERP)** software, GIMS is generalized and highly adaptable. You configure your own nouns (entities), verbs (actions), and rules via simple schemas, and the system will automatically produce all logs, results, and audit trails for those workflows.
+GIMS is a **schema-driven, domain-agnostic information-management platform**. You describe your
+world as a small grammar — **nouns** (the things you track), **verbs** (actions on them),
+**adjectives** (descriptors), **adverbs** (context), **conjunctions** (run overrides), and
+**prepositional phrases** (intent that triggers an artifact) — and the engine generates the
+data model, the workbenches, the run logs, and the artifacts for you. No hard-coded modules per
+industry: a laboratory LIMS, an HR onboarding tracker, and a financial-approval workflow are all
+just different schemas over the same engine.
 
-This means GIMS can fit into any domain — from lab testing to HR onboarding — without rigid pre-built modules. It is open-source, modular, and ready to use today, but also easy to extend or fork to suit specialized needs.
-
-> For regulated industries, optional compliance modules are available separately (see below).
-
----
-
-## Why GIMS?  
-### Key Features & Differences
-
-### Schema-Driven & Flexible
-GIMS doesn’t hard-code a specific workflow. All entities and processes are defined in JSON (or SQL) schemas.
-
-You can model your lab tests, approval processes, or any operations by editing configuration files — no complex coding required to change the data model. This provides extreme flexibility compared to traditional LIMS/ERP systems with fixed schemas.
-
-### Grammar-Based Architecture
-GIMS uses a grammar metaphor — think of each workflow like a sentence.
-
-You have:
-- **Nouns** (items / things)
-- **Verbs** (actions on those items)
-- **Adjectives**, **adverbs**, etc.
-
-This intuitive structure makes it easy to reason about processes.  
-The result is a system that can track *anything humans do to anything* in a natural way.
-
-### Modular & Composable
-GIMS is built as a collection of focused modules for configuration, execution, auditing, and more, all interoperating through the schema.
-
-You can use only what you need and extend with new modules. Each piece is small and focused, keeping the system understandable and maintainable.
-
-### Traceability & Auditability
-Every action (every verb performed on a noun) produces a structured record of inputs, outputs, and context.
-
-You can always reconstruct lineage:
-- who did what
-- when
-- how
-
-Every data change is logged with user and timestamp for full accountability.
-
-### Automation & Extensibility
-GIMS allows custom logic at key points. You can plug in Python scripts as parsers or handlers to automate calculations or generate artifacts.
-
-Examples include:
-- auto-calculating results from raw instrument data
-- generating a PDF report when a task is completed
-
-GIMS calls these scripts automatically at the right time.
-
-### Role-Based Permissions
-Built-in role management lets you control who can view or do what.
-
-You can:
-- define roles (Technician, Manager, Auditor, etc.)
-- restrict access to modules or specific nouns/verbs
-- enforce multi-step sign-offs
-
-Everything is permission-aware and recorded.
+```
+I [TEST] this [SAMPLE] on [HPLC] [for_COA]  ->  a run that produces a Certificate of Analysis
+```
 
 ---
 
-## In Short
-GIMS is designed to be as flexible as a spreadsheet, but with the rigor and traceability of an enterprise system.
+## This is the open core
 
-You define the structure — GIMS handles data integrity, workflow execution, and record-keeping automatically.
+This repository is the **open-core edition** of GIMS: the complete schema/grammar engine and
+every workbench, editor, dashboard, guided tour, and skin — a fully runnable, **single-user**
+GIMS. Three things are intentionally **not** in this build:
 
----
+| Removed | What it is | Where to see it |
+|---|---|---|
+| **Login / authentication** | Multi-user accounts, JWT/cookie sessions | — |
+| **Roles / permissions** | Per-project RBAC, feature-tag scopes, admin console | — |
+| **Compliance** | 21 CFR Part 11 HMAC audit chain, e-signatures, gate sign-off, sealed exports | **[Compliance Relay demo](https://gims-compliance-relay-demo.vercel.app)** |
 
-## GIMS Grammar  
-### Nouns, Verbs, Adjectives, Adverbs, and More
-
-To make the system intuitive, GIMS models your domain using parts of speech:
-
-- **Nouns** — The things you track  
-  (Sample, Batch, Employee, Product, etc.)
-
-- **Verbs** — Actions performed on nouns  
-  (Test, Approve, Ship, Pay, etc.)
-
-- **Adjectives** — Descriptors or attributes of nouns  
-  (tags, statuses, lists, flags)
-
-- **Adverbs** — Context for actions  
-  (instrument, operator, temperature, environment)
-
-- **Conjunctions** — Overrides or special run flags  
-  (cancelled, needs_retest, superseded_by)
-
-- **Prepositional Phrases** — Intents that trigger artifacts  
-  (`for_COA`, `for_Label`, `for_Report`, etc.)
-
-### Example
-> “I **[TEST]** this **[SAMPLE]** on **[HPLC]** **[for_COA]**”
-
-This performs a Test on a Sample using the HPLC instrument and generates a Certificate of Analysis automatically.
-
-The same grammar adapts across domains:
-> “I **[APPROVE]** this **[INVOICE]** **[for_Report]**”
+Those make up the proprietary layer that turns GIMS into a regulated-industry product; the
+Compliance Relay demo shows them in action. In this build every request is treated as a single
+fully-authorized local user, workflow gates complete without a sign-off, and no audit trail is
+written. **Run it locally to explore the engine — do not deploy it as a shared service.**
 
 ---
 
-## Real-World Use Cases
+## Core concepts
 
-### Laboratory Sample Management (LIMS)
-Define Sample and Batch as nouns, Test as a verb, and HPLC as an adverb.
+- **Nouns** — the entities you track (samples, invoices, employees, products).
+- **Verbs** — actions performed on nouns (test, approve, ship, pay), each with its own run log.
+- **Adjectives** — descriptors attached to nouns (tags, references, lists, live Duration tickers).
+- **Adverbs** — context for a run (instrument, operator, temperature).
+- **Conjunctions** — overrides on a run (cancelled, needs_retest, superseded_by).
+- **Prepositional phrases** — intent that triggers an artifact (`for_COA`, `for_Report`, `for_Label`).
 
-Using a `for_COA` phrase handler, GIMS generates Certificates of Analysis automatically and maintains a complete audit trail.
-
-### Quality Assurance & Manufacturing
-Track Product Lots and perform Inspection or Assembly steps with station/operator context.
-
-Exceptions like failed inspections can be handled via conjunctions like `needs_retest` or `cancelled`.
-
-### HR & Onboarding
-Track Candidates or Employees through Onboard or Training verbs.
-
-Automatically generate onboarding completion documents using phrase handlers.
-
-### Financial Workflows
-Manage Invoices or Purchase Orders with Approve, Pay, or Audit verbs.
-
-Role-based permissions enforce approvals and all actions are logged.
+Everything is defined in JSON schemas per project; Python parsers/phrase-handlers automate
+calculations and artifact generation.
 
 ---
 
-## How It Works  
-### Typical Workflow
+## Architecture
 
-1. **Define Your Schema**  
-   Configure nouns, verbs, adjectives, adverbs, conjunctions, and phrases via JSON or GUI editors.
+A layered FastAPI backend with a React + Glide front end:
 
-2. **Create Instances**  
-   Enter real data using the Noun Workbench or import via CSV/Excel.
+```
+api/        HTTP/JSON routers (the API boundary) + api/app.py ASGI entrypoint
+core/       the engine — words (nouns/verbs/adjectives/...), handlers, lineage, audit,
+            orchestration (nodes/modules/registry), storage
+nodes/      orchestration "nodes" (page nodes, infra nodes) wired into modules
+modules/    module definitions that compose nodes into pages
+frontend/   React sources (built into static/lib by build.mjs)
+static/     built JS/CSS assets, icons, the guided-tour engine, skins
+projects/   example projects (LIMS-System, DurationDemo, RunlogTest)
+tools/      utilities
+tests/      pytest suite
+```
 
-3. **Perform Actions**  
-   Use the Verb Workbench to execute actions. Each action creates a structured run log.
-
-4. **Capture Context & Exceptions**  
-   Context and deviations are recorded automatically.
-
-5. **Generate Artifacts Automatically**  
-   Phrase handlers generate PDFs, labels, reports, or trigger integrations.
-
-6. **Oversight and Audit**  
-   Use Runlog, Investigation, Audit, and Archive tools to inspect and manage data.
-
-Every action is user- and timestamp-stamped.
+The dependency direction is strict — `core/` never imports from `api/`, `nodes/`, or `modules/`.
 
 ---
 
-## Roles & Permissions
+## Quickstart
 
-- Define user roles (Technician, Supervisor, Auditor, Admin)
-- Restrict access by module, noun, or verb
-- Require sign-offs for critical steps
-- Maintain full accountability and auditability
+```bash
+git clone https://github.com/BMA-Corgea/gims-oss
+cd gims-oss
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+python -m uvicorn api.app:app --host 127.0.0.1 --port 8100
+```
 
-Advanced compliance features (e.g. cryptographic signatures) may exist in separate modules.
+Then open <http://127.0.0.1:8100/> — you land on the launcher. No login required. Pick the
+**LIMS-System** demo project to explore configured nouns/verbs, run the runlog workbench, and
+try the guided tours.
 
----
-
-## Extensibility & Customization
-
-- **Custom Parsers** — Interpret raw data files automatically
-- **Phrase Handlers** — Generate documents or trigger actions
-- **External Integrations** — Structured outputs enable easy system integration
-- **Modular Codebase** — Add new modules or API routes cleanly
+`./start.sh` does the same with venv bootstrapping.
 
 ---
 
-## Getting Started (Quickstart)
+## What you can do in this build
 
-1. Install Python 3.8+
-2. Clone the repository:
-   ```bash
-   git clone https://github.com/BMA-Corgea/GIMS-OSS.git
-   cd GIMS-Project
-3. Create a virtual environment:
-    python3 -m venv .venv
-    source .venv/bin/activate
-4. Install dependencies:
-    pip install fastapi uvicorn
-5. Run the server:
-    uvicorn gui.gui_main:app --reload
-6. Open http://localhost:8000
-    Demo users
-        bob@123.com / Abc123!!
-        alice@123.com / Abc123!!
-        jeff@123.com / Abc123!!
+- Define nouns/verbs/adjectives/adverbs and run the workbenches end-to-end.
+- Drive the React runlog grid, archive workbench, and data dumps.
+- Use custom Python parsers and prepositional-phrase artifact generation.
+- Switch skins (the modular theme system) and take the guided product tours.
+- Run the pytest suite (`pytest`) — the auth/compliance-specific tests are not part of this build.
 
-## Project Structure
-    /api       → FastAPI routers and resolvers
-    /core      → Core logic (validation, lineage, search)
-    /gui       → GUI backend
-    /projects  → Example workflows (schemas + data)
-    /docs      → Documentation
-    /tools     → Minimal AWS connectivity utilities
+---
 
-## Roadmap
-    GIMS in its current form is a nearly terminal project for me without feedback.
-        The primary future enhancement is improved time awareness:
+## License
 
-        alarms
-
-        due dates
-
-        search optimizations
-
-## Contributing & Support
-    Contributions are welcome:
-
-        bug reports
-
-        feature requests
-
-        pull requests
-
-        Follow PEP8, keep logic in /core, and keep GUI layers thin.
-
-## Closing
-
-    GIMS is a general engine. Today it ships configured for lab workflows, but the same grammar models HR, finance, or any operational process.
-
-    One platform. Many domains.
-
-    Happy tracking.
+See [LICENSE.txt](LICENSE.txt).

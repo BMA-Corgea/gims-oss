@@ -1,0 +1,429 @@
+{
+ "Account Roles": {
+  "inject": {
+   "/account_roles": {
+    "scripts": [
+     "/orchestrate/inject.js"
+    ],
+    "stylesheets": []
+   }
+  },
+  "nodes": [
+   "Accounts & Roles",
+   "Compliance",
+   "Compliance – Account Roles Trigger",
+   "Login (FastAPI Users)",
+   "Orchestrated Fetch",
+   "Rules: Feature Tags (Nouns, Verb Groups, Gates, Projects)",
+   "State Dock"
+  ]
+ },
+ "Adjective Editor": {
+  "inject": {
+   "/adjective_editor": {
+    "scripts": [
+     "/orchestrate/inject.js"
+    ],
+    "stylesheets": []
+   }
+  },
+  "nodes": [
+   "Adjective Editor",
+   "Compliance",
+   "Compliance – Adjective Editor Trigger",
+   "Login (FastAPI Users)",
+   "Orchestrated Fetch",
+   "Rules: Feature Tags (Nouns, Verb Groups, Gates, Projects)",
+   "State Dock"
+  ]
+ },
+ "Adverb Editor": {
+  "inject": {
+   "/adverb_editor": {
+    "scripts": [
+     "/orchestrate/inject.js"
+    ],
+    "stylesheets": []
+   }
+  },
+  "nodes": [
+   "Adverb Editor",
+   "Compliance",
+   "Compliance – Adverb Editor Trigger",
+   "Login (FastAPI Users)",
+   "Orchestrated Fetch",
+   "Rules: Feature Tags (Nouns, Verb Groups, Gates, Projects)",
+   "State Dock"
+  ]
+ },
+ "Archive": {
+  "inject": {
+   "/archive-workbench": {
+    "scripts": [
+     "orchestrate/inject.js"
+    ],
+    "stylesheets": []
+   }
+  },
+  "nodes": [
+   "Archive",
+   "Compliance",
+   "Compliance – Archive Trigger",
+   "Login (FastAPI Users)",
+   "Orchestrated Fetch",
+   "Reason Sign",
+   "Rules: Feature Tags (Nouns, Verb Groups, Gates, Projects)",
+   "State Dock"
+  ]
+ },
+ "Audit": {
+  "inject": {
+   "/audit": {
+    "scripts": [
+     "/orchestrate/inject.js"
+    ],
+    "stylesheets": []
+   }
+  },
+  "nodes": [
+   "Audit",
+   "Login (FastAPI Users)",
+   "Orchestrated Fetch",
+   "Rules: Feature Tags (Nouns, Verb Groups, Gates, Projects)",
+   "State Dock"
+  ]
+ },
+ "Backup": {
+  "inject": {
+   "/backup": {
+    "scripts": [
+     "/orchestrate/inject.js"
+    ],
+    "stylesheets": []
+   }
+  },
+  "nodes": [
+   "Login (FastAPI Users)",
+   "Orchestrated Fetch",
+   "Rules: Feature Tags (Nouns, Verb Groups, Gates, Projects)",
+   "State Dock",
+   "backup"
+  ]
+ },
+ "Camera": {
+  "inject": {
+   "/camera": {
+    "scripts": [
+     "/orchestrate/inject.js"
+    ],
+    "stylesheets": []
+   }
+  },
+  "nodes": [
+   "Compliance",
+   "Compliance – Camera Trigger",
+   "Image Capture",
+   "Login (FastAPI Users)",
+   "Orchestrated Fetch",
+   "Rules: Feature Tags (Nouns, Verb Groups, Gates, Projects)",
+   "State Dock"
+  ]
+ },
+ "Conjunction Editor": {
+  "inject": {
+   "/conjunction_editor": {
+    "scripts": [
+     "/orchestrate/inject.js"
+    ],
+    "stylesheets": []
+   }
+  },
+  "nodes": [
+   "Compliance",
+   "Compliance – Conjunction Editor Trigger",
+   "Conjunction Editor",
+   "Login (FastAPI Users)",
+   "Orchestrated Fetch",
+   "Rules: Feature Tags (Nouns, Verb Groups, Gates, Projects)",
+   "State Dock"
+  ]
+ },
+ "Custom Upload": {
+  "inject": {
+   "/custom_upload": {
+    "scripts": [
+     "/orchestrate/inject.js"
+    ],
+    "stylesheets": []
+   }
+  },
+  "nodes": [
+   "Compliance",
+   "Compliance – Custom Upload Trigger",
+   "Custom Upload",
+   "Login (FastAPI Users)",
+   "Orchestrated Fetch",
+   "Rules: Feature Tags (Nouns, Verb Groups, Gates, Projects)",
+   "State Dock"
+  ]
+ },
+ "Deep Search": {
+  "inject": {
+   "/deep_search": {
+    "scripts": [
+     "/orchestrate/inject.js"
+    ],
+    "stylesheets": []
+   }
+  },
+  "nodes": [
+   "Deep Search",
+   "Login (FastAPI Users)",
+   "Orchestrated Fetch",
+   "Rules: Feature Tags (Nouns, Verb Groups, Gates, Projects)",
+   "State Dock"
+  ]
+ },
+ "Inspect": {
+  "inject": {
+   "/inspect": {
+    "scripts": [
+     "/orchestrate/inject.js"
+    ],
+    "stylesheets": []
+   }
+  },
+  "nodes": [
+   "Instance Inspector",
+   "Login (FastAPI Users)",
+   "Orchestrated Fetch",
+   "Rules: Feature Tags (Nouns, Verb Groups, Gates, Projects)",
+   "State Dock"
+  ]
+ },
+ "Investigation": {
+  "inject": {
+   "/investigation": {
+    "scripts": [
+     "/orchestrate/inject.js"
+    ],
+    "stylesheets": []
+   }
+  },
+  "nodes": [
+   "Investigation",
+   "Login (FastAPI Users)",
+   "Orchestrated Fetch",
+   "Rules: Feature Tags (Nouns, Verb Groups, Gates, Projects)",
+   "State Dock"
+  ]
+ },
+ "Launcher": {
+  "inject": {
+   "/": {
+    "scripts": [],
+    "stylesheets": []
+   },
+   "/launcher": {
+    "scripts": [
+     "/state-dock/participate.js",
+     "orchestrate/inject.js"
+    ],
+    "stylesheets": []
+   }
+  },
+  "nodes": [
+   "Auto Backups",
+   "Dual DataEntry Writer",
+   "Launcher",
+   "Login (FastAPI Users)",
+   "Orchestrated Fetch",
+   "Rules: Auth Guard (Modules)",
+   "State Dock"
+  ]
+ },
+ "Nodes Compliance": {
+  "inject": {
+   "/nodes_compliance": {
+    "scripts": [
+     "/orchestrate/inject.js"
+    ],
+    "stylesheets": []
+   }
+  },
+  "nodes": [
+   "Login (FastAPI Users)",
+   "Orchestrated Fetch",
+   "Rules: Feature Tags (Nouns, Verb Groups, Gates, Projects)",
+   "State Dock",
+   "nodes_compliance"
+  ]
+ },
+ "Noun Configure": {
+  "inject": {
+   "/noun_configure": {
+    "scripts": [
+     "/orchestrate/inject.js"
+    ],
+    "stylesheets": []
+   }
+  },
+  "nodes": [
+   "Compliance",
+   "Compliance – Noun Configure Trigger",
+   "Login (FastAPI Users)",
+   "Noun Configure",
+   "Orchestrated Fetch",
+   "Rules: Feature Tags (Nouns, Verb Groups, Gates, Projects)",
+   "State Dock"
+  ]
+ },
+ "Noun Workbench": {
+  "inject": {
+   "/noun_workbench": {
+    "scripts": [
+     "/orchestrate/inject.js"
+    ],
+    "stylesheets": []
+   }
+  },
+  "nodes": [
+   "Compliance",
+   "Compliance – Noun Workbench Trigger",
+   "Login (FastAPI Users)",
+   "Noun Workbench",
+   "Orchestrated Fetch",
+   "Rules: Feature Tags (Nouns, Verb Groups, Gates, Projects)",
+   "State Dock"
+  ]
+ },
+ "Prepositional Phrase Runner": {
+  "inject": {
+   "/prepositional_phrase_runner": {
+    "scripts": [
+     "/orchestrate/inject.js"
+    ],
+    "stylesheets": []
+   }
+  },
+  "nodes": [
+   "Compliance",
+   "Compliance – Prepositional_phrase Trigger",
+   "Login (FastAPI Users)",
+   "Orchestrated Fetch",
+   "Prepositional Phrase Runner",
+   "Reason Sign",
+   "Rules: Feature Tags (Nouns, Verb Groups, Gates, Projects)",
+   "State Dock"
+  ]
+ },
+ "Runlog Workbench": {
+  "inject": {
+   "/runlog_workbench": {
+    "scripts": [
+     "/orchestrate/inject.js"
+    ],
+    "stylesheets": []
+   }
+  },
+  "nodes": [
+   "Compliance",
+   "Compliance – Runlog Workbench Trigger",
+   "Login (FastAPI Users)",
+   "Orchestrated Fetch",
+   "Reason Sign",
+   "Rules: Feature Tags (Nouns, Verb Groups, Gates, Projects)",
+   "Runlog Workbench",
+   "State Dock"
+  ]
+ },
+ "Template": {
+  "inject": {
+   "/template": {
+    "scripts": [
+     "/orchestrate/inject.js"
+    ],
+    "stylesheets": []
+   }
+  },
+  "nodes": [
+   "Login (FastAPI Users)",
+   "Orchestrated Fetch",
+   "Rules: Feature Tags (Nouns, Verb Groups, Gates, Projects)",
+   "State Dock",
+   "Template"
+  ]
+ },
+ "Test Parser": {
+  "inject": {
+   "/test_parser": {
+    "scripts": [
+     "/orchestrate/inject.js"
+    ],
+    "stylesheets": []
+   }
+  },
+  "nodes": [
+   "Login (FastAPI Users)",
+   "Orchestrated Fetch",
+   "Rules: Feature Tags (Nouns, Verb Groups, Gates, Projects)",
+   "State Dock",
+   "Test Parser"
+  ]
+ },
+ "Tutorial": {
+  "inject": {
+   "/tutorial": {
+    "scripts": [
+     "/orchestrate/inject.js"
+    ],
+    "stylesheets": []
+   }
+  },
+  "nodes": [
+   "Login (FastAPI Users)",
+   "Orchestrated Fetch",
+   "Rules: Feature Tags (Nouns, Verb Groups, Gates, Projects)",
+   "State Dock",
+   "Tutorial"
+  ]
+ },
+ "Verb Editor": {
+  "inject": {
+   "/verb_editor": {
+    "scripts": [
+     "/orchestrate/inject.js"
+    ],
+    "stylesheets": []
+   }
+  },
+  "nodes": [
+   "Compliance",
+   "Compliance – Verb Editor Trigger",
+   "Login (FastAPI Users)",
+   "Orchestrated Fetch",
+   "Rules: Feature Tags (Nouns, Verb Groups, Gates, Projects)",
+   "State Dock",
+   "Verb Editor"
+  ]
+ },
+ "Verb Workbench": {
+  "inject": {
+   "/verb_workbench": {
+    "scripts": [
+     "/orchestrate/inject.js"
+    ],
+    "stylesheets": []
+   }
+  },
+  "nodes": [
+   "Compliance",
+   "Compliance – Verb Workbench Trigger",
+   "Login (FastAPI Users)",
+   "Orchestrated Fetch",
+   "Rules: Feature Tags (Nouns, Verb Groups, Gates, Projects)",
+   "State Dock",
+   "Verb Workbench"
+  ]
+ }
+}
