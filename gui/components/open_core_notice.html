@@ -1,0 +1,20 @@
+<section class="panel" style="max-width: 760px; margin: 24px auto;">
+  <div class="panel-body" style="padding: 28px 30px; line-height: 1.6;">
+    <h1 style="margin-top:0;">Not in the open-core build</h1>
+    <p>You've reached a feature that ships only in the full (proprietary) edition of GIMS. The
+       public <strong>open-core</strong> build you're running deliberately leaves three subsystems out:</p>
+    <ul>
+      <li><strong>Accounts &amp; login</strong> — this build is <strong>single-user</strong>. There is
+          no user-account system, no sign-in, and no sessions; every action runs as one local operator.</li>
+      <li><strong>Roles &amp; permissions</strong> — no per-project RBAC, no feature-tag scopes, and no
+          account / role administration console.</li>
+      <li><strong>Nodes Compliance (21 CFR Part 11)</strong> — no HMAC-chained audit / compliance trail,
+          e-signatures, gate sign-off enforcement, or sealed log exports.</li>
+    </ul>
+    <p><strong>Want these?</strong> You're welcome to build them yourself on top of this engine — or get
+       the full edition. Email <a href="mailto:blackmapartistry@gmail.com">blackmapartistry@gmail.com</a>.
+       The compliance layer is shown live in the
+       <a href="https://gims-compliance-relay-demo.vercel.app" target="_blank" rel="noopener">Compliance Relay demo</a>.</p>
+    <p style="margin-top:22px;"><a class="btn blue" href="/launcher">&larr; Back to the launcher</a></p>
+  </div>
+</section>

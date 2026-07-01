@@ -19,6 +19,7 @@ from core.orchestration.registry import registry
 from modules.launcher import launcher_module
 from modules.deep_search import deep_search_module
 from modules.archive import archive_module
+from modules.account_roles import account_roles_module
 from modules.runlog_workbench import runlog_workbench_module
 from modules.investigation import investigation_module
 from modules.inspect import inspect_module
@@ -35,7 +36,7 @@ from modules.noun_workbench import noun_workbench_module
 from modules.verb_workbench import verb_workbench_module
 from modules.template import template_module
 from modules.backup import backup_module
-from modules.test_parser import test_parser_module
+from modules.nodes_compliance import nodes_compliance_module
 from modules.tutorial import tutorial_module
 
 # ─── Routers (the HTTP/JSON API layer; HTML lives in gui/components) ───────
@@ -63,7 +64,9 @@ from api.routers.verb_workbench    import router as verb_workbench_gui_router
 from api.routers.audit             import router as audit_gui_router
 from api.routers.archive_workbench import router as archive_workbench_gui_router
 from api.routers.template          import router as template_gui_router
+from api.routers.account_roles     import router as account_roles_gui_router
 from api.routers.backup            import router as backup_gui_router
+from api.routers.nodes_compliance  import router as compliance_gui_router
 
 app = FastAPI(title="GIMS GUI + Orchestration")
 
@@ -97,6 +100,7 @@ def html(file: str) -> FileResponse:
 # Register modules you want available system-wide.
 registry.register(launcher_module)
 registry.register(deep_search_module)
+registry.register(account_roles_module)
 registry.register(archive_module)
 registry.register(runlog_workbench_module)
 registry.register(investigation_module)
@@ -114,7 +118,7 @@ registry.register(noun_workbench_module)
 registry.register(verb_workbench_module)
 registry.register(template_module)
 registry.register(backup_module)
-registry.register(test_parser_module)
+registry.register(nodes_compliance_module)
 registry.register(tutorial_module)
 
 # Mount all module routers (launcher + every module's nodes)
@@ -144,8 +148,8 @@ _API_ROUTERS = [
     camera_gui_router, runlog_workbench_gui_router, project_api_router,
     custom_upload_gui_router, run_customs_gui_router,
     noun_workbench_gui_router, verb_workbench_gui_router, audit_gui_router,
-    archive_workbench_gui_router, template_gui_router,
-    backup_gui_router, s3_viewer.router,
+    archive_workbench_gui_router, template_gui_router, account_roles_gui_router,
+    backup_gui_router, compliance_gui_router, s3_viewer.router,
 ]
 for _r in _API_ROUTERS:
     app.include_router(_r)
