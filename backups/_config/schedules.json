@@ -10,8 +10,8 @@
     "dom": null,
     "retention_keep": 10,
     "enabled": true,
-    "last_run_at": "2026-07-01T18:03:21+00:00",
-    "next_run_at": "2026-07-01T22:00:00+00:00",
+    "last_run_at": "2026-07-01T22:01:28+00:00",
+    "next_run_at": "2026-07-02T22:00:00+00:00",
     "notes": "Nightly Save State"
   },
   {
@@ -25,7 +25,7 @@
     "dom": null,
     "retention_keep": 10,
     "enabled": true,
-    "last_run_at": "2026-07-01T18:03:21+00:00",
+    "last_run_at": "2026-07-01T22:01:28+00:00",
     "next_run_at": "2026-07-06T02:00:00+00:00",
     "notes": "Weekly save"
   }
